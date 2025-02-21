@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="Metronic React Demo 1" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
+  <title>Skills.ug - Showcase your skills, connect with top employers, and accelerate your career growth."</title>
+  <link rel="shortcut icon" href="media/logos/logo.ico" />
+  <link rel="stylesheet" id="layout-styles-anchor" href="/splash-screen.css" />
+  <meta name="description"
+    content="Skills.ug - Showcase your skills, connect with top employers, and accelerate your career growth." />
+  <meta name="keywords"
+    content="Skills.ug, careers, professional development, job opportunities, Uganda, networking, resume building, skill development, top employers" />
+  <link rel="canonical" href="https://www.skills.ug/" />
+  <meta property="og:title" content="Skills.ug - Connect, Grow, and Succeed in Your Dream Job" />
+  <meta property="og:description"
+    content="Showcase your talents, discover new opportunities, and get hired faster with Skills.ug." />
+  <meta property="og:image" content="/media/logos/logo.png" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.skills.ug/" />
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" /> -->
+  <script type="module" crossorigin src="/assets/index-D3ojX_Fy.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-DxnCHZMK.css">
+</head>
+
+<body id="kt_body" class="page-loading">
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <!--begin::Theme mode setup on page load-->
+  <script>
+    let themeMode = 'system'
+
+    if (localStorage.getItem('kt_theme_mode_value')) {
+      themeMode = localStorage.getItem('kt_theme_mode_value')
+    }
+
+    if (themeMode === 'system') {
+      themeMode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    }
+
+    document.documentElement.setAttribute('data-bs-theme', themeMode)
+  </script>
+  <!--end::Theme mode setup on page load-->
+
+  <div id="root"></div>
+
+  <!--begin::Loading markup-->
+  <div id="splash-screen" class="splash-screen">
+    <style>
+      @keyframes fadeIn {
+        0% {
+          opacity: 0;
+        }
+
+        100% {
+          opacity: 1;
+        }
+      }
+
+      .spinning {
+        animation: fadeIn 1s ease-in-out infinite alternate;
+      }
+    </style>
+    <img src="/media/logos/loader.svg" class="dark-logo spinning" alt="Skills.ug dark logo" />
+    <img src="/media/logos/loader.svg" class="light-logo spinning" width="320px" alt="Skills.ug light logo" />
+    <div class="loader-wrapper">
+      <span class="loader"></span>
+      <span class="loading-text">Loading...</span>
+    </div>
+  </div>
+  <!--end::Loading markup-->
+
+  <div id="root-modals"></div>
+</body>
+
+</html>
