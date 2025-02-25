@@ -762,7 +762,7 @@ const JobListingPage: React.FC = () => {
           font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         }
         .btn-primary {
-          background-color: #114786;
+          background-color: #f33d02;
           border-color: #114786;
         }
         .btn-primary:hover {

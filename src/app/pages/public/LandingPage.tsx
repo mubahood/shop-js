@@ -20,6 +20,8 @@ import LandingSlidesSection from "./sections/LandingSlidesSection";
 import LandingCourseSection from "./sections/LandingCourseSection";
 import { ManifestModel } from "../../models/Manifest";
 import FooterSection from "./sections/FotterSection";
+import LandingTopProductsSection from "./sections/LandingTopProductsSection";
+import LandingRecommendedProductsSection from "./sections/LandingRecommendedProductsSection";
 
 const fadeIn = {
   hidden: { opacity: 0 },
@@ -70,12 +72,14 @@ const LandingPage: React.FC = () => {
         variants={fadeIn}
         className="alert-reload text-center mb-0"
       ></motion.div>
-      <LandingHeroSection manifest={my_manifest} />
+      <LandingHeroSection />
       <LandingCategoriesSection manifest={my_manifest} />
-      <LandingJobsSection manifest={my_manifest} />
+      <LandingTopProductsSection  />
+      <LandingRecommendedProductsSection  />
+      {/*       <LandingJobsSection manifest={my_manifest} />
       <LandingTendersSection manifest={my_manifest} />
       <LandingSlidesSection />
-      <LandingCourseSection />
+      <LandingCourseSection /> */}
       {/* <FooterSection /> */}
     </div>
   );

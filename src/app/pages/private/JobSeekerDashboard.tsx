@@ -34,8 +34,8 @@ import { toast } from "react-toastify";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 // Define your main colors and additional colors
-const primaryColor = "#114786";
-const accentColor = "#f33d02";
+const primaryColor = "#f33d02";
+const accentColor = "#114786";
 const successColor = "#28a745";
 const warningColor = "#ffc107";
 const dangerColor = "#dc3545";

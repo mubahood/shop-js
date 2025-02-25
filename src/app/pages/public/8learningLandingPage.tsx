@@ -25,8 +25,8 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
 // Define your main colours
-const primaryColor = "#114786";
-const accentColor = "#f33d02";
+const primaryColor = "#f33d02";
+const accentColor = "#114786";
 
 const fadeVariant = {
   hidden: { opacity: 0, y: 40 },

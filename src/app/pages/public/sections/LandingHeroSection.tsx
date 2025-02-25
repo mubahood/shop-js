@@ -1,14 +1,9 @@
-// src/app/pages/public/sections/LandingHeroSection.tsx
-
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
 import { toAbsoluteUrl } from "../../../../_metronic/helpers";
-import { ManifestModel } from "../../../models/Manifest";
-import { BASE_URL } from "../../../../Constants";
 
 interface LandingHeroSectionProps {
-  manifest: ManifestModel | null;
+  manifest?: any;
 }
 
 const fadeVariant = {
@@ -16,271 +11,273 @@ const fadeVariant = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
 };
 
-const LandingHeroSection: React.FC<LandingHeroSectionProps> = ({ manifest }) => {
-  // Fallback if manifest is null
-  const currentManifest = manifest || new ManifestModel();
+const slides = [
+  "media/stock/900x600/1.jpg",
+  "media/stock/900x600/2.jpg",
+  "media/stock/900x600/3.jpg",
+  "media/stock/900x600/4.jpg",
+  "media/stock/900x600/70.jpg",
+];
 
-  // Stats data for display
-  const statsData = [
-    {
-      label: "Live Positions",
-      value: currentManifest.LIVE_JOBS || "0",
-      icon: "bi-briefcase",
-      delta: "+12.3%",
-    },
-    {
-      label: "Vacancies",
-      value: currentManifest.VACANCIES || "0",
-      icon: "bi-building",
-      delta: "+5.8%",
-    },
-    {
-      label: "New (7 Days)",
-      value: currentManifest.NEW_JOBS || "0",
-      icon: "bi-lightning",
-      delta: "+24.1%",
-    },
-    {
-      label: "Companies",
-      value: currentManifest.COMPANIES || "0",
-      icon: "bi-people",
-      delta: "+8.4%",
-    },
-  ];
+const topProducts = [
+  {
+    image: "media/products/1.png",
+    name: "Wireless Headphones",
+    price: "$49.99",
+  },
+  {
+    image: "media/products/2.png",
+    name: "Smartwatch",
+    price: "$129.99",
+  },
+  {
+    image: "media/products/3.png",
+    name: "Portable Bluetooth Speaker",
+    price: "$29.99",
+  },
+  {
+    image: "media/products/4.png",
+    name: "Drone with Camera",
+    price: "$399.99",
+  },
+];
 
-  // Quick links (categories) – these will now pass the category filter to the jobs page
-  const quickLinks = Array.isArray(currentManifest.CATEGORIES)
-    ? currentManifest.CATEGORIES.slice(0, 6).map((cat: any) => ({
-        label: cat.name || "Unknown Category",
-        id: cat.id,
-        count: cat.jobs_count ?? 0,
-        isHot: false,
-        isNew: false,
-      }))
-    : [];
+const LandingHeroSection: React.FC<LandingHeroSectionProps> = ({
+  manifest,
+}) => {
+  const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Top cities for the location selector
-  const topCities = Array.isArray(currentManifest.TOP_CITIES)
-    ? currentManifest.TOP_CITIES.slice(0, 8).map((city: any) => ({
-        name: city.name || "Unknown City",
-        count: city.jobs_count ?? 0,
-        id: city.id,
-        photo: city.photo,
-      }))
-    : [];
+  const handleNext = () => {
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
+  };
+
+  const handlePrev = () => {
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index);
+  };
+
+  // Auto slide functionality
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 3000); // 3000 milliseconds = 3 seconds
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  });
 
   return (
     <motion.div
-      className="position-relative overflow-hidden"
+      className="container py-3 px-lg-10"
       initial="hidden"
       animate="visible"
       variants={fadeVariant}
-      style={{
-        background: `
-          linear-gradient(45deg, rgba(17,71,134,0.95) 0%, rgba(243,61,2,0.9) 100%),
-          url(${toAbsoluteUrl("media/stock/1920x1080/img-1.jpg")})
-        `,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        boxShadow: "0 24px 48px -12px rgba(0, 0, 0, 0.25)",
-        backdropFilter: "blur(5px)",
-        WebkitBackdropFilter: "blur(5px)",
-      }}
+      style={{ /*  maxWidth: "1200px", */ margin: "0 auto" }}
     >
-      {/* Subtle pattern overlay */}
-      <div className="position-absolute top-0 start-0 w-100 h-100 opacity-10 bg-pattern-dots" />
-
-      <div className="container position-relative z-index-2 py-10 py-lg-12 px-10">
-        <div className="row g-8 align-items-center">
-          {/* LEFT CONTENT */}
-          <div className="col-lg-7">
-            <motion.div variants={fadeVariant}>
-              <div className="mb-8 text-center text-lg-start">
-                <h1 className="display-2 text-white mb-4 fw-800">
-                  Find Your Next <span className="text-accent">Career</span> Move
-                </h1>
-                <p className="lead text-white text-opacity-75 mb-6">
-                  Discover top jobs from leading companies in Uganda and beyond!
-                </p>
-              </div>
-            </motion.div>
-
-            {/* SEARCH FORM – submits via GET to the /jobs route */}
-            <motion.div variants={fadeVariant}>
-              <form method="get" action="/jobs">
-                <div className="card bg-white bg-opacity-10 border border-white border-opacity-10 shadow-lg">
-                  <div className="card-body p-2">
-                    <div className="row g-3 align-items-center">
-                      {/* Keyword Search */}
-                      <div className="col-md-5">
-                        <div className="input-group">
-                          <span className="input-group-text bg-transparent border-0 pe-1">
-                            <i className="bi bi-search fs-4 text-white text-opacity-50"></i>
-                          </span>
-                          <input
-                            type="text"
-                            name="search"
-                            className="form-control form-control-lg border-0 bg-transparent text-white placeholder-white-50"
-                            placeholder="Job title, skills..."
-                            style={{ minWidth: "180px" }}
-                          />
-                        </div>
-                      </div>
-                      {/* Location Selector */}
-                      <div className="col-md-4">
-                        <div className="input-group">
-                          <span className="input-group-text bg-transparent border-0 pe-1">
-                            <i className="bi bi-geo-alt fs-4 text-white text-opacity-50"></i>
-                          </span>
-                          <select
-                            name="district"
-                            className="form-select form-select-lg border-0 bg-transparent text-white"
-                          >
-                            <option value="">Any Location</option>
-                            {topCities.map((city) => (
-                              <option
-                                key={city.id || city.name}
-                                value={city.id}
-                                className="text-dark"
-                              >
-                                {city.name} ({city.count})
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-                      {/* Search Button */}
-                      <div className="col-md-3">
-                        <button type="submit" className="btn btn-accent btn-lg w-100 fw-bold hover-lift">
-                          Search Jobs
-                          <i className="bi bi-arrow-right-short ms-2"></i>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </form>
-            </motion.div>
-
-            {/* STATS GRID */}
-            <motion.div
-              className="row g-4 mt-8"
-              variants={{
-                visible: { transition: { staggerChildren: 0.1 } },
+      <div className="row g-3">
+        {/* LEFT BANNER */}
+        <div className="col-md-3">
+          <motion.div
+            className="card border-0 shadow-sm overflow-hidden"
+            variants={fadeVariant}
+            style={{ height: "300px", position: "relative" }}
+          >
+            <img
+              src={toAbsoluteUrl("media/banners/metronic-ph.png")}
+              alt="Promotional Banner"
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+            <div
+              className="card-body"
+              style={{
+                position: "absolute",
+                bottom: "0",
+                left: "0",
+                right: "0",
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                padding: "10px",
               }}
             >
-              {statsData.map((stat, index) => (
-                <motion.div key={index} className="col-6 col-md-3" variants={fadeVariant}>
-                  <div className="card bg-white bg-opacity-5 hover-scale border border-white border-opacity-10">
-                    <div className="card-body">
-                      <div className="d-flex align-items-center">
-                        {/* Icon */}
-                        <div className="flex-shrink-0">
-                          <div className="icon-circle bg-primary bg-opacity-10 text-primary">
-                            <i className={`bi ${stat.icon} fs-3`}></i>
-                          </div>
-                        </div>
-                        {/* Text */}
-                        <div className="flex-grow-1 ms-3">
-                          <div className="text-white text-opacity-75 fs-7 mb-1">{stat.label}</div>
-                          <div className="d-flex align-items-center">
-                            <div className="text-white fs-4 fw-bold me-2">{stat.value}</div>
-                            <span className="badge bg-success bg-opacity-10 text-success fs-8">{stat.delta}</span>
-                          </div>
-                        </div>
-                      </div>
+              <h6 className="fw-bold" style={{ color: "#f33d02" }}>
+                Limited Time Offer
+              </h6>
+              <p className="mb-2" style={{ fontSize: "0.8rem" }}>
+                Save big on select electronics. Use code{" "}
+                <strong style={{ fontWeight: "bold" }}>TECHDEAL</strong>
+              </p>
+              <button
+                className="btn btn-sm"
+                style={{
+                  backgroundColor: "#114786",
+                  color: "white",
+                  padding: "5px 10px",
+                  fontSize: "0.7rem",
+                }}
+              >
+                Collect Coupon
+              </button>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* MIDDLE SLIDER */}
+        <div className="col-md-6">
+          <motion.div
+            className="position-relative overflow-hidden rounded shadow-sm"
+            variants={fadeVariant}
+            style={{ height: "300px" }}
+          >
+            <motion.img
+              key={slides[currentSlide]}
+              src={toAbsoluteUrl(slides[currentSlide])}
+              alt={`Slide ${currentSlide + 1}`}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6 }}
+            />
+
+            <button
+              className="btn btn-icon btn-sm rounded-circle"
+              onClick={handlePrev}
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "10px",
+                transform: "translateY(-50%)",
+                backgroundColor: "rgba(0, 0, 0, 0.3)",
+                color: "white",
+              }}
+            >
+              <i className="bi bi-chevron-left text-white"></i>
+            </button>
+            <button
+              className="btn btn-icon btn-sm rounded-circle"
+              onClick={handleNext}
+              style={{
+                position: "absolute",
+                top: "50%",
+                right: "10px",
+                transform: "translateY(-50%)",
+                backgroundColor: "rgba(0, 0, 0, 0.3)",
+                color: "white",
+              }}
+            >
+              <i className="bi bi-chevron-right text-white"></i>
+            </button>
+
+            <div
+              style={{
+                position: "absolute",
+                bottom: "10px",
+                left: "50%",
+                transform: "translateX(-50%)",
+              }}
+            >
+              {slides.map((_, index) => (
+                <span
+                  key={index}
+                  onClick={() => goToSlide(index)}
+                  style={{
+                    display: "inline-block",
+                    width: "8px",
+                    height: "8px",
+                    borderRadius: "50%",
+                    backgroundColor:
+                      index === currentSlide ? "#114786" : "#bbb",
+                    margin: "0 5px",
+                    cursor: "pointer",
+                  }}
+                ></span>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+
+        {/* RIGHT TOP PRODUCTS */}
+        <div className="col-md-3">
+          <motion.div
+            className="d-flex flex-column justify-content-between"
+            variants={fadeVariant}
+            style={{ height: "300px" }}
+          >
+            <div className="row g-2 flex-grow-1">
+              {topProducts.map((product, index) => (
+                <div className="col-6" key={index}>
+                  <div
+                    className="card border-0 shadow-sm"
+                    style={{
+                      height: "140px",
+                      position: "relative",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <img
+                      src={toAbsoluteUrl(product.image)}
+                      alt={product.name}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        transition: "transform 0.3s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        (e.currentTarget as HTMLImageElement).style.transform =
+                          "scale(1.1)";
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLImageElement).style.transform =
+                          "scale(1)";
+                      }}
+                    />
+                    <div
+                      className="card-body p-2"
+                      style={{
+                        position: "absolute",
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        backgroundColor: "rgba(0, 0, 0, 0.7)",
+                        color: "white",
+                        padding: "5px",
+                        transform: "translateY(100%)",
+                        transition: "transform 0.3s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        (e.currentTarget as HTMLDivElement).style.transform =
+                          "translateY(0)";
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLDivElement).style.transform =
+                          "translateY(100%)";
+                      }}
+                    >
+                      <h6
+                        className="fw-semibold mb-1"
+                        style={{ fontSize: "0.8rem" }}
+                      >
+                        {product.name}
+                      </h6>
+                      <p
+                        className="text-muted small mb-0"
+                        style={{ fontSize: "0.7rem" }}
+                      >
+                        {product.price}
+                      </p>
                     </div>
                   </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
-
-          {/* RIGHT CONTENT (SIDEBAR) */}
-          <div className="col-lg-5">
-            <motion.div
-              className="card bg-white bg-opacity-10 border border-white border-opacity-10 overflow-hidden"
-              variants={fadeVariant}
-            >
-              <div className="card-header bg-white bg-opacity-05 border-bottom border-white border-opacity-10 py-5">
-                <h3 className="text-primary mb-0">
-                  <i className="bi bi-lightning-charge text-primary me-2"></i>
-                  Trending Categories
-                </h3>
-              </div>
-              <div className="card-body position-relative">
-                <div className="vstack gap-3">
-                  {quickLinks.map((link, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                    >
-                      <Link
-                        to={`/jobs?category=${encodeURIComponent(link.id)}`}
-                        className="d-flex justify-content-between align-items-center p-3 rounded-3 text-decoration-none hover-scale bg-white bg-opacity-03"
-                      >
-                        <div className="d-flex align-items-center">
-                          <span className="text-dark fw-medium">{link.label}</span>
-                          {link.isHot && (
-                            <span className="badge bg-danger bg-opacity-25 text-danger ms-3">Hot</span>
-                          )}
-                          {link.isNew && (
-                            <span className="badge bg-success bg-opacity-25 text-success ms-2">New</span>
-                          )}
-                        </div>
-                        <span className="badge bg-primary text-white fs-7 fw-bold">{link.count}</span>
-                      </Link>
-                    </motion.div>
-                  ))}
                 </div>
-                {/* Faded gradient overlay to hint at scrolling */}
-                <div
-                  className="position-absolute bottom-0 start-0 w-100"
-                  style={{
-                    height: "40px",
-                    background: "linear-gradient(to top, rgba(17,71,134,1) 0%, rgba(17,71,134,0) 100%)",
-                  }}
-                ></div>
-              </div>
-            </motion.div>
-          </div>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </div>
-
-      {/* Trusted Brands Section (Optional) */}
-      <div className="container position-relative z-index-2 py-6">
-        <div className="text-center text-white-50 mb-4 fs-6">Trusted by leading organizations</div>
-        <div className="d-flex flex-wrap justify-content-center gap-6 bg-light rounded-3 p-4">
-          {["8tech.png", "ucc.png", "nkumba.svg", "makerere.png", "nita.png"].map((logo, i) => (
-            <motion.img
-              key={i}
-              src={BASE_URL + "/public/assets/img/" + logo}
-              className="h-30px opacity-100 hover-opacity-100"
-              alt="Brand logo"
-              whileHover={{ scale: 1.1 }}
-              transition={{ type: "spring", stiffness: 300 }}
-            />
-          ))}
-        </div>
-      </div>
-
-      <style>{`
-        /* Branding based on primary and accent colours */
-        .text-accent {
-          color: #f33d02 !important;
-        }
-        .btn-accent {
-          background-color: #f33d02;
-          border-color: #f33d02;
-          color: #fff;
-        }
-        .btn-accent:hover {
-          background-color: #e03300;
-          border-color: #e03300;
-        }
-      `}</style>
     </motion.div>
   );
 };

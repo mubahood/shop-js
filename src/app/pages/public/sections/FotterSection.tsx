@@ -3,6 +3,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
+const slides = [
+  "media/stock/900x600/1.jpg",
+  "media/stock/900x600/2.jpg",
+  "media/stock/900x600/3.jpg",
+  "media/stock/900x600/4.jpg",
+  "media/stock/900x600/70.jpg",
+];
+
+
 /**
  * A single-file React footer component
  * inspired by the reference image (similar to bdjobs.com footer).
