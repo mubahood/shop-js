@@ -72,10 +72,13 @@ const LandingPage: React.FC = () => {
         variants={fadeIn}
         className="alert-reload text-center mb-0"
       ></motion.div>
-      <LandingHeroSection />
+      {/*       <button className="btn btn-primary btn-lg btn-reload" onClick={fetchData}>
+        Reload Data
+      </button> */}
+      <LandingHeroSection manifest={my_manifest} />
       <LandingCategoriesSection manifest={my_manifest} />
-      <LandingTopProductsSection  />
-      <LandingRecommendedProductsSection  />
+      <LandingTopProductsSection manifest={my_manifest} />
+      <LandingRecommendedProductsSection manifest={my_manifest} />
       {/*       <LandingJobsSection manifest={my_manifest} />
       <LandingTendersSection manifest={my_manifest} />
       <LandingSlidesSection />

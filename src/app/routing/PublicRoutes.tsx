@@ -20,6 +20,7 @@ const PublicRoutes = () => {
   const EightLearningLandingPage = lazy(() => import("../pages/public/8learningLandingPage"));
   const ApplyJobPage = lazy(() => import("../pages/public/ApplyJobPage"));
   const CvBankPage = lazy(() => import("../pages/public/CvBankPage"));
+  const ShopPage = lazy(() => import("../pages/public/ShopPage"));
   const CvPDFPage = lazy(() => import("../pages/public/CvPDFPage"));
   const EmployersPage = lazy(() => import("../pages/public/EmployersPage"));
   const [tab, setTab] = useState("Sidebar");
@@ -96,6 +97,14 @@ const PublicRoutes = () => {
           element={
             <SuspensedView>
               <EightLearningLandingPage />
+            </SuspensedView>
+          }
+        />
+        <Route
+          path="shop"
+          element={
+            <SuspensedView>
+              <ShopPage />
             </SuspensedView>
           }
         />

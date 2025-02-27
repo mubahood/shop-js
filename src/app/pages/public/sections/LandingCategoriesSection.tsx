@@ -1,59 +1,43 @@
 import React from "react";
-import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { motion, Variants } from "framer-motion";
 import { toAbsoluteUrl } from "../../../../_metronic/helpers";
+import Utils from "../../../services/Utils"; // Adjust import path as needed
 
 interface LandingCategoriesSectionProps {
   manifest?: any;
 }
 
-const fadeVariant = {
+const fadeVariant: Variants = {
   hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.8, ease: "easeOut" },
+  },
 };
 
-const categories_photos = [
-  "media/stock/600x600/img-1.jpg",
-  "media/stock/600x600/img-2.jpg",
-  "media/stock/600x600/img-3.jpg",
-  "media/stock/600x600/img-4.jpg",
-  "media/stock/600x600/img-5.jpg",
-  "media/stock/600x600/img-6.jpg",
-  "media/stock/600x600/img-7.jpg",
-  "media/stock/600x600/img-8.jpg",
-  "media/stock/600x600/img-9.jpg",
-  "media/stock/600x600/img-10.jpg",
-  "media/stock/600x600/img-11.jpg",
-  "media/stock/600x600/img-12.jpg",
-  "media/stock/600x600/img-13.jpg",
-  "media/stock/600x600/img-14.jpg",
-  "media/stock/600x600/img-15.jpg",
-  "media/stock/600x600/img-16.jpg",
-  //... add more as needed
-];
-
-const categoryNames = [
-  "TVs & Home Theaters",
-  "Audio",
-  "Cameras & Camcorders",
-  "Computers & Tablets",
-  "Gaming",
-  "Smart Home",
-  "Wearables",
-  "Mobile Phones",
-  "Accessories",
-  "Headphones",
-  "Drones",
-  "Gaming Consoles",
-  "Printers & Ink",
-  "Software",
-  "Networking",
-  "Office Electronics", 
-  //... add more as needed
-];
+/** Splits an array into smaller chunks of `size` items each. */
+function chunkArray<T>(array: T[], size: number): T[][] {
+  const chunked: T[][] = [];
+  for (let i = 0; i < array.length; i += size) {
+    chunked.push(array.slice(i, i + size));
+  }
+  return chunked;
+}
 
 const LandingCategoriesSection: React.FC<LandingCategoriesSectionProps> = ({
   manifest,
 }) => {
+  // Filter out only categories that should be shown
+  const categories = Array.isArray(manifest?.CATEGORIES)
+    ? manifest.CATEGORIES.filter((cat: any) => cat.show_in_categories === "Yes")
+    : [];
+
+  // Separate the data into 7-column rows for desktop and 3-column rows for mobile
+  const chunkedDesktop = chunkArray(categories, 7);
+  const chunkedMobile = chunkArray(categories, 3);
+
   return (
     <motion.div
       className="container py-5"
@@ -62,40 +46,96 @@ const LandingCategoriesSection: React.FC<LandingCategoriesSectionProps> = ({
       variants={fadeVariant}
       style={{ margin: "0 auto" }}
     >
-      {/* Categories Grid - Row 1 */}
-      <div className="row row-cols-7 g-2">
-        {categories_photos.slice(0, 7).map((photo, index) => (
-          <div className="col text-center" key={index}>
-            <motion.div whileHover={{ scale: 1.05 }}>
-              <img
-                src={toAbsoluteUrl(photo)}
-                alt={categoryNames[index]}
-                className="img-fluid rounded-circle"
-                style={{ width: "120px", height: "120px", objectFit: "cover" }}
-              />
-              <p className="fw-semibold mt-2 mb-0">
-                {categoryNames[index]}
-              </p>
-            </motion.div>
+      {/* DESKTOP/TABLET VIEW: 7 columns, hidden on mobile */}
+      <div className="d-none d-md-block">
+        {chunkedDesktop.map((row, rowIndex) => (
+          <div className="row row-cols-7 g-3 mb-4" key={rowIndex}>
+            {row.map((cat: any) => {
+              const categoryImg = cat.image
+                ? Utils.img(cat.image)
+                : toAbsoluteUrl("media/stock/600x600/img-1.jpg"); // fallback image
+
+              return (
+                <div className="col text-center" key={cat.id}>
+                  <motion.div
+                    style={{ transition: "transform 0.2s" }}
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <Link to={`/shop?category=${cat.id}`}>
+                      <img
+                        src={categoryImg}
+                        alt={cat.category}
+                        className="img-fluid rounded-circle"
+                        style={{
+                          width: "120px",
+                          height: "120px",
+                          objectFit: "cover",
+                        }}
+                      />
+                      <p
+                        className="fw-semibold mt-2 mb-0"
+                        style={{ transition: "color 0.2s", color: "#333" }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.color = "#f33d02")
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.color = "#333")
+                        }
+                      >
+                        {cat.category}
+                      </p>
+                    </Link>
+                  </motion.div>
+                </div>
+              );
+            })}
           </div>
         ))}
       </div>
 
-      {/* Categories Grid - Row 2 */}
-      <div className="row row-cols-7 g-2 mt-3">
-        {categories_photos.slice(7, 14).map((photo, index) => (
-          <div className="col text-center" key={index + 7}>
-            <motion.div whileHover={{ scale: 1.05 }}>
-              <img
-                src={toAbsoluteUrl(photo)}
-                alt={categoryNames[index + 8]}
-                className="img-fluid rounded-circle"
-                style={{ width: "120px", height: "120px", objectFit: "cover" }}
-              />
-              <p className="fw-semibold mt-2 mb-0">
-                {categoryNames[index + 8]}
-              </p>
-            </motion.div>
+      {/* MOBILE VIEW: 3 columns, hidden on desktops/tablets */}
+      <div className="d-md-none">
+        {chunkedMobile.map((row, rowIndex) => (
+          <div className="row row-cols-3 g-3 mb-4" key={rowIndex}>
+            {row.map((cat: any) => {
+              const categoryImg = cat.image
+                ? Utils.img(cat.image)
+                : toAbsoluteUrl("media/stock/600x600/img-1.jpg");
+
+              return (
+                <div className="col text-center" key={cat.id}>
+                  <motion.div
+                    style={{ transition: "transform 0.2s" }}
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <Link to={`/shop?category=${cat.id}`}>
+                      <img
+                        src={categoryImg}
+                        alt={cat.category}
+                        className="img-fluid rounded-circle"
+                        style={{
+                          width: "100px",
+                          height: "100px",
+                          objectFit: "cover",
+                        }}
+                      />
+                      <p
+                        className="fw-semibold mt-2 mb-0"
+                        style={{ transition: "color 0.2s", color: "#333" }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.color = "#f33d02")
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.color = "#333")
+                        }
+                      >
+                        {cat.category}
+                      </p>
+                    </Link>
+                  </motion.div>
+                </div>
+              );
+            })}
           </div>
         ))}
       </div>

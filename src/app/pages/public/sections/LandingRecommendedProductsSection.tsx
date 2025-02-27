@@ -1,165 +1,142 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { toAbsoluteUrl } from "../../../../_metronic/helpers";
+import Utils from "../../../services/Utils";
 
-const productImages = [
-  "media/products/1.png",
-  "media/products/2.png",
-  "media/products/3.png",
-  "media/products/4.png",
-  "media/products/5.png",
-  "media/products/6.png",
-  "media/products/7.png",
-  "media/products/8.png",
-  "media/products/9.png",
-  "media/products/10.png",
-  "media/products/11.png",
-  "media/products/12.png",
-  "media/products/13.png",
-  "media/products/14.png",
-  "media/products/15.png",
-  "media/products/16.png",
-  "media/products/17.png",
-  "media/products/18.png",
-  "media/products/19.png",
-  "media/products/20.png",
-  "media/products/21.png",
-  "media/products/23.png",
-  "media/products/24.png",
-];
+interface LandingRecommendedProductsSectionProps {
+  manifest?: any;
+}
 
-const dummyImages = [
-  "media/products/1.png",
-  "media/products/2.png",
-  "media/products/3.png",
-  "media/products/4.png",
-  "media/products/5.png",
-  "media/products/6.png",
-  "media/products/7.png",
-  "media/products/8.png",
-  "media/products/9.png",
-  "media/products/10.png",
-  "media/products/11.png",
-  "media/products/12.png",
-  "media/products/13.png",
-  "media/products/14.png",
-  "media/products/15.png",
-  "media/products/16.png",
-  "media/products/17.png",
-  "media/products/18.png",
-  "media/products/19.png",
-  "media/products/20.png",
-];
+interface ProductItem {
+  id: number;
+  name: string;
+  mainImage: string;
+  hoverImage: string | null;
+  price: string;
+  discount: number;
+}
 
-const products = productImages.map((image, index) => ({
-  id: index,
-  name: `Sample Product ${index + 1}`,
-  image,
-  price: (Math.random() * 10 + 1).toFixed(2),
-  discount: Math.floor(Math.random() * 60),
-}));
-
-const ProductCard = ({ product }) => {
-  const { name, image, price, discount } = product;
+const ProductCard: React.FC<{ product: ProductItem }> = ({ product }) => {
+  const { id, name, mainImage, hoverImage, price, discount } = product;
   const [isHovered, setIsHovered] = useState(false);
-  const [hoverImage, setHoverImage] = useState(null);
-
-  const handleMouseEnter = () => {
-    const randomDummyImage =
-      dummyImages[Math.floor(Math.random() * dummyImages.length)];
-    setHoverImage(randomDummyImage);
-    setIsHovered(true);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-  };
 
   return (
     <div
-      className="col-6 col-md-4 col-lg-3 col-xl-2"
+      className="col-6 col-md-4 col-lg-3 col-xl-2 mb-4 h-100"
       role="listitem"
-      tabIndex={0}
       aria-label={name}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
-      <div
-        className="product-card multiple-row-card j-expose__product-item product-item-ccc"
-        style={{
-          height: "100%",
-          transition: "transform 0.2s",
-          cursor: "pointer",
-        }}
+      {/* Entire card is clickable, linking to /product/<id> */}
+      <Link
+        to={`/product/${id}`}
+        style={{ textDecoration: "none", color: "inherit" }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className="d-flex flex-column h-100"
       >
-        <div className="product-card__top-wrapper">
-          <div
-            className="product-card__img-container j-expose__product-item-img"
-            tabIndex={0}
-            style={{ backgroundColor: "#f8f9fa" }}
-          >
-            <div className="crop-image-container">
-              <img
-                className="crop-image-container__img img-fluid"
-                src={isHovered && hoverImage ? hoverImage : image}
-                alt={name}
-              />
-              <div className="crop-image-container__mask" />
-            </div>
-          </div>
-        </div>
-        <div className="product-card__bottom-wrapper">
-          <div className="product-card__goods-title-container">
-            <a className="goods-title-link goods-title-link--jump" tabIndex={0}>
-              {name}
-            </a>
-          </div>
-          <div className="bottom-wrapper__price-wrapper">
-            <div className="product-card__price">
-              <div className="product-card__prices-info">
-                <span className="fw-bold text-primary fs-5">${price}</span>
-                {discount > 0 && (
-                  <span className="product-card__discount-label">
-                    -{discount}%
-                  </span>
-                )}
+        <div className="product-card d-flex flex-column h-100">
+          <div className="product-card__top-wrapper">
+            <div
+              className="product-card__img-container"
+              style={{ backgroundColor: "#f8f9fa" }}
+            >
+              <div className="crop-image-container">
+                <img
+                  className="crop-image-container__img img-fluid"
+                  // If hoverImage exists and we're hovered, show it; otherwise show mainImage
+                  src={isHovered && hoverImage ? hoverImage : mainImage}
+                  alt={name}
+                />
+                <div className="crop-image-container__mask" />
               </div>
             </div>
-            <button
-              className="product-card__add-btn btn btn-sm"
-              role="button"
-              aria-label="ADD TO CART"
-            >
-              <i className="bi bi-cart-plus text-primary"></i>
-            </button>
+          </div>
+
+          <div className="product-card__bottom-wrapper px-2 py-2 mt-auto">
+            <div className="product-card__goods-title-container mb-1">
+              <span className="goods-title-link">{name}</span>
+            </div>
+            <div className="bottom-wrapper__price-wrapper d-flex align-items-center justify-content-between">
+              <div className="product-card__price">
+                <div className="product-card__prices-info">
+                  {/* Display UGX instead of $ */}
+                  <span className="price-text">UGX {price}</span>
+                  {discount > 0 && (
+                    <span className="product-card__discount-label">
+                      -{discount}%
+                    </span>
+                  )}
+                </div>
+              </div>
+              <span className="product-card__add-btn btn btn-sm" role="button">
+                <i className="bi bi-cart-plus"></i>
+              </span>
+            </div>
           </div>
         </div>
-      </div>
+      </Link>
     </div>
   );
 };
 
-const LandingRecommendedProductsSection = () => {
+const LandingRecommendedProductsSection: React.FC<
+  LandingRecommendedProductsSectionProps
+> = ({ manifest }) => {
+  // 1) Grab data from manifest.SECTION_2_PRODUCTS or default to an empty object
+  const section2Data = manifest?.SECTION_2_PRODUCTS || {};
+
+  // 2) Convert the object into an array of products
+  const productsArray: ProductItem[] = Object.keys(section2Data).map((key) => {
+    const item = section2Data[key] || {};
+
+    // Attempt to parse the "rates" JSON to find a second image
+    let hoverImage: string | null = null;
+    try {
+      const rates = JSON.parse(item.rates || "[]");
+      // If there's a second item in rates, use that as hover image
+      if (Array.isArray(rates) && rates[1]?.src) {
+        hoverImage = Utils.img(rates[1].src);
+      }
+    } catch (err) {
+      console.warn("Could not parse rates for product", item.id, err);
+    }
+
+    return {
+      id: item.id,
+      name: item.name ?? "Untitled",
+      // Main image is the feature_photo or placeholder
+      mainImage: item.feature_photo
+        ? Utils.img(item.feature_photo)
+        : toAbsoluteUrl("media/products/placeholder.png"),
+      // Hover image is from second `rates` entry (if present)
+      hoverImage,
+      // Use UGX as currency
+      price: item.price_1 ? parseFloat(item.price_1).toFixed(2) : "0.00",
+      discount: 0, // If your manifest doesn't track discounts, keep it 0
+    };
+  });
+
+  // 3) Inject CSS styles on mount
   useEffect(() => {
-    // Inject CSS styles into the document head
     const style = document.createElement("style");
     style.innerHTML = `
-      /* Product Card Base */
+      /* No visible borders */
       .product-card {
+        border: none !important;
         background-color: #fff;
-        border-radius: 4px;
-        overflow: hidden;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
       }
       .product-card:hover {
         transform: translateY(-3px);
       }
-      .multiple-row-card, .j-expose__product-item, .product-item-ccc {
-        /* Additional styles can be defined here if needed */
-      }
+
+      /* Crop Image Container */
       .product-card__top-wrapper {
         position: relative;
       }
-      
-      /* Crop Image Container */
+      .product-card__img-container {
+        width: 100%;
+      }
       .crop-image-container {
         position: relative;
         width: 100%;
@@ -188,31 +165,27 @@ const LandingRecommendedProductsSection = () => {
       .product-card:hover .crop-image-container__mask {
         opacity: 1;
       }
-      
+
       /* Bottom Section */
       .product-card__bottom-wrapper {
-        padding: 0.5rem;
         background-color: #fff;
       }
-      .product-card__goods-title-container {
+      .product-card__goods-title-container .goods-title-link {
         font-size: 1rem;
         font-weight: 500;
-        color: #333;
-        margin-bottom: 0.5rem;
+        color: black;
+        transition: color 0.2s;
       }
-      
+      .product-card:hover .goods-title-link {
+        color: #f33d02;
+      }
+
       /* Price and Discount Info */
-      .bottom-wrapper__price-wrapper {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-      .product-card__price {
+      .price-text {
         font-size: 1rem;
-      }
-      .product-card__prices-info {
-        display: flex;
-        align-items: center;
+        font-weight: 600;
+        color: #114786;
+        margin-right: 0.5rem;
       }
       .product-card__discount-label {
         background-color: #dc3545;
@@ -220,12 +193,12 @@ const LandingRecommendedProductsSection = () => {
         padding: 0.1rem 0.4rem;
         border-radius: 4px;
         font-size: 0.875rem;
-        margin-left: 0.5rem;
       }
-      
+
       /* Add to Cart Button */
       .product-card__add-btn {
-        border: 1px solid black;
+        display: inline-block;
+        border: none;
         border-radius: 4px;
         background: transparent;
         padding: 0.5rem;
@@ -236,8 +209,8 @@ const LandingRecommendedProductsSection = () => {
         background-color: #f8f9fa;
         transform: scale(1.05);
       }
-      
-      /* Call-to-Action Button */
+
+      /* CTA Browse Button */
       .cta-browse-btn {
         text-decoration: none;
         padding: 0.75rem 1.5rem;
@@ -257,14 +230,27 @@ const LandingRecommendedProductsSection = () => {
     };
   }, []);
 
+  // 4) If there are no products, show fallback
+  if (productsArray.length === 0) {
+    return (
+      <section className="container py-4">
+        <h2 className="text-center mb-5">Recommended Products</h2>
+        <p className="text-center text-muted">No products found</p>
+      </section>
+    );
+  }
+
   return (
     <section className="container py-4">
       <h2 className="text-center mb-5">Recommended Products</h2>
+
+      {/* 2 products per row on mobile (col-6) */}
       <div className="row gy-4" role="list">
-        {products.map((product) => (
+        {productsArray.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
+
       <div className="text-center mt-5">
         <a href="/shop" className="btn btn-lg btn-primary cta-browse-btn">
           Browse All Products

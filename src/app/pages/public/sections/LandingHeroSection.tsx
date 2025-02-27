@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toAbsoluteUrl } from "../../../../_metronic/helpers";
+import Utils from "../../../services/Utils";
 
 interface LandingHeroSectionProps {
   manifest?: any;
@@ -8,43 +10,51 @@ interface LandingHeroSectionProps {
 
 const fadeVariant = {
   hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.8, ease: "easeOut" },
+  },
 };
-
-const slides = [
-  "media/stock/900x600/1.jpg",
-  "media/stock/900x600/2.jpg",
-  "media/stock/900x600/3.jpg",
-  "media/stock/900x600/4.jpg",
-  "media/stock/900x600/70.jpg",
-];
-
-const topProducts = [
-  {
-    image: "media/products/1.png",
-    name: "Wireless Headphones",
-    price: "$49.99",
-  },
-  {
-    image: "media/products/2.png",
-    name: "Smartwatch",
-    price: "$129.99",
-  },
-  {
-    image: "media/products/3.png",
-    name: "Portable Bluetooth Speaker",
-    price: "$29.99",
-  },
-  {
-    image: "media/products/4.png",
-    name: "Drone with Camera",
-    price: "$399.99",
-  },
-];
 
 const LandingHeroSection: React.FC<LandingHeroSectionProps> = ({
   manifest,
 }) => {
+  // Left Banner
+  const leftBannerImage = manifest?.FIRST_BANNER?.first_banner_image
+    ? Utils.img(manifest.FIRST_BANNER.first_banner_image)
+    : toAbsoluteUrl("media/banners/metronic-ph.png");
+  // If your manifest includes a specific category/product ID for the left banner, use it here:
+  const leftBannerCategoryId = manifest?.FIRST_BANNER?.category_id || null;
+  // Fallback if no category_id is provided:
+  const leftBannerUrl = leftBannerCategoryId
+    ? `/shop?category=${leftBannerCategoryId}`
+    : "/shop";
+
+  // Middle Slider
+  // Build an array of { id, image } for each category
+  const slides =
+    Array.isArray(manifest?.SLIDER_CATEGORIES) &&
+    manifest.SLIDER_CATEGORIES.length > 0
+      ? manifest.SLIDER_CATEGORIES.map((cat: any) => ({
+          id: cat.id,
+          image: cat.banner_image ? Utils.img(cat.banner_image) : "",
+        }))
+      : [];
+
+  // Right Top Products
+  // Build an array of { id, image, name, price }
+  const topProducts = Array.isArray(manifest?.TOP_4_PRODUCTS)
+    ? manifest.TOP_4_PRODUCTS.map((product: any) => ({
+        id: product.id,
+        image: product.feature_photo
+          ? Utils.img(product.feature_photo)
+          : toAbsoluteUrl("media/products/placeholder.png"),
+        name: product.name ?? "Untitled",
+        price: product.price_1 ? `$${product.price_1}` : "$0.00",
+      }))
+    : [];
+
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const handleNext = () => {
@@ -59,14 +69,16 @@ const LandingHeroSection: React.FC<LandingHeroSectionProps> = ({
     setCurrentSlide(index);
   };
 
-  // Auto slide functionality
+  // Auto-slide every 4s, only if multiple slides
   useEffect(() => {
+    if (slides.length <= 1) return;
+
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 3000); // 3000 milliseconds = 3 seconds
+    }, 4000);
 
-    return () => clearInterval(interval); // Cleanup on unmount
-  });
+    return () => clearInterval(interval);
+  }, [slides]);
 
   return (
     <motion.div
@@ -74,7 +86,7 @@ const LandingHeroSection: React.FC<LandingHeroSectionProps> = ({
       initial="hidden"
       animate="visible"
       variants={fadeVariant}
-      style={{ /*  maxWidth: "1200px", */ margin: "0 auto" }}
+      style={{ margin: "0 auto" }}
     >
       <div className="row g-3">
         {/* LEFT BANNER */}
@@ -84,120 +96,147 @@ const LandingHeroSection: React.FC<LandingHeroSectionProps> = ({
             variants={fadeVariant}
             style={{ height: "300px", position: "relative" }}
           >
-            <img
-              src={toAbsoluteUrl("media/banners/metronic-ph.png")}
-              alt="Promotional Banner"
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
-            <div
-              className="card-body"
-              style={{
-                position: "absolute",
-                bottom: "0",
-                left: "0",
-                right: "0",
-                backgroundColor: "rgba(255, 255, 255, 0.9)",
-                padding: "10px",
-              }}
+            <Link
+              to={leftBannerUrl}
+              style={{ display: "block", height: "100%" }}
             >
-              <h6 className="fw-bold" style={{ color: "#f33d02" }}>
-                Limited Time Offer
-              </h6>
-              <p className="mb-2" style={{ fontSize: "0.8rem" }}>
-                Save big on select electronics. Use code{" "}
-                <strong style={{ fontWeight: "bold" }}>TECHDEAL</strong>
-              </p>
-              <button
-                className="btn btn-sm"
+              <img
+                src={leftBannerImage}
+                alt="Promotional Banner"
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+              <div
+                className="card-body"
                 style={{
-                  backgroundColor: "#114786",
-                  color: "white",
-                  padding: "5px 10px",
-                  fontSize: "0.7rem",
+                  position: "absolute",
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  backgroundColor: "rgba(255, 255, 255, 0.9)",
+                  padding: "10px",
                 }}
               >
-                Collect Coupon
-              </button>
-            </div>
+                <h6 className="fw-bold" style={{ color: "#f33d02" }}>
+                  Limited Time Offer
+                </h6>
+                <p className="mb-2" style={{ fontSize: "0.8rem" }}>
+                  Save big on select electronics. Use code{" "}
+                  <strong style={{ fontWeight: "bold" }}>TECHDEAL</strong>
+                </p>
+                <button
+                  className="btn btn-sm"
+                  style={{
+                    backgroundColor: "#114786",
+                    color: "white",
+                    padding: "5px 10px",
+                    fontSize: "0.7rem",
+                  }}
+                >
+                  Collect Coupon
+                </button>
+              </div>
+            </Link>
           </motion.div>
         </div>
 
         {/* MIDDLE SLIDER */}
         <div className="col-md-6">
-          <motion.div
-            className="position-relative overflow-hidden rounded shadow-sm"
-            variants={fadeVariant}
-            style={{ height: "300px" }}
-          >
-            <motion.img
-              key={slides[currentSlide]}
-              src={toAbsoluteUrl(slides[currentSlide])}
-              alt={`Slide ${currentSlide + 1}`}
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-              }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6 }}
-            />
-
-            <button
-              className="btn btn-icon btn-sm rounded-circle"
-              onClick={handlePrev}
-              style={{
-                position: "absolute",
-                top: "50%",
-                left: "10px",
-                transform: "translateY(-50%)",
-                backgroundColor: "rgba(0, 0, 0, 0.3)",
-                color: "white",
-              }}
+          {slides.length > 0 ? (
+            <motion.div
+              className="position-relative overflow-hidden rounded shadow-sm"
+              variants={fadeVariant}
+              style={{ height: "300px" }}
             >
-              <i className="bi bi-chevron-left text-white"></i>
-            </button>
-            <button
-              className="btn btn-icon btn-sm rounded-circle"
-              onClick={handleNext}
-              style={{
-                position: "absolute",
-                top: "50%",
-                right: "10px",
-                transform: "translateY(-50%)",
-                backgroundColor: "rgba(0, 0, 0, 0.3)",
-                color: "white",
-              }}
-            >
-              <i className="bi bi-chevron-right text-white"></i>
-            </button>
-
-            <div
-              style={{
-                position: "absolute",
-                bottom: "10px",
-                left: "50%",
-                transform: "translateX(-50%)",
-              }}
-            >
-              {slides.map((_, index) => (
-                <span
-                  key={index}
-                  onClick={() => goToSlide(index)}
+              {/* Wrap the current slide in a link to that category */}
+              <Link
+                to={`/shop?category=${slides[currentSlide].id}`}
+                style={{ display: "block", height: "100%" }}
+              >
+                <motion.img
+                  key={slides[currentSlide].image}
+                  src={slides[currentSlide].image}
+                  alt={`Slide ${currentSlide + 1}`}
                   style={{
-                    display: "inline-block",
-                    width: "8px",
-                    height: "8px",
-                    borderRadius: "50%",
-                    backgroundColor:
-                      index === currentSlide ? "#114786" : "#bbb",
-                    margin: "0 5px",
-                    cursor: "pointer",
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
                   }}
-                ></span>
-              ))}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.6 }}
+                />
+              </Link>
+
+              {/* Show prev/next controls only if multiple slides */}
+              {slides.length > 1 && (
+                <>
+                  <button
+                    className="btn btn-icon btn-sm rounded-circle"
+                    onClick={handlePrev}
+                    style={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "10px",
+                      transform: "translateY(-50%)",
+                      backgroundColor: "rgba(0, 0, 0, 0.3)",
+                      color: "white",
+                    }}
+                  >
+                    <i className="bi bi-chevron-left text-white"></i>
+                  </button>
+                  <button
+                    className="btn btn-icon btn-sm rounded-circle"
+                    onClick={handleNext}
+                    style={{
+                      position: "absolute",
+                      top: "50%",
+                      right: "10px",
+                      transform: "translateY(-50%)",
+                      backgroundColor: "rgba(0, 0, 0, 0.3)",
+                      color: "white",
+                    }}
+                  >
+                    <i className="bi bi-chevron-right text-white"></i>
+                  </button>
+
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: "10px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                    }}
+                  >
+                    {slides.map(
+                      (_: any, index: React.Key | null | undefined) => (
+                        <span
+                          key={index}
+                          onClick={() => goToSlide(index)}
+                          style={{
+                            display: "inline-block",
+                            width: "8px",
+                            height: "8px",
+                            borderRadius: "50%",
+                            backgroundColor:
+                              index === currentSlide ? "#114786" : "#bbb",
+                            margin: "0 5px",
+                            cursor: "pointer",
+                          }}
+                        />
+                      )
+                    )}
+                  </div>
+                </>
+              )}
+            </motion.div>
+          ) : (
+            <div
+              className="d-flex align-items-center justify-content-center bg-light"
+              style={{ height: "300px" }}
+            >
+              <p className="text-muted mb-0">No Banners Found</p>
             </div>
-          </motion.div>
+          )}
         </div>
 
         {/* RIGHT TOP PRODUCTS */}
@@ -208,72 +247,121 @@ const LandingHeroSection: React.FC<LandingHeroSectionProps> = ({
             style={{ height: "300px" }}
           >
             <div className="row g-2 flex-grow-1">
-              {topProducts.map((product, index) => (
-                <div className="col-6" key={index}>
-                  <div
-                    className="card border-0 shadow-sm"
-                    style={{
-                      height: "140px",
-                      position: "relative",
-                      overflow: "hidden",
-                    }}
-                  >
-                    <img
-                      src={toAbsoluteUrl(product.image)}
-                      alt={product.name}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                        transition: "transform 0.3s ease",
-                      }}
-                      onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLImageElement).style.transform =
-                          "scale(1.1)";
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLImageElement).style.transform =
-                          "scale(1)";
-                      }}
-                    />
-                    <div
-                      className="card-body p-2"
-                      style={{
-                        position: "absolute",
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        backgroundColor: "rgba(0, 0, 0, 0.7)",
-                        color: "white",
-                        padding: "5px",
-                        transform: "translateY(100%)",
-                        transition: "transform 0.3s ease",
-                      }}
-                      onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLDivElement).style.transform =
-                          "translateY(0)";
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLDivElement).style.transform =
-                          "translateY(100%)";
-                      }}
-                    >
-                      <h6
-                        className="fw-semibold mb-1"
-                        style={{ fontSize: "0.8rem" }}
+              {topProducts.length > 0 ? (
+                topProducts.map(
+                  (
+                    product: {
+                      id: any;
+                      image: string | undefined;
+                      name:
+                        | string
+                        | number
+                        | boolean
+                        | React.ReactElement<
+                            any,
+                            string | React.JSXElementConstructor<any>
+                          >
+                        | Iterable<React.ReactNode>
+                        | null
+                        | undefined;
+                      price:
+                        | string
+                        | number
+                        | boolean
+                        | React.ReactElement<
+                            any,
+                            string | React.JSXElementConstructor<any>
+                          >
+                        | Iterable<React.ReactNode>
+                        | React.ReactPortal
+                        | null
+                        | undefined;
+                    },
+                    index: React.Key | null | undefined
+                  ) => (
+                    <div className="col-6" key={index}>
+                      <Link
+                        to={
+                          product.id
+                            ? `/product/${product.id}`
+                            : "/product/unknown"
+                        }
+                        className="card border-0 shadow-sm"
+                        style={{
+                          height: "140px",
+                          position: "relative",
+                          overflow: "hidden",
+                          display: "block",
+                        }}
                       >
-                        {product.name}
-                      </h6>
-                      <p
-                        className="text-muted small mb-0"
-                        style={{ fontSize: "0.7rem" }}
-                      >
-                        {product.price}
-                      </p>
+                        <img
+                          src={product.image}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                            transition: "transform 0.3s ease",
+                          }}
+                          onMouseEnter={(e) => {
+                            (
+                              e.currentTarget as HTMLImageElement
+                            ).style.transform = "scale(1.1)";
+                          }}
+                          onMouseLeave={(e) => {
+                            (
+                              e.currentTarget as HTMLImageElement
+                            ).style.transform = "scale(1)";
+                          }}
+                        />
+                        <div
+                          className="card-body p-2"
+                          style={{
+                            position: "absolute",
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            backgroundColor: "rgba(0, 0, 0, 0.7)",
+                            color: "white",
+                            padding: "5px",
+                            transform: "translateY(100%)",
+                            transition: "transform 0.3s ease",
+                          }}
+                          onMouseEnter={(e) => {
+                            (
+                              e.currentTarget as HTMLDivElement
+                            ).style.transform = "translateY(0)";
+                          }}
+                          onMouseLeave={(e) => {
+                            (
+                              e.currentTarget as HTMLDivElement
+                            ).style.transform = "translateY(100%)";
+                          }}
+                        >
+                          <h6
+                            className="fw-semibold mb-1"
+                            style={{ fontSize: "0.8rem" }}
+                          >
+                            {product.name}
+                          </h6>
+                          <p
+                            className="text-muted small mb-0"
+                            style={{ fontSize: "0.7rem" }}
+                          >
+                            {product.price}
+                          </p>
+                        </div>
+                      </Link>
                     </div>
-                  </div>
+                  )
+                )
+              ) : (
+                <div
+                  className="d-flex align-items-center justify-content-center"
+                  style={{ height: "100%", width: "100%" }}
+                >
+                  <p className="text-muted mb-0">No Products Found</p>
                 </div>
-              ))}
+              )}
             </div>
           </motion.div>
         </div>

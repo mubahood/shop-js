@@ -4,19 +4,20 @@ import { BASE_URL, LOCAL_MANIFEST } from "../../Constants";
 import { DistrictModel } from "./DistrictModel";
 
 export class ManifestModel {
-  LIVE_JOBS = "0";
-  COMPANIES = "0";
-  NEW_JOBS = "0";
-  VACANCIES = "0";
-  TOP_CITIES: Record<string, any> = {};
+  TOP_PRODUCTS: Record<string, any> = {};
   CATEGORIES: Record<string, any> = {};
-  TOP_JOBS: Record<string, any> = {};
+  SLIDER_CATEGORIES: Record<string, any> = {};
+  TOP_4_PRODUCTS: Record<string, any> = {};
+  SECTION_1_PRODUCTS: Record<string, any> = {};
+  SECTION_2_PRODUCTS: Record<string, any> = {};
+  FIRST_BANNER = {};
+  
 
   static async getItems(): Promise<ManifestModel> {
     let localData = new ManifestModel();
     try {
       localData = await this.getLocal();
-      if (localData && localData.LIVE_JOBS !== "0") {
+      if (localData && localData.CATEGORIES.length > 0) {
         this.getOnline().catch(console.error);
         return localData;
       }
@@ -27,7 +28,7 @@ export class ManifestModel {
     try {
       await this.getOnline();
       localData = await this.getLocal();
-      if (!localData || localData.LIVE_JOBS === "0") {
+      if (!localData || localData.CATEGORIES.length === 0) {
         throw new Error("Failed to fetch manifest items.");
       }
       return localData;
