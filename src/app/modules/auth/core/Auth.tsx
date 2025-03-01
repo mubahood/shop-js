@@ -15,6 +15,16 @@ import { WithChildren } from "../../../../_metronic/helpers";
 import { DB_TOKEN, DB_LOGGED_IN_PROFILE } from "../../../../Constants";
 import Utils from "../../../services/Utils";
 import { ProfileModel } from "../../../models/ProfileModel";
+import { CartItemModel } from "../../../models/CartItemModel"; // Import our CartItemModel class
+
+// Define interface for ProductModel (extend as needed)
+interface ProductModel {
+  id: string;
+  price: number;
+  name?: string;
+  mainImage?: string;
+  // additional properties if needed
+}
 
 type AuthContextProps = {
   auth: AuthModel | undefined;
@@ -22,14 +32,27 @@ type AuthContextProps = {
   currentUser: ProfileModel | undefined;
   setCurrentUser: Dispatch<SetStateAction<ProfileModel | undefined>>;
   logout: () => void;
+  // Cart management properties:
+  cartItems: CartItemModel[];
+  addToCart: (product: ProductModel) => void;
+  increase: (productId: string) => void;
+  decrease: (productId: string) => void;
+  totalCartAmount: number;
+  isInCart: (productId: string) => boolean;
 };
 
-const initAuthContextPropsState = {
+const initAuthContextPropsState: AuthContextProps = {
   auth: authHelper.getAuth(),
   saveAuth: () => {},
   currentUser: undefined,
   setCurrentUser: () => {},
   logout: () => {},
+  cartItems: [],
+  addToCart: () => {},
+  increase: () => {},
+  decrease: () => {},
+  totalCartAmount: 0,
+  isInCart: () => false,
 };
 
 const AuthContext = createContext<AuthContextProps>(initAuthContextPropsState);
@@ -41,6 +64,14 @@ const useAuth = () => {
 const AuthProvider: FC<WithChildren> = ({ children }) => {
   const [auth, setAuth] = useState<AuthModel | undefined>(authHelper.getAuth());
   const [currentUser, setCurrentUser] = useState<ProfileModel | undefined>();
+
+  // Initialize cartItems from local storage,
+  // mapping saved items to CartItemModel instances
+  const [cartItems, setCartItems] = useState<CartItemModel[]>(() => {
+    const saved = Utils.loadFromDatabase("CART_ITEMS");
+    return saved ? saved.map((item: any) => CartItemModel.fromJson(item)) : [];
+  });
+
   const saveAuth = (auth: AuthModel | undefined) => {
     setAuth(auth);
     if (auth) {
@@ -55,9 +86,102 @@ const AuthProvider: FC<WithChildren> = ({ children }) => {
     setCurrentUser(undefined);
   };
 
+  // Persist cart items by converting them to JSON
+  const saveCartItemsToLocalStorage = (items: CartItemModel[]) => {
+    Utils.saveToDatabase(
+      "CART_ITEMS",
+      items.map((item) => item.toJson())
+    );
+  };
+
+  // Add product to cart:
+  // If already in cart, update quantity; otherwise, create a new CartItemModel instance.
+  const addToCart = (product: ProductModel) => {
+    setCartItems((prev) => {
+      const existing = prev.find((item) => item.product_id === product.id);
+      let newCartItems;
+      if (existing) {
+        newCartItems = prev.map((item) => {
+          if (item.product_id === product.id) {
+            const newQuantity = (parseInt(item.product_quantity) || 0) + 1;
+            item.updateQuantity(newQuantity.toString());
+            return item;
+          }
+          return item;
+        });
+      } else {
+        const newItem = new CartItemModel(
+          0,
+          product.name || "",
+          product.price.toString(),
+          "1",
+          product.mainImage || "",
+          product.id,
+          "", // color (if any)
+          "", // size (if any)
+          ""
+        );
+        newCartItems = [...prev, newItem];
+      }
+      saveCartItemsToLocalStorage(newCartItems);
+      return newCartItems;
+    });
+  };
+
+  const increase = (productId: string) => {
+    setCartItems((prev) => {
+      const newCartItems = prev.map((item) => {
+        if (item.product_id === productId) {
+          const newQuantity = (parseInt(item.product_quantity) || 0) + 1;
+          item.updateQuantity(newQuantity.toString());
+        }
+        return item;
+      });
+      saveCartItemsToLocalStorage(newCartItems);
+      return newCartItems;
+    });
+  };
+
+  const decrease = (productId: string) => {
+    setCartItems((prev) => {
+      const newCartItems = prev
+        .map((item) => {
+          if (item.product_id === productId) {
+            const newQuantity = (parseInt(item.product_quantity) || 0) - 1;
+            item.updateQuantity(newQuantity.toString());
+          }
+          return item;
+        })
+        .filter((item) => parseInt(item.product_quantity) > 0);
+      saveCartItemsToLocalStorage(newCartItems);
+      return newCartItems;
+    });
+  };
+
+  const isInCart = (productId: string): boolean => {
+    return cartItems.some((item) => item.product_id === productId);
+  };
+
+  const totalCartAmount = cartItems.reduce(
+    (sum, item) => sum + item.totalPrice(),
+    0
+  );
+
   return (
     <AuthContext.Provider
-      value={{ auth, saveAuth, currentUser, setCurrentUser, logout }}
+      value={{
+        auth,
+        saveAuth,
+        currentUser,
+        setCurrentUser,
+        logout,
+        cartItems,
+        addToCart,
+        increase,
+        decrease,
+        totalCartAmount,
+        isInCart,
+      }}
     >
       {children}
     </AuthContext.Provider>
@@ -65,10 +189,9 @@ const AuthProvider: FC<WithChildren> = ({ children }) => {
 };
 
 const AuthInit: FC<WithChildren> = ({ children }) => {
-  const { auth, currentUser, logout, setCurrentUser } = useAuth();
+  const { currentUser, setCurrentUser } = useAuth();
   const [showSplashScreen, setShowSplashScreen] = useState(true);
 
-  // We should request user by authToken (IN OUR EXAMPLE IT'S API_TOKEN) before rendering the application
   useEffect(() => {
     try {
       if (!currentUser) {
@@ -79,11 +202,8 @@ const AuthInit: FC<WithChildren> = ({ children }) => {
       }
     } catch (error) {
       console.error(error);
-    } finally {
     }
-
     setShowSplashScreen(false);
-    // eslint-disable-next-line
   }, []);
 
   return showSplashScreen ? <LayoutSplashScreen /> : <>{children}</>;

@@ -7,6 +7,7 @@ export const MAX_RETRIES = 3;
 export const DATE_FORMAT = "YYYY-MM-DD";
 export const CURRENCY = "USD";
 export const LOCAL_MANIFEST = "LOCAL_MANIFEST";
+export const CART_ITEMS = "CART_ITEMS";
 export const LOCAL_DISTRICTS = "LOCAL_DISTRICTS";
 export const LOCAL_JOBSEEKER_MANIFEST = "LOCAL_JOBSEEKER_MANIFEST";
 export const LOGO =

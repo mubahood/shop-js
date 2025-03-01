@@ -3,6 +3,45 @@ import { ProfileModel } from "../models/ProfileModel";
 import { http_get } from "./Api";
 
 class Utils {
+  //static moneyFormat
+  static moneyFormat(value: any) {
+    return parseFloat(value).toFixed(2);
+  }
+
+  //statric int_parse
+  static int_parse(value: any) {
+    if (value === null) {
+      return 0;
+    }
+    if (value === undefined) {
+      return 0;
+    }
+    if (value === "undefined") {
+      return 0;
+    }
+    if (value === "") {
+      return 0;
+    }
+    return parseInt(value);
+  }
+
+  //static to_str
+  static to_str(value: any, default_value: any) {
+    if (value === null) {
+      return default_value;
+    }
+    if (value === undefined) {
+      return default_value;
+    }
+    if (value === "undefined") {
+      return default_value;
+    }
+    if (value === "") {
+      return default_value;
+    }
+    return value;
+  }
+
   static async update_logged_in_user() {
     var resp = null;
 

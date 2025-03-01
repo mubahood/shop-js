@@ -11,15 +11,20 @@ import { ILayout, LayoutSetup } from "../../_metronic/layout/core";
 import { DefaultConfig } from "../../_metronic/layout/core";
 import { LandingPage } from "../pages/public/LandingPage";
 import JobListingPage from "../pages/public/JobListingPage";
+import { OrderModel } from "../models/OrderModel";
 
 const LAYOUT_CONFIG_KEY =
   import.meta.env.VITE_APP_BASE_LAYOUT_CONFIG_KEY || "LayoutConfig";
 
 const PublicRoutes = () => {
   const JobDetailPage = lazy(() => import("../pages/public/JobDetailPage"));
-  const EightLearningLandingPage = lazy(() => import("../pages/public/8learningLandingPage"));
+  const EightLearningLandingPage = lazy(
+    () => import("../pages/public/8learningLandingPage")
+  );
   const ApplyJobPage = lazy(() => import("../pages/public/ApplyJobPage"));
+  const CartPage = lazy(() => import("../pages/public/CartPage"));
   const CvBankPage = lazy(() => import("../pages/public/CvBankPage"));
+  const CheckoutPage = lazy(() => import("../pages/public/CheckoutPage"));
   const ShopPage = lazy(() => import("../pages/public/ShopPage"));
   const CvPDFPage = lazy(() => import("../pages/public/CvPDFPage"));
   const EmployersPage = lazy(() => import("../pages/public/EmployersPage"));
@@ -97,6 +102,22 @@ const PublicRoutes = () => {
           element={
             <SuspensedView>
               <EightLearningLandingPage />
+            </SuspensedView>
+          }
+        />
+        <Route
+          path="checkout"
+          element={
+            <SuspensedView>
+              <CheckoutPage order={new OrderModel()} />
+            </SuspensedView>
+          }
+        />
+        <Route
+          path="cart"
+          element={
+            <SuspensedView>
+              <CartPage />
             </SuspensedView>
           }
         />
