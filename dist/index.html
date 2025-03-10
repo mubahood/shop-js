@@ -1,78 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+  <!-- Required Meta Tags -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#000000" />
-  <meta name="description" content="Metronic React Demo 1" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
-  <title>Skills.ug - Showcase your skills, connect with top employers, and accelerate your career growth."</title>
-  <link rel="shortcut icon" href="media/logos/logo.ico" />
-  <link rel="stylesheet" id="layout-styles-anchor" href="/splash-screen.css" />
-  <meta name="description"
-    content="Skills.ug - Showcase your skills, connect with top employers, and accelerate your career growth." />
-  <meta name="keywords"
-    content="Skills.ug, careers, professional development, job opportunities, Uganda, networking, resume building, skill development, top employers" />
-  <link rel="canonical" href="https://www.skills.ug/" />
-  <meta property="og:title" content="Skills.ug - Connect, Grow, and Succeed in Your Dream Job" />
-  <meta property="og:description"
-    content="Showcase your talents, discover new opportunities, and get hired faster with Skills.ug." />
+  <meta name="theme-color" content="#f33d02" /> <!-- Matches brand color -->
+  <meta name="description" content="Blitxpress is your one-stop electronics shop offering top-brand gadgets, devices, and accessories at unbeatable prices. Discover great deals on laptops, smartphones, and more." />
+  <meta name="keywords" content="Blitxpress, electronics, online store, e-commerce, gadgets, devices, laptops, smartphones, accessories, tech, deals" />
+  <meta name="robots" content="index, follow" />
+  <meta name="author" content="Blitxpress" />
+
+  <!-- Title -->
+  <title>Blitxpress - Your One-Stop Electronics Shop</title>
+
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://www.blitxpress.com/" />
+
+  <!-- Open Graph Tags -->
+  <meta property="og:title" content="Blitxpress - Your One-Stop Electronics Shop" />
+  <meta property="og:description" content="Browse and buy the latest electronics and gadgets from Blitxpress. Shop now and get fast shipping on laptops, smartphones, accessories, and more." />
   <meta property="og:image" content="/media/logos/logo.png" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://www.skills.ug/" />
-  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" /> -->
-  <script type="module" crossorigin src="/assets/index-D3ojX_Fy.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-DxnCHZMK.css">
+  <meta property="og:url" content="https://www.blitxpress.com/" />
+
+  <!-- Google Font (Inter) -->
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700&display=swap"
+  />
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="/media/logos/logo.ico" />
+
+  <!-- Additional Custom CSS (Optional) -->
+  <link rel="stylesheet" id="layout-styles-anchor" href="/splash-screen.css" />
+
+  <!-- Global Font & Base Size -->
+  <style>
+    html {
+      font-size: 14px; /* Adjust if you want slightly bigger or smaller text */
+    }
+    body,
+    p,
+    a,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    span,
+    div,
+    input,
+    button,
+    label {
+      font-family: "Inter", sans-serif;
+      line-height: 1.4;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+  <script type="module" crossorigin src="/assets/index-B8pH7eeg.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-DM34bP_Y.css">
 </head>
 
 <body id="kt_body" class="page-loading">
   <noscript>You need to enable JavaScript to run this app.</noscript>
-  <!--begin::Theme mode setup on page load-->
+
+  <!-- Theme Mode Setup -->
   <script>
-    let themeMode = 'system'
-
+    let themeMode = 'system';
     if (localStorage.getItem('kt_theme_mode_value')) {
-      themeMode = localStorage.getItem('kt_theme_mode_value')
+      themeMode = localStorage.getItem('kt_theme_mode_value');
     }
-
     if (themeMode === 'system') {
-      themeMode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+      themeMode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
-
-    document.documentElement.setAttribute('data-bs-theme', themeMode)
+    document.documentElement.setAttribute('data-bs-theme', themeMode);
   </script>
-  <!--end::Theme mode setup on page load-->
 
+  <!-- App Root -->
   <div id="root"></div>
 
-  <!--begin::Loading markup-->
+  <!-- Splash Screen (Optional) -->
   <div id="splash-screen" class="splash-screen">
     <style>
       @keyframes fadeIn {
         0% {
           opacity: 0;
         }
-
         100% {
           opacity: 1;
         }
       }
-
       .spinning {
         animation: fadeIn 1s ease-in-out infinite alternate;
       }
     </style>
-    <img src="/media/logos/loader.svg" class="dark-logo spinning" alt="Skills.ug dark logo" />
-    <img src="/media/logos/loader.svg" class="light-logo spinning" width="320px" alt="Skills.ug light logo" />
+    <img src="/media/logos/loader.svg" class="dark-logo spinning" alt="Blitxpress dark loader" />
+    <img src="/media/logos/loader.svg" class="light-logo spinning" width="320px" alt="Blitxpress light loader" />
     <div class="loader-wrapper">
       <span class="loader"></span>
       <span class="loading-text">Loading...</span>
     </div>
   </div>
-  <!--end::Loading markup-->
 
+  <!-- Modal Root (Optional) -->
   <div id="root-modals"></div>
-</body>
 
+  <!-- Main Entry Script -->
+</body>
 </html>

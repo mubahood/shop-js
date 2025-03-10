@@ -1,0 +1,32 @@
+.landing-hero-section {
+  .banner {
+    img {
+      width: 100%;
+      display: block;
+    }
+  }
+
+  .slider-container {
+    margin-top: 20px;
+    .carousel-item img {
+      max-height: 400px;
+      object-fit: contain;
+    }
+  }
+
+  .top-products {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+
+    .product {
+      text-align: center;
+      img {
+        width: 100%;
+        max-height: 200px;
+        object-fit: contain;
+      }
+    }
+  }
+}
