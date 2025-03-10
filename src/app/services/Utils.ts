@@ -1,6 +1,6 @@
 import { BASE_URL, DB_LOGGED_IN_PROFILE, DB_TOKEN } from "../../Constants";
 import { ProfileModel } from "../models/ProfileModel";
-import { http_get } from "./Api";
+import { http_get } from "./Api"; 
 
 class Utils {
   //static moneyFormat
