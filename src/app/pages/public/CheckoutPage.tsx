@@ -1,18 +1,58 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import { motion } from "framer-motion";
 import { http_post } from "../../services/Api";
 import Utils from "../../services/Utils";
 import { OrderModel } from "../../models/OrderModel";
 import { toast } from "react-toastify";
 import { useAuth } from "../../modules/auth";
+import { useNavigate } from "react-router-dom";
+import { DeliveryAddress } from "../../models/DeliveryAddress";
 
 interface CheckoutPageProps {
   order: OrderModel;
 }
 
 const CheckoutPage: React.FC<CheckoutPageProps> = ({ order }) => {
-  const { cartItems, totalCartAmount } = useAuth();
-  // Local form state for delivery & customer details
+  const navigate = useNavigate();
+  const { currentUser, clearCart, cartItems, totalCartAmount } = useAuth();
+
+  // If user is not logged in, show a friendly prompt.
+  if (!currentUser) {
+    return (
+      <motion.div
+        className="container py-5 text-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+      >
+        <h1 style={{ fontWeight: "bold" }}>Please Log In</h1>
+        <p className="lead">
+          You must be logged in to checkout. Please log in or create an account.
+        </p>
+        <div className="d-flex justify-content-center gap-3">
+          <button
+            className="btn btn-primary"
+            onClick={() => navigate("/login")}
+          >
+            Login
+          </button>
+          <button
+            className="btn btn-outline-primary"
+            onClick={() => navigate("/register")}
+          >
+            Create Account
+          </button>
+        </div>
+      </motion.div>
+    );
+  }
+
+  // Local form state for delivery & contact details.
+  const [deliveryAddresses, setDeliveryAddresses] = useState<DeliveryAddress[]>(
+    []
+  );
+  const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
+    null
+  );
   const [deliveryRegion, setDeliveryRegion] = useState(
     order.delivery_address_text || ""
   );
@@ -23,12 +63,45 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ order }) => {
   const [email, setEmail] = useState(order.mail || "");
   const [phone, setPhone] = useState(order.customer_phone_number_1 || "");
   const [orderNotes, setOrderNotes] = useState(order.order_details || "");
-
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // Load delivery addresses from localStorage on mount.
+  useEffect(() => {
+    const loadAddresses = async () => {
+      try {
+        const addresses = await DeliveryAddress.get_items();
+        setDeliveryAddresses(addresses);
+        if (addresses.length > 0 && !selectedAddressId) {
+          // Default to first address.
+          handleAddressChange(String(addresses[0].id));
+        }
+      } catch (err) {
+        console.error("Failed to load delivery addresses:", err);
+      }
+    };
+    loadAddresses();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // When the dropdown value changes, update the order's delivery details.
+  const handleAddressChange = (idStr: string) => {
+    const id = parseInt(idStr, 10);
+    setSelectedAddressId(id);
+    const addressObj = deliveryAddresses.find((addr) => addr.id === id);
+    if (addressObj) {
+      setDeliveryRegion(addressObj.address);
+      // Here we assume street address is same as address.
+      setStreetAddress(addressObj.address);
+      // Update order's delivery details.
+      order.delivery_amount = addressObj.shipping_cost;
+      order.delivery_address_text = addressObj.address;
+      order.delivery_address_details = addressObj.address;
+    }
+  };
+
   const submitOrder = async () => {
-    // Basic validation
+    // Basic validation.
     if (
       !deliveryRegion ||
       !streetAddress ||
@@ -39,19 +112,20 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ order }) => {
       setErrorMessage("Please fill in all required fields.");
       return;
     }
+    if (!Utils.isValidMail(email)) {
+      setErrorMessage("Please enter a valid email address.");
+      return;
+    }
     if (!phone.startsWith("+")) {
       setErrorMessage("Phone number should start with '+'.");
       return;
     }
-    const confirmSubmit = window.confirm(
-      "Are you sure you want to submit your order?"
-    );
-    if (!confirmSubmit) return;
+    if (!window.confirm("Are you sure you want to submit your order?")) return;
 
     setErrorMessage("");
     setIsLoading(true);
 
-    // Prepare delivery details from the form
+    // Prepare delivery details.
     const delivery = {
       ...order.toJson(),
       delivery_address_text: deliveryRegion,
@@ -60,37 +134,21 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ order }) => {
       customer_name: customerName,
       customer_phone_number_1: phone,
       order_details: orderNotes,
-      // If second phone number is not set, use primary
       customer_phone_number_2: order.customer_phone_number_2 || phone,
     };
 
     try {
-      const resp = await http_post("orders-create", {
+      const data = await http_post("orders-create", {
         items: JSON.stringify(cartItems),
         delivery: JSON.stringify(delivery),
       });
-      if (resp.code !== 1) {
-        setErrorMessage(resp.message);
-        toast(`Failed: ${resp.message}`, { autoClose: 3000, type: "error" });
-        setIsLoading(false);
-        return;
-      }
-      // Update order with returned data
-      const updatedOrder = OrderModel.fromJson(resp.data);
-      if (updatedOrder.id < 1) {
-        setErrorMessage(resp.message);
-        toast("Failed to submit order", { autoClose: 3000, type: "error" });
-        setIsLoading(false);
-        return;
-      }
-      toast("Order submitted successfully!", {
-        autoClose: 3000,
-        type: "success",
-      });
-      //   history.push("/order-confirmation");
+      const updatedOrder = OrderModel.fromJson(data);
+      toast.success("Order submitted successfully!", { autoClose: 3000 });
+      clearCart();
+      navigate("/admin/my-order");
     } catch (error: any) {
       setErrorMessage(error.toString());
-      toast(`Failed: ${error.toString()}`, { autoClose: 3000, type: "error" });
+      toast.error(`Failed: ${error.toString()}`, { autoClose: 3000 });
     } finally {
       setIsLoading(false);
     }
@@ -102,47 +160,51 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ order }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
+      {/* Page Header */}
+      <div className="mb-5 text-center">
+        <h1 style={{ fontWeight: "bold", color: "#114786" }}>Checkout</h1>
+        <p className="text-muted">
+          Review your details and confirm your order.
+        </p>
+      </div>
       <div className="row">
-        {/* Left Column: Checkout Form */}
-        <div className="col-lg-8 mb-4">
-          <div className="card mb-3 shadow-sm">
-            <div
-              className="card-header"
-              style={{ backgroundColor: "#114786", color: "#fff" }}
-            >
-              <h3 className="mb-0">Checkout</h3>
-            </div>
-            <div className="card-body">
-              <p>
-                Please confirm your order details before proceeding to payment.
-              </p>
+        {/* Left Column: Delivery & Contact Form */}
+        <div className="col-md-7 mb-4">
+          <div className="card shadow-sm border-0">
+            <div className="card-body p-4">
               {errorMessage && (
                 <div className="alert alert-danger">{errorMessage}</div>
               )}
-              <form>
-                <div className="mb-3">
-                  <label className="form-label">Delivery Region</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={deliveryRegion}
-                    onChange={(e) => setDeliveryRegion(e.target.value)}
-                    placeholder="Select a delivery region"
-                  />
-                </div>
-                <div className="mb-3">
-                  <label className="form-label">
-                    Street Address (Province, Unit Number)
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={streetAddress}
-                    onChange={(e) => setStreetAddress(e.target.value)}
-                    placeholder="Enter your street address"
-                  />
-                </div>
-                <div className="mb-3">
+              <div className="mb-3">
+                <label className="form-label">Delivery Address</label>
+                <select
+                  className="form-select"
+                  value={selectedAddressId ? String(selectedAddressId) : ""}
+                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                    handleAddressChange(e.target.value)
+                  }
+                >
+                  <option value="">Select an address</option>
+                  {deliveryAddresses.map((addr) => (
+                    <option key={addr.id} value={addr.id}>
+                      {addr.address} (Shipping: UGX{" "}
+                      {Utils.moneyFormat(addr.shipping_cost)})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Street Address</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={streetAddress}
+                  onChange={(e) => setStreetAddress(e.target.value)}
+                  placeholder="Street, Province, Unit No."
+                />
+              </div>
+              <div className="row">
+                <div className="col-md-6 mb-3">
                   <label className="form-label">Name</label>
                   <input
                     type="text"
@@ -152,7 +214,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ order }) => {
                     placeholder="Your full name"
                   />
                 </div>
-                <div className="mb-3">
+                <div className="col-md-6 mb-3">
                   <label className="form-label">Email Address</label>
                   <input
                     type="email"
@@ -162,55 +224,42 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ order }) => {
                     placeholder="Your email address"
                   />
                 </div>
-                <div className="mb-3">
-                  <label className="form-label">Phone Number</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="Primary phone number"
-                  />
-                </div>
-                <div className="mb-3">
-                  <label className="form-label">Order Details</label>
-                  <textarea
-                    className="form-control"
-                    value={orderNotes}
-                    onChange={(e) => setOrderNotes(e.target.value)}
-                    placeholder="Additional instructions or details"
-                    rows={3}
-                  ></textarea>
-                </div>
-              </form>
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Phone Number</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="Your phone number (include +)"
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Order Details</label>
+                <textarea
+                  className="form-control"
+                  value={orderNotes}
+                  onChange={(e) => setOrderNotes(e.target.value)}
+                  placeholder="Additional instructions or details"
+                  rows={3}
+                ></textarea>
+              </div>
             </div>
           </div>
         </div>
         {/* Right Column: Order Summary */}
-        <div className="col-lg-4">
-          <div className="card shadow-sm">
-            <div
-              className="card-header"
-              style={{ backgroundColor: "#114786", color: "#fff" }}
-            >
-              <h4 className="mb-0">Order Summary</h4>
-            </div>
-            <div className="card-body">
-              <div className="d-flex justify-content-between mb-2">
+        <div className="col-md-5">
+          <div className="card shadow-sm border-0">
+            <div className="card-body p-4">
+              <h4 style={{ fontWeight: "bold", color: "#114786" }}>
+                Order Summary
+              </h4>
+              <div className="d-flex justify-content-between mb-3">
                 <span>Items Total:</span>
-                <span>
-                  {"UGX "}
-                  {Utils.moneyFormat(totalCartAmount.toString())}
-                </span>
-              </div>
-              <div className="d-flex justify-content-between mb-2">
-                <span>Tax (13% VAT):</span>
-                <span>
-                  {"UGX "}
-                  {Utils.moneyFormat(order.getTax(totalCartAmount.toString()))}
-                </span>
-              </div>
-              <div className="d-flex justify-content-between mb-2">
+                <span>UGX {Utils.moneyFormat(totalCartAmount.toString())}</span>
+              </div>  
+              <div className="d-flex justify-content-between mb-3">
                 <span>Delivery Cost:</span>
                 <span>
                   {order.delivery_method.toLowerCase() === "pickup"
@@ -220,12 +269,12 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ order }) => {
               </div>
               <hr />
               <div
-                className="d-flex justify-content-between fw-bold"
-                style={{ fontSize: "1.2rem" }}
+                className="d-flex justify-content-between fw-bold mb-3"
+                style={{ fontSize: "1.3rem" }}
               >
                 <span>Total:</span>
                 <span>
-                  {"UGX "}
+                  UGX{" "}
                   {Utils.moneyFormat(
                     (
                       Utils.int_parse(order.payable_amount) +
@@ -235,12 +284,11 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ order }) => {
                 </span>
               </div>
               <button
-                className="btn btn-lg mt-3"
+                className="btn btn-lg w-100"
                 style={{
                   backgroundColor: "#114786",
                   borderColor: "#114786",
                   color: "#fff",
-                  width: "100%",
                 }}
                 onClick={submitOrder}
                 disabled={isLoading}

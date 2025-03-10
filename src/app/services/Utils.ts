@@ -5,7 +5,21 @@ import { http_get } from "./Api";
 class Utils {
   //static moneyFormat
   static moneyFormat(value: any) {
-    return parseFloat(value).toFixed(2);
+    if (value === null) {
+      return "0";
+    }
+    if (value === undefined) {
+      return "0";
+    }
+    if (value === "undefined") {
+      return "0";
+    }
+    //check if it contains . and remove last two digits
+    if (value.includes(".")) {
+      value = value.split(".")[0];
+    }
+    //add , after every 3 digits
+    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
 
   //statric int_parse
@@ -25,6 +39,11 @@ class Utils {
     return parseInt(value);
   }
 
+  //isValidMail
+  static isValidMail(mail: string) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail);
+  }
+
   //static to_str
   static to_str(value: any, default_value: any) {
     if (value === null) {
@@ -41,78 +60,7 @@ class Utils {
     }
     return value;
   }
-
-  static async update_logged_in_user() {
-    var resp = null;
-
-    try {
-      resp = await http_get("users/me");
-    } catch (error) {
-      return;
-    }
-    if (resp == null) {
-      return;
-    }
-    if (resp == undefined) {
-      return;
-    }
-    if (resp == "undefined") {
-      return;
-    }
-    if (resp == "") {
-      return;
-    }
-    //check if resp.code is set
-    if (resp.code == null) {
-      return;
-    }
-    if (resp.code == undefined) {
-      return;
-    }
-    if (resp.code != 1) {
-      return;
-    }
-
-    if (resp.data == null) {
-      return;
-    }
-    if (resp.data == undefined) {
-      Utils.saveToDatabase(DB_TOKEN, null);
-      Utils.saveToDatabase(DB_LOGGED_IN_PROFILE, null);
-      return;
-    }
-    if (resp.data == "undefined") {
-      //logout user by delete token and profile
-      Utils.saveToDatabase(DB_TOKEN, null);
-      Utils.saveToDatabase(DB_LOGGED_IN_PROFILE, null);
-
-      return;
-    }
-    if (resp.data == "") {
-      return;
-    }
-
-    // Utils.saveToDatabase(DB_TOKEN, token);
-    try {
-      Utils.saveToDatabase(DB_LOGGED_IN_PROFILE, resp.data);
-    } catch (error) {
-      alert("" + error);
-    }
-
-    var local_user_data = Utils.loadFromDatabase(DB_LOGGED_IN_PROFILE);
-
-    if (
-      local_user_data == null ||
-      local_user_data == undefined ||
-      local_user_data == "undefined" ||
-      local_user_data == ""
-    ) {
-      alert("local_user_data is null");
-      return;
-    }
-    console.log("local_user_data", local_user_data);
-    return local_user_data;
-  }
+ 
   static formatDateTime(interview_scheduled_at: string) {
     var date = new Date(interview_scheduled_at);
     return date.toLocaleString();
@@ -155,6 +103,11 @@ class Utils {
   // Convert a list of objects to a JSON string
   static toJsonList(objList: any) {
     return JSON.stringify(objList);
+  }
+
+  //removeFromDatabase
+  static removeFromDatabase(DB_PATH = "") {
+    localStorage.removeItem(DB_PATH);
   }
 
   // Save an object to the local database

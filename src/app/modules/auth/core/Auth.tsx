@@ -39,6 +39,8 @@ type AuthContextProps = {
   decrease: (productId: string) => void;
   totalCartAmount: number;
   isInCart: (productId: string) => boolean;
+  clearCart: () => void;
+  removeFromCart: (productId: string) => void;
 };
 
 const initAuthContextPropsState: AuthContextProps = {
@@ -53,6 +55,8 @@ const initAuthContextPropsState: AuthContextProps = {
   decrease: () => {},
   totalCartAmount: 0,
   isInCart: () => false,
+  clearCart: () => {},
+  removeFromCart: () => {},
 };
 
 const AuthContext = createContext<AuthContextProps>(initAuthContextPropsState);
@@ -66,10 +70,12 @@ const AuthProvider: FC<WithChildren> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<ProfileModel | undefined>();
 
   // Initialize cartItems from local storage,
-  // mapping saved items to CartItemModel instances
+  // mapping saved items to CartItemModel instances.
   const [cartItems, setCartItems] = useState<CartItemModel[]>(() => {
     const saved = Utils.loadFromDatabase("CART_ITEMS");
-    return saved ? saved.map((item: any) => CartItemModel.fromJson(item)) : [];
+    return saved
+      ? JSON.parse(saved).map((item: any) => CartItemModel.fromJson(item))
+      : [];
   });
 
   const saveAuth = (auth: AuthModel | undefined) => {
@@ -86,16 +92,12 @@ const AuthProvider: FC<WithChildren> = ({ children }) => {
     setCurrentUser(undefined);
   };
 
-  // Persist cart items by converting them to JSON
+  // Persist cart items to localStorage.
   const saveCartItemsToLocalStorage = (items: CartItemModel[]) => {
-    Utils.saveToDatabase(
-      "CART_ITEMS",
-      items.map((item) => item.toJson())
-    );
+    Utils.saveToDatabase("CART_ITEMS", JSON.stringify(items.map((item) => item.toJson())));
   };
 
-  // Add product to cart:
-  // If already in cart, update quantity; otherwise, create a new CartItemModel instance.
+  // Add product to cart: If already in cart, update quantity; otherwise, create a new instance.
   const addToCart = (product: ProductModel) => {
     setCartItems((prev) => {
       const existing = prev.find((item) => item.product_id === product.id);
@@ -103,9 +105,18 @@ const AuthProvider: FC<WithChildren> = ({ children }) => {
       if (existing) {
         newCartItems = prev.map((item) => {
           if (item.product_id === product.id) {
-            const newQuantity = (parseInt(item.product_quantity) || 0) + 1;
-            item.updateQuantity(newQuantity.toString());
-            return item;
+            const newQuantity = parseInt(item.product_quantity) + 1;
+            return new CartItemModel(
+              item.id,
+              item.product_name,
+              item.product_price_1,
+              newQuantity.toString(),
+              item.product_feature_photo,
+              item.product_id,
+              item.color,
+              item.size,
+              item.prices_json
+            );
           }
           return item;
         });
@@ -128,12 +139,23 @@ const AuthProvider: FC<WithChildren> = ({ children }) => {
     });
   };
 
+  // Increase product quantity in cart.
   const increase = (productId: string) => {
     setCartItems((prev) => {
       const newCartItems = prev.map((item) => {
         if (item.product_id === productId) {
-          const newQuantity = (parseInt(item.product_quantity) || 0) + 1;
-          item.updateQuantity(newQuantity.toString());
+          const newQuantity = parseInt(item.product_quantity) + 1;
+          return new CartItemModel(
+            item.id,
+            item.product_name,
+            item.product_price_1,
+            newQuantity.toString(),
+            item.product_feature_photo,
+            item.product_id,
+            item.color,
+            item.size,
+            item.prices_json
+          );
         }
         return item;
       });
@@ -142,17 +164,42 @@ const AuthProvider: FC<WithChildren> = ({ children }) => {
     });
   };
 
+  // Decrease product quantity in cart; remove item if quantity falls to zero.
   const decrease = (productId: string) => {
     setCartItems((prev) => {
       const newCartItems = prev
         .map((item) => {
           if (item.product_id === productId) {
-            const newQuantity = (parseInt(item.product_quantity) || 0) - 1;
-            item.updateQuantity(newQuantity.toString());
+            const newQuantity = parseInt(item.product_quantity) - 1;
+            if (newQuantity > 0) {
+              return new CartItemModel(
+                item.id,
+                item.product_name,
+                item.product_price_1,
+                newQuantity.toString(),
+                item.product_feature_photo,
+                item.product_id,
+                item.color,
+                item.size,
+                item.prices_json
+              );
+            } else {
+              // If new quantity is zero, return null to remove it.
+              return null;
+            }
           }
           return item;
         })
-        .filter((item) => parseInt(item.product_quantity) > 0);
+        .filter((item) => item !== null) as CartItemModel[];
+      saveCartItemsToLocalStorage(newCartItems);
+      return newCartItems;
+    });
+  };
+
+  // Remove product from cart entirely.
+  const removeFromCart = (productId: string) => {
+    setCartItems((prev) => {
+      const newCartItems = prev.filter((item) => item.product_id !== productId);
       saveCartItemsToLocalStorage(newCartItems);
       return newCartItems;
     });
@@ -162,10 +209,13 @@ const AuthProvider: FC<WithChildren> = ({ children }) => {
     return cartItems.some((item) => item.product_id === productId);
   };
 
-  const totalCartAmount = cartItems.reduce(
-    (sum, item) => sum + item.totalPrice(),
-    0
-  );
+  const totalCartAmount = cartItems.reduce((sum, item) => sum + item.totalPrice(), 0);
+
+  // Clear cart: remove all items from state and persist an empty array.
+  const clearCart = () => {
+    setCartItems([]);
+    Utils.saveToDatabase("CART_ITEMS", JSON.stringify([]));
+  };
 
   return (
     <AuthContext.Provider
@@ -181,6 +231,8 @@ const AuthProvider: FC<WithChildren> = ({ children }) => {
         decrease,
         totalCartAmount,
         isInCart,
+        clearCart,
+        removeFromCart,
       }}
     >
       {children}

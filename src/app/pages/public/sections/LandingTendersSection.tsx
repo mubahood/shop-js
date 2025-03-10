@@ -6,10 +6,7 @@ import { motion } from "framer-motion";
 import { ManifestModel } from "../../../models/Manifest";
 import Utils from "../../../services/Utils";
 
-/**
- * Single-file React component for "Tenders"
- * reusing up to 20 random entries from manifest.TOP_JOBS.
- */
+ 
 
 /* Inline CSS for demonstration. Adjust or relocate to a .css / .scss file. */
 const styles = `
@@ -161,9 +158,7 @@ const LandingTendersSection: React.FC<LandingTendersSectionProps> = ({
    * 2) Take up to 20 items
    * 3) Map each item to a 'tender' shape
    */
-  const topJobs: any[] = Array.isArray(manifest?.TOP_JOBS)
-    ? manifest.TOP_JOBS
-    : [];
+  const topJobs: any[] = [];
 
   // Randomly shuffle (Fisher–Yates / Durstenfeld shuffle)
   const shuffled = [...topJobs];

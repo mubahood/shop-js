@@ -17,22 +17,13 @@ const fadeVariant = {
   },
 };
 
-const LandingHeroSection: React.FC<LandingHeroSectionProps> = ({
-  manifest,
-}) => {
-  // Left Banner
+const LandingHeroSection: React.FC<LandingHeroSectionProps> = ({ manifest }) => {
   const leftBannerImage = manifest?.FIRST_BANNER?.first_banner_image
     ? Utils.img(manifest.FIRST_BANNER.first_banner_image)
     : toAbsoluteUrl("media/banners/metronic-ph.png");
-  // If your manifest includes a specific category/product ID for the left banner, use it here:
   const leftBannerCategoryId = manifest?.FIRST_BANNER?.category_id || null;
-  // Fallback if no category_id is provided:
-  const leftBannerUrl = leftBannerCategoryId
-    ? `/shop?category=${leftBannerCategoryId}`
-    : "/shop";
+  const leftBannerUrl = leftBannerCategoryId ? `/shop?category=${leftBannerCategoryId}` : "/shop";
 
-  // Middle Slider
-  // Build an array of { id, image } for each category
   const slides =
     Array.isArray(manifest?.SLIDER_CATEGORIES) &&
     manifest.SLIDER_CATEGORIES.length > 0
@@ -42,8 +33,6 @@ const LandingHeroSection: React.FC<LandingHeroSectionProps> = ({
         }))
       : [];
 
-  // Right Top Products
-  // Build an array of { id, image, name, price }
   const topProducts = Array.isArray(manifest?.TOP_4_PRODUCTS)
     ? manifest.TOP_4_PRODUCTS.map((product: any) => ({
         id: product.id,
@@ -51,32 +40,21 @@ const LandingHeroSection: React.FC<LandingHeroSectionProps> = ({
           ? Utils.img(product.feature_photo)
           : toAbsoluteUrl("media/products/placeholder.png"),
         name: product.name ?? "Untitled",
-        price: product.price_1 ? `$${product.price_1}` : "$0.00",
+        price: product.price_1 ? `${product.price_1}` : "0.00",
       }))
     : [];
 
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  const handleNext = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
-  };
+  const handleNext = () => setCurrentSlide((prev) => (prev + 1) % slides.length);
+  const handlePrev = () => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  const goToSlide = (index: number) => setCurrentSlide(index);
 
-  const handlePrev = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
-  };
-
-  const goToSlide = (index: number) => {
-    setCurrentSlide(index);
-  };
-
-  // Auto-slide every 4s, only if multiple slides
   useEffect(() => {
     if (slides.length <= 1) return;
-
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 4000);
-
+    }, 6000);
     return () => clearInterval(interval);
   }, [slides]);
 
@@ -96,10 +74,7 @@ const LandingHeroSection: React.FC<LandingHeroSectionProps> = ({
             variants={fadeVariant}
             style={{ height: "300px", position: "relative" }}
           >
-            <Link
-              to={leftBannerUrl}
-              style={{ display: "block", height: "100%" }}
-            >
+            <Link to={leftBannerUrl} style={{ display: "block", height: "100%" }}>
               <img
                 src={leftBannerImage}
                 alt="Promotional Banner"
@@ -147,27 +122,18 @@ const LandingHeroSection: React.FC<LandingHeroSectionProps> = ({
               variants={fadeVariant}
               style={{ height: "300px" }}
             >
-              {/* Wrap the current slide in a link to that category */}
-              <Link
-                to={`/shop?category=${slides[currentSlide].id}`}
-                style={{ display: "block", height: "100%" }}
-              >
+              <Link to={`/shop?category=${slides[currentSlide].id}`} style={{ display: "block", height: "100%" }}>
                 <motion.img
                   key={slides[currentSlide].image}
                   src={slides[currentSlide].image}
                   alt={`Slide ${currentSlide + 1}`}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                  }}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.6 }}
                 />
               </Link>
 
-              {/* Show prev/next controls only if multiple slides */}
               {slides.length > 1 && (
                 <>
                   <button
@@ -207,33 +173,27 @@ const LandingHeroSection: React.FC<LandingHeroSectionProps> = ({
                       transform: "translateX(-50%)",
                     }}
                   >
-                    {slides.map(
-                      (_: any, index: React.Key | null | undefined) => (
-                        <span
-                          key={index}
-                          onClick={() => goToSlide(index)}
-                          style={{
-                            display: "inline-block",
-                            width: "8px",
-                            height: "8px",
-                            borderRadius: "50%",
-                            backgroundColor:
-                              index === currentSlide ? "#114786" : "#bbb",
-                            margin: "0 5px",
-                            cursor: "pointer",
-                          }}
-                        />
-                      )
-                    )}
+                    {slides.map((_: any, index: number) => (
+                      <span
+                        key={index}
+                        onClick={() => goToSlide(index)}
+                        style={{
+                          display: "inline-block",
+                          width: "8px",
+                          height: "8px",
+                          borderRadius: "50%",
+                          backgroundColor: index === currentSlide ? "#114786" : "#bbb",
+                          margin: "0 5px",
+                          cursor: "pointer",
+                        }}
+                      />
+                    ))}
                   </div>
                 </>
               )}
             </motion.div>
           ) : (
-            <div
-              className="d-flex align-items-center justify-content-center bg-light"
-              style={{ height: "300px" }}
-            >
+            <div className="d-flex align-items-center justify-content-center bg-light" style={{ height: "300px" }}>
               <p className="text-muted mb-0">No Banners Found</p>
             </div>
           )}
@@ -248,117 +208,51 @@ const LandingHeroSection: React.FC<LandingHeroSectionProps> = ({
           >
             <div className="row g-2 flex-grow-1">
               {topProducts.length > 0 ? (
-                topProducts.map(
-                  (
-                    product: {
-                      id: any;
-                      image: string | undefined;
-                      name:
-                        | string
-                        | number
-                        | boolean
-                        | React.ReactElement<
-                            any,
-                            string | React.JSXElementConstructor<any>
-                          >
-                        | Iterable<React.ReactNode>
-                        | null
-                        | undefined;
-                      price:
-                        | string
-                        | number
-                        | boolean
-                        | React.ReactElement<
-                            any,
-                            string | React.JSXElementConstructor<any>
-                          >
-                        | Iterable<React.ReactNode>
-                        | React.ReactPortal
-                        | null
-                        | undefined;
-                    },
-                    index: React.Key | null | undefined
-                  ) => (
-                    <div className="col-6" key={index}>
-                      <Link
-                        to={
-                          product.id
-                            ? `/product/${product.id}`
-                            : "/product/unknown"
-                        }
-                        className="card border-0 shadow-sm"
+                topProducts.map((product: { id: any; image: string | undefined; price: any; }, index: React.Key | null | undefined) => (
+                  <div className="col-6" key={index}>
+                    <Link
+                      to={product.id ? `/product/${product.id}` : "/product/unknown"}
+                      className="card border-0 shadow-sm"
+                      style={{
+                        height: "140px",
+                        position: "relative",
+                        overflow: "hidden",
+                        display: "block",
+                      }}
+                    >
+                      <img
+                        src={product.image}
                         style={{
-                          height: "140px",
-                          position: "relative",
-                          overflow: "hidden",
-                          display: "block",
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          transition: "transform 0.3s ease",
+                        }}
+                      />
+                      <div
+                        className="card-body p-2"
+                        style={{
+                          position: "absolute",
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          backgroundColor: "rgba(0, 0, 0, 0.7)",
+                          color: "white",
+                          padding: "5px",
                         }}
                       >
-                        <img
-                          src={product.image}
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                            transition: "transform 0.3s ease",
-                          }}
-                          onMouseEnter={(e) => {
-                            (
-                              e.currentTarget as HTMLImageElement
-                            ).style.transform = "scale(1.1)";
-                          }}
-                          onMouseLeave={(e) => {
-                            (
-                              e.currentTarget as HTMLImageElement
-                            ).style.transform = "scale(1)";
-                          }}
-                        />
-                        <div
-                          className="card-body p-2"
-                          style={{
-                            position: "absolute",
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            backgroundColor: "rgba(0, 0, 0, 0.7)",
-                            color: "white",
-                            padding: "5px",
-                            transform: "translateY(100%)",
-                            transition: "transform 0.3s ease",
-                          }}
-                          onMouseEnter={(e) => {
-                            (
-                              e.currentTarget as HTMLDivElement
-                            ).style.transform = "translateY(0)";
-                          }}
-                          onMouseLeave={(e) => {
-                            (
-                              e.currentTarget as HTMLDivElement
-                            ).style.transform = "translateY(100%)";
-                          }}
-                        >
-                          <h6
-                            className="fw-semibold mb-1"
-                            style={{ fontSize: "0.8rem" }}
-                          >
-                            {product.name}
-                          </h6>
-                          <p
-                            className="text-muted small mb-0"
-                            style={{ fontSize: "0.7rem" }}
-                          >
-                            {product.price}
-                          </p>
-                        </div>
-                      </Link>
-                    </div>
-                  )
-                )
+                     {/*    <h6 className="fw-semibold mb-1 text-white" style={{ fontSize: "0.8rem" }}>
+                          {product.name}
+                        </h6> */}
+                        <p className="text-white small mb-0" style={{ fontSize: "0.7rem" }}>
+                          UGX {Utils.moneyFormat(product.price)}
+                        </p>
+                      </div>
+                    </Link>
+                  </div>
+                ))
               ) : (
-                <div
-                  className="d-flex align-items-center justify-content-center"
-                  style={{ height: "100%", width: "100%" }}
-                >
+                <div className="d-flex align-items-center justify-content-center" style={{ height: "100%", width: "100%" }}>
                   <p className="text-muted mb-0">No Products Found</p>
                 </div>
               )}

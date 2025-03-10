@@ -20,6 +20,7 @@ import CompanyPostedJobsPage from "../pages/private/CompanyPostedJobsPage";
 import { useAuth } from "../modules/auth";
 import { toast } from "react-toastify";
 import Utils from "../services/Utils";
+import ProductPage from "../pages/public/ProductPage";
 const LAYOUT_CONFIG_KEY =
   import.meta.env.VITE_APP_BASE_LAYOUT_CONFIG_KEY || "LayoutConfig";
 
@@ -28,6 +29,8 @@ const PrivateRoutes = () => {
     () => import("../pages/private/profile-edit/ProfileEditPage")
   );
 
+  const MyOrdersPage = lazy(() => import("../pages/private/MyOrdersPage"));
+  const OrderDetailPage = lazy(() => import("../pages/private/OrderDetailPage"));
   const MyCVPage = lazy(() => import("../pages/private/MyCVPage"));
   const MyCompanyFollowsPage = lazy(
     () => import("../pages/private/MyCompanyFollowsPage")
@@ -73,13 +76,13 @@ const PrivateRoutes = () => {
   const updatePrivate = () => {
     if (currentUser) {
       try {
-        Utils.update_logged_in_user();
+        // Utils.update_logged_in_user();
       } catch (error) {}
       if (currentUser.verification != "Yes") {
         var current_url = window.location.href;
         if (!current_url.includes("auth/verify-email")) {
-          window.location.href = "/auth/verify-email";
-          return;
+         /*  window.location.href = "/auth/verify-email";
+          return; */
         }
       }
     }
@@ -136,6 +139,23 @@ const PrivateRoutes = () => {
         <Route path="builder" element={<BuilderPageWrapper />} />
         <Route path="menu-test" element={<MenuTestPage />} />
         {/* Lazy Modules */}
+        <Route
+          path="my-orders"
+          element={
+            <SuspensedView>
+              <MyOrdersPage />
+            </SuspensedView>
+          }
+        />
+     
+        <Route
+          path="my-orders/:id"
+          element={
+            <SuspensedView>
+              <OrderDetailPage />
+            </SuspensedView>
+          }
+        />
         <Route
           path="my-cv"
           element={

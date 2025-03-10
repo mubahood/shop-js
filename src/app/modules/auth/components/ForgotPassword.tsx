@@ -20,7 +20,7 @@ const resetSchema = Yup.object().shape({
     .required("New password is required"),
   confirmPassword: Yup.string()
     .required("Password confirmation is required")
-    .oneOf([Yup.ref("password"), null], "Passwords must match"),
+    .oneOf([Yup.ref("password")], "Passwords must match"),
 });
 
 export function ForgotPassword() {

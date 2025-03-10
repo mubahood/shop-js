@@ -1,50 +1,26 @@
-import React from "react"
-import { Link } from "react-router-dom"
-import { motion } from "framer-motion"
-import { useAuth } from "../../modules/auth" // Adjust path as needed
-import { toAbsoluteUrl } from "../../../_metronic/helpers"
+import React from "react";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { useAuth } from "../../modules/auth";
+import { toAbsoluteUrl } from "../../../_metronic/helpers";
 
-/**
- * Sample wishlist item interface.
- * In your real code, you might fetch these from an API or context.
- */
+// Sample wishlist item interface (for demo purposes)
 interface WishlistItem {
-  id: number
-  name: string
-  price: number
-  imageUrl: string
-  inStock?: boolean
+  id: number;
+  name: string;
+  price: number;
+  imageUrl: string;
+  inStock?: boolean;
 }
 
 const sampleWishlist: WishlistItem[] = [
-/*   {
-    id: 1,
-    name: "Executive Poultry Incubator",
-    price: 800000,
-    imageUrl: toAbsoluteUrl("media/products/incubator.png"),
-    inStock: true,
-  },
-  {
-    id: 2,
-    name: "Hisense Original Split AC",
-    price: 1200000,
-    imageUrl: toAbsoluteUrl("media/products/ac.png"),
-    inStock: true,
-  },
-  {
-    id: 3,
-    name: "Hoffmans 2 in 1 Multipurpose Vacuum",
-    price: 150000,
-    imageUrl: toAbsoluteUrl("media/products/vacuum.png"),
-    inStock: false,
-  }, */
-  // Add more items as you wish
-]
+  // Sample items can be added here.
+];
 
 const CartPage: React.FC = () => {
-  const { cartItems, increase, decrease, totalCartAmount } = useAuth()
+  const { cartItems, increase, decrease, removeFromCart, totalCartAmount } =
+    useAuth();
 
-  // If cart is empty, show an empty state
   if (cartItems.length === 0) {
     return (
       <motion.div
@@ -58,7 +34,7 @@ const CartPage: React.FC = () => {
           Shop Now
         </Link>
       </motion.div>
-    )
+    );
   }
 
   return (
@@ -67,111 +43,64 @@ const CartPage: React.FC = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
-      {/* Inline or external .css styles */}
-      <style>
-        {`
-          .cart-card {
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            overflow: hidden;
-            transition: transform 0.2s, box-shadow 0.2s;
-          }
-          .cart-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-          }
-          .cart-card-body {
-            padding: 1rem;
-          }
-          .cart-item-img {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 4px;
-          }
-          .remove-link {
-            color: #f33d02;
-            font-size: 0.9rem;
-            cursor: pointer;
-            border: none;
-            background: none;
-            margin-left: 1rem;
-          }
-          .remove-link:hover {
-            text-decoration: underline;
-          }
-          .cart-summary-card {
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            overflow: hidden;
-            background-color: #fff;
-            transition: transform 0.2s, box-shadow 0.2s;
-          }
-          .cart-summary-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-          }
-          .cart-summary-card-body {
-            padding: 1rem;
-          }
-          .checkout-btn {
-            background-color: #f33d02;
-            border-color: #f33d02;
-            color: #fff;
-            width: 100%;
-            font-weight: 600;
-            margin-top: 1rem;
-          }
-          .checkout-btn:hover {
-            background-color: #d12e00;
-            border-color: #d12e00;
-          }
-          .wishlist-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 1rem;
-          }
-          .wishlist-item {
-            border: 1px solid #eaeaea;
-            border-radius: 4px;
-            padding: 0.5rem;
-            background-color: #fff;
-            text-align: center;
-            transition: transform 0.2s, box-shadow 0.2s;
-          }
-          .wishlist-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-          }
-          .wishlist-item img {
-            width: 100%;
-            height: 120px;
-            object-fit: cover;
-            border-radius: 4px;
-          }
-          .wishlist-item h6 {
-            font-size: 0.9rem;
-            margin: 0.5rem 0;
-            font-weight: 600;
-          }
-          .wishlist-item .price {
-            color: #114786;
-            font-weight: 700;
-            font-size: 0.9rem;
-          }
-          .wishlist-item .stock-status {
-            font-size: 0.75rem;
-            margin-top: 0.25rem;
-            display: inline-block;
-          }
-          .wishlist-item .in-stock {
-            color: #28a745;
-          }
-          .wishlist-item .out-stock {
-            color: #dc3545;
-          }
-        `}
-      </style>
+      <style>{`
+        .cart-card {
+          border: 1px solid #ddd;
+          border-radius: 0;
+          overflow: hidden;
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .cart-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .cart-card-body {
+          padding: 1rem;
+        }
+        .cart-item-img {
+          width: 80px;
+          height: 80px;
+          object-fit: cover;
+          border-radius: 0;
+        }
+        .remove-link {
+          color: #f33d02;
+          font-size: 0.9rem;
+          cursor: pointer;
+          border: none;
+          background: none;
+          margin-left: 1rem;
+        }
+        .remove-link:hover {
+          text-decoration: underline;
+        }
+        .cart-summary-card {
+          border: 1px solid #e0e0e0;
+          border-radius: 0;
+          overflow: hidden;
+          background-color: #fff;
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .cart-summary-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .cart-summary-card-body {
+          padding: 1rem;
+        }
+        .checkout-btn {
+          background-color: #f33d02;
+          border-color: #f33d02;
+          color: #fff;
+          width: 100%;
+          font-weight: 600;
+          margin-top: 1rem;
+        }
+        .checkout-btn:hover {
+          background-color: #d12e00;
+          border-color: #d12e00;
+        }
+      `}</style>
 
       <div className="row">
         {/* Left Column: Cart Items */}
@@ -224,11 +153,12 @@ const CartPage: React.FC = () => {
                           <div className="text-end">
                             <strong style={{ color: "#114786" }}>
                               UGX{" "}
-                              {parseFloat(item.product_price_1).toLocaleString()}
+                              {parseFloat(
+                                item.product_price_1
+                              ).toLocaleString()}
                             </strong>
                           </div>
                         </div>
-
                         <div className="d-flex align-items-center mt-2">
                           {/* Quantity Controls */}
                           <button
@@ -252,24 +182,20 @@ const CartPage: React.FC = () => {
                           >
                             <i className="bi bi-plus"></i>
                           </button>
-
-                          {/* Remove link */}
+                          {/* Remove button */}
                           <button
                             className="remove-link"
-                            onClick={() => {
-                              // Decreasing until zero effectively removes the item
-                              const qty = parseInt(item.product_quantity) || 1
-                              for (let i = 0; i < qty; i++) {
-                                decrease(item.product_id)
-                              }
-                            }}
+                            onClick={() => removeFromCart(item.product_id)}
                           >
                             Remove
                           </button>
                         </div>
                       </div>
-                      {/* Subtotal on the far right */}
-                      <div className="text-end ms-3" style={{ minWidth: "100px" }}>
+                      {/* Subtotal */}
+                      <div
+                        className="text-end ms-3"
+                        style={{ minWidth: "100px" }}
+                      >
                         <strong>
                           UGX {item.totalPrice().toLocaleString()}
                         </strong>
@@ -282,7 +208,7 @@ const CartPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Column: Summary */}
+        {/* Right Column: Order Summary */}
         <div className="col-lg-4">
           <div className="cart-summary-card">
             <div className="cart-summary-card-body">
@@ -292,15 +218,6 @@ const CartPage: React.FC = () => {
                 <span>Subtotal:</span>
                 <span>UGX {totalCartAmount.toLocaleString()}</span>
               </div>
-              {/* If you have shipping or tax, show them here */}
-              {/* <div className="d-flex justify-content-between mb-2">
-                <span>Shipping:</span>
-                <span>UGX 5,000</span>
-              </div>
-              <div className="d-flex justify-content-between mb-2">
-                <span>Tax:</span>
-                <span>UGX 3,000</span>
-              </div> */}
               <hr />
               <div
                 className="d-flex justify-content-between fw-bold"
@@ -317,7 +234,7 @@ const CartPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Sample Wishlist Section */}
+      {/* Wishlist Section (optional sample) */}
       <div className="mt-5">
         <h3 className="mb-3">Wishlist ({sampleWishlist.length})</h3>
         <div className="wishlist-grid">
@@ -336,7 +253,7 @@ const CartPage: React.FC = () => {
         </div>
       </div>
     </motion.div>
-  )
-}
+  );
+};
 
-export default CartPage
+export default CartPage;

@@ -12,6 +12,7 @@ import { DefaultConfig } from "../../_metronic/layout/core";
 import { LandingPage } from "../pages/public/LandingPage";
 import JobListingPage from "../pages/public/JobListingPage";
 import { OrderModel } from "../models/OrderModel";
+import ProductPage from "../pages/public/ProductPage";
 
 const LAYOUT_CONFIG_KEY =
   import.meta.env.VITE_APP_BASE_LAYOUT_CONFIG_KEY || "LayoutConfig";
@@ -89,6 +90,16 @@ const PublicRoutes = () => {
             </SuspensedView>
           }
         />
+
+        <Route
+          path="product/:id"
+          element={
+            <SuspensedView>
+              <ProductPage />
+            </SuspensedView>
+          }
+        />
+
         <Route
           path="cv-bank"
           element={

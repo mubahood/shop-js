@@ -56,6 +56,11 @@ function saveUserData(resp: UserResponse) {
 api.interceptors.request.use(
   (config) => {
     const token = Utils.loadFromDatabase(DB_TOKEN);
+    const u = Utils.loadFromDatabase(DB_LOGGED_IN_PROFILE);
+    if (u) {
+      config.headers.HTTP_USER_ID = u.id;
+      config.headers.user_id = u.id;
+    }
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
       config.headers.tok = `Bearer ${token}`;
@@ -77,6 +82,12 @@ api.interceptors.response.use(
 // Function to make a POST request
 export const http_post = async (path: string, params: Record<string, any>) => {
   try {
+    const u = Utils.loadFromDatabase(DB_LOGGED_IN_PROFILE);
+    if (u) {
+      params.HTTP_USER_ID = u.id;
+      params.user_id = u.id;
+    } else { 
+    }
     const response = await api.post(path, params, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -93,6 +104,13 @@ export const http_post = async (path: string, params: Record<string, any>) => {
 // Function to make a GET request
 export const http_get = async (path: string, params?: Record<string, any>) => {
   try {
+    const u = Utils.loadFromDatabase(DB_LOGGED_IN_PROFILE);
+    if (u) {
+      if (!params) params = {};
+      params.HTTP_USER_ID = u.id;
+      params.user_id = u.id;
+    }
+
     const response = await api.get(path, { params });
     return response.data;
   } catch (error) {

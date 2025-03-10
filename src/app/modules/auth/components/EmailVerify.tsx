@@ -58,11 +58,11 @@ export function EmailVerify() {
         if (data.verification !== "Yes") {
           throw new Error("Email verification failed.");
         }
-        await Utils.update_logged_in_user();
+        // await Utils.update_logged_in_user();
 
         //delay for 2 seconds
         await new Promise((resolve) => setTimeout(resolve, 2000));
-        await Utils.update_logged_in_user();
+        // await Utils.update_logged_in_user();
 
         toast.success("Email verified successfully!");
         setSuccessMessage("Email verified successfully!");

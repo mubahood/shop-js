@@ -76,7 +76,7 @@ export class OrderModel {
       case "4":
         return "Failed";
       default:
-        return "Pending";
+        return this.order_state;
     }
   }
 

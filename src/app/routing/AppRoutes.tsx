@@ -26,7 +26,7 @@ const AppRoutes: FC = () => {
     if (currentUser.verification != "Yes") {
       var current_url = window.location.href;
       if (!current_url.includes("auth/verify-email")) {
-        window.location.href = "/auth/verify-email";
+        // window.location.href = "/auth/verify-email";
       }
     }
   }

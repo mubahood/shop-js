@@ -7,8 +7,7 @@ import { ManifestModel } from "../../../models/Manifest";
 import Utils from "../../../services/Utils";
 
 /**
- * Single-file React component for displaying "Top Jobs"
- * from manifest.TOP_JOBS with inline styling and Framer Motion animations.
+ * Single-file React component for displaying "Top Jobs" 
  */
 
 /* Inline CSS for demonstration. 
@@ -141,8 +140,7 @@ interface LandingJobsSectionProps {
 const LandingJobsSection: React.FC<LandingJobsSectionProps> = ({
   manifest,
 }) => {
-  // Safely retrieve topJobs array from manifest
-  const topJobs = manifest?.TOP_JOBS ?? [];
+ 
 
   return (
     <div className="landing-top-jobs-section">
@@ -166,7 +164,7 @@ const LandingJobsSection: React.FC<LandingJobsSectionProps> = ({
           initial="hidden"
           animate="visible"
         >
-          {topJobs.map((job: any) => {
+          {[].map((job: any) => {
             // Fallbacks if data is missing
             const jobTitle = job.title || "Untitled Job";
             const jobIcon = job.job_icon || "https://via.placeholder.com/50";

@@ -6,51 +6,90 @@ import { HeaderUserMenu } from "../../../partials";
 import { useLayout } from "../../core";
 import { useAuth } from "../../../../app/modules/auth";
 import Utils from "../../../../app/services/Utils";
+import { FaRegUser, FaShoppingCart } from "react-icons/fa";
 
-const Navbar = () => {
+const Navbar: React.FC = () => {
   const { config } = useLayout();
-  const { currentUser } = useAuth();
+  const { currentUser, cartItems } = useAuth();
+  const cartItemsCount = cartItems ? cartItems.length : 0;
 
-  // Common classes
+  // Common classes for spacing
   const itemClass = "ms-1 ms-md-4";
   const userAvatarClass = "symbol-35px";
   const btnIconClass = "fs-2";
 
   return (
-    <div className="app-navbar flex-shrink-0">
-      {/* User Section: either Avatar & Menu (if logged in) or Login & Create Account (if not) */}
-      <div className={clsx("app-navbar-item", itemClass)}>
+    <div className="app-navbar flex-shrink-0 d-flex align-items-center">
+      {/* Cart Icon with Real Cart Count */}
+      <div
+        className={clsx("menu-item me-5", itemClass)}
+        style={{ position: "relative" }}
+      >
+        <Link
+          to="/cart"
+          className="btn btn-icon btn-active-color-primary p-0"
+          style={{ border: "none", background: "none" }}
+        >
+          <FaShoppingCart size={25} style={{ color: "#114786" }} />
+          {cartItemsCount > 0 && (
+            <span
+              style={{
+                backgroundColor: "#f33d02",
+                color: "#fff",
+                fontWeight: "bold",
+                paddingLeft: "6px",
+                width: "20px",
+                height: "20px",
+                position: "absolute",
+                textAlign: "center",
+                alignItems: "center",
+                display: "flex",
+                // border radius 110
+                borderRadius: "110px",
+                top: -0,
+                right: -0,
+                fontSize: "1rem",
+              }}
+            >
+              {cartItemsCount}
+            </span>
+          )}
+        </Link>
+      </div>
+
+      {/* User Section */}
+      <div className={clsx("menu-item", itemClass)}>
         {currentUser ? (
           <>
             <div
               className={clsx("cursor-pointer symbol", userAvatarClass)}
-              data-kt-menu-trigger="{default: 'click'}"
+              data-kt-menu-trigger="{default: 'click', lg: 'hover'}"
               data-kt-menu-attach="parent"
               data-kt-menu-placement="bottom-end"
             >
-              <img src={Utils.img(currentUser.avatar)} alt="" />
+              <FaRegUser size={25} className="text-primary" />
             </div>
             <HeaderUserMenu />
           </>
         ) : (
           <>
             <Link
-              to="auth/login"
+              to="/auth/login"
               className="btn btn-outline btn-outline-primary btn-sm me-2"
             >
               Login
             </Link>
-            <Link to="auth/register" className="btn btn-primary btn-sm">
+            <Link to="/auth/register" className="btn btn-primary btn-sm">
               Create Account
             </Link>
           </>
         )}
       </div>
 
-      {/* Mobile Menu Toggle: Only shows if the header menu is displayed in config */}
+      {/* Mobile Menu Toggle */}
       {config.app?.header?.default?.menu?.display && (
         <div
-          className="app-navbar-item d-lg-none ms-2 me-n3"
+          className="menu-item d-lg-none ms-2 me-n3"
           title="Show header menu"
         >
           <div

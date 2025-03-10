@@ -6,6 +6,8 @@ import Utils from "../../../services/Utils"; // Adjust import path as needed
 
 interface LandingCategoriesSectionProps {
   manifest?: any;
+  height?: number;
+  width?: number;
 }
 
 const fadeVariant: Variants = {
@@ -28,6 +30,8 @@ function chunkArray<T>(array: T[], size: number): T[][] {
 
 const LandingCategoriesSection: React.FC<LandingCategoriesSectionProps> = ({
   manifest,
+  height = 120,
+  width = 120,
 }) => {
   // Filter out only categories that should be shown
   const categories = Array.isArray(manifest?.CATEGORIES)
@@ -67,8 +71,8 @@ const LandingCategoriesSection: React.FC<LandingCategoriesSectionProps> = ({
                         alt={cat.category}
                         className="img-fluid rounded-circle"
                         style={{
-                          width: "120px",
-                          height: "120px",
+                          width: width + "px",
+                          height: height + "px",
                           objectFit: "cover",
                         }}
                       />
@@ -114,8 +118,8 @@ const LandingCategoriesSection: React.FC<LandingCategoriesSectionProps> = ({
                         alt={cat.category}
                         className="img-fluid rounded-circle"
                         style={{
-                          width: "100px",
-                          height: "100px",
+                          width: width + "px",
+                          height: height + "px",
                           objectFit: "cover",
                         }}
                       />
