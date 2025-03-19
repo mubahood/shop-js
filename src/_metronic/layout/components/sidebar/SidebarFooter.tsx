@@ -8,14 +8,14 @@ const SidebarFooter = () => {
       id="kt_app_sidebar_footer"
     >
       <Link
-        to="/job-create"
+        to="/shop"
         className="btn btn-flex flex-center btn-custom btn-primary overflow-hidden text-nowrap px-0 h-40px w-100"
         data-bs-toggle="tooltip"
         data-bs-trigger="hover"
         data-bs-dismiss-="click"
         title="Metronic Docs & Components"
       >
-        <span className="btn-label">POST NEW JOB</span>
+        <span className="btn-label">SHOP NOW</span>
         <KTIcon iconName="document" className="btn-icon fs-2 m-0" />
       </Link>
     </div>

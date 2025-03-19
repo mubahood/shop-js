@@ -125,7 +125,7 @@ export function Registration() {
         <Link to="/" className="mb-12">
           <img
             alt="Logo"
-            src={toAbsoluteUrl("media/logos/logo.svg")}
+            src={toAbsoluteUrl("media/logos/logo.png")}
             className="h-75px"
           />
         </Link>

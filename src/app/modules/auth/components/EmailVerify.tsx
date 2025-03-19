@@ -134,7 +134,7 @@ export function EmailVerify() {
         <div className="mb-12">
           <img
             alt="Logo"
-            src={toAbsoluteUrl("media/logos/logo.svg")}
+            src={toAbsoluteUrl("media/logos/logo.png")}
             className="h-75px"
           />
         </div>
