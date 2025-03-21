@@ -79,7 +79,7 @@ const ProductPage: React.FC = () => {
       mainImage: product.feature_photo
         ? Utils.img(product.feature_photo)
         : toAbsoluteUrl("media/products/placeholder.png"),
-      discount: product.discount ?? 0,
+  
     };
     addToCart(productModel);
     toast.success(`${product.name} added to cart!`);
