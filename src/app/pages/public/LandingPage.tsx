@@ -22,6 +22,7 @@ import { ManifestModel } from "../../models/Manifest";
 import FooterSection from "./sections/FotterSection";
 import LandingTopProductsSection from "./sections/LandingTopProductsSection";
 import LandingRecommendedProductsSection from "./sections/LandingRecommendedProductsSection";
+import ShimmerImage from "../../components/ShimmerImage";
 
 const fadeIn = {
   hidden: { opacity: 0 },
@@ -72,6 +73,7 @@ const LandingPage: React.FC = () => {
         variants={fadeIn}
         className="alert-reload text-center mb-0"
       ></motion.div>
+
       {/*       <button className="btn btn-primary btn-lg btn-reload" onClick={fetchData}>
         Reload Data
       </button> */}
@@ -79,11 +81,6 @@ const LandingPage: React.FC = () => {
       <LandingCategoriesSection manifest={my_manifest} />
       <LandingTopProductsSection manifest={my_manifest} />
       <LandingRecommendedProductsSection manifest={my_manifest} />
-      {/*       <LandingJobsSection manifest={my_manifest} />
-      <LandingTendersSection manifest={my_manifest} />
-      <LandingSlidesSection />
-      <LandingCourseSection /> */}
-      {/* <FooterSection /> */}
     </div>
   );
 };

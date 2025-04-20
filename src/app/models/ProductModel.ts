@@ -113,6 +113,7 @@ export class ProductModel {
    * Helper: Returns price_1 formatted to 2 decimals with UGX as currency.
    */
   getFormattedPrice(): string {
+    return Utils.moneyFormat(this.price_1); 
     const numericPrice = parseFloat(this.price_1) || 0;
     return `UGX ${numericPrice.toFixed(2)}`;
   }

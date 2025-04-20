@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toAbsoluteUrl } from "../../../../_metronic/helpers";
 import Utils from "../../../services/Utils";
+import ShimmerImage from "../../../components/ShimmerImage";
 
 interface LandingHeroSectionProps {
   manifest?: any;
@@ -17,12 +18,16 @@ const fadeVariant = {
   },
 };
 
-const LandingHeroSection: React.FC<LandingHeroSectionProps> = ({ manifest }) => {
+const LandingHeroSection: React.FC<LandingHeroSectionProps> = ({
+  manifest,
+}) => {
   const leftBannerImage = manifest?.FIRST_BANNER?.first_banner_image
     ? Utils.img(manifest.FIRST_BANNER.first_banner_image)
     : toAbsoluteUrl("media/banners/metronic-ph.png");
   const leftBannerCategoryId = manifest?.FIRST_BANNER?.category_id || null;
-  const leftBannerUrl = leftBannerCategoryId ? `/shop?category=${leftBannerCategoryId}` : "/shop";
+  const leftBannerUrl = leftBannerCategoryId
+    ? `/shop?category=${leftBannerCategoryId}`
+    : "/shop";
 
   const slides =
     Array.isArray(manifest?.SLIDER_CATEGORIES) &&
@@ -46,8 +51,10 @@ const LandingHeroSection: React.FC<LandingHeroSectionProps> = ({ manifest }) => 
 
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  const handleNext = () => setCurrentSlide((prev) => (prev + 1) % slides.length);
-  const handlePrev = () => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  const handleNext = () =>
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
+  const handlePrev = () =>
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
   const goToSlide = (index: number) => setCurrentSlide(index);
 
   useEffect(() => {
@@ -74,8 +81,11 @@ const LandingHeroSection: React.FC<LandingHeroSectionProps> = ({ manifest }) => 
             variants={fadeVariant}
             style={{ height: "300px", position: "relative" }}
           >
-            <Link to={leftBannerUrl} style={{ display: "block", height: "100%" }}>
-              <img
+            <Link
+              to={leftBannerUrl}
+              style={{ display: "block", height: "100%" }}
+            >
+              <ShimmerImage
                 src={leftBannerImage}
                 alt="Promotional Banner"
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
@@ -122,15 +132,15 @@ const LandingHeroSection: React.FC<LandingHeroSectionProps> = ({ manifest }) => 
               variants={fadeVariant}
               style={{ height: "300px" }}
             >
-              <Link to={`/shop?category=${slides[currentSlide].id}`} style={{ display: "block", height: "100%" }}>
-                <motion.img
+              <Link
+                to={`/shop?category=${slides[currentSlide].id}`}
+                style={{ display: "block", height: "100%" }}
+              >
+                <ShimmerImage
                   key={slides[currentSlide].image}
                   src={slides[currentSlide].image}
                   alt={`Slide ${currentSlide + 1}`}
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.6 }}
                 />
               </Link>
 
@@ -182,7 +192,8 @@ const LandingHeroSection: React.FC<LandingHeroSectionProps> = ({ manifest }) => 
                           width: "8px",
                           height: "8px",
                           borderRadius: "50%",
-                          backgroundColor: index === currentSlide ? "#114786" : "#bbb",
+                          backgroundColor:
+                            index === currentSlide ? "#114786" : "#bbb",
                           margin: "0 5px",
                           cursor: "pointer",
                         }}
@@ -193,7 +204,10 @@ const LandingHeroSection: React.FC<LandingHeroSectionProps> = ({ manifest }) => 
               )}
             </motion.div>
           ) : (
-            <div className="d-flex align-items-center justify-content-center bg-light" style={{ height: "300px" }}>
+            <div
+              className="d-flex align-items-center justify-content-center bg-light"
+              style={{ height: "300px" }}
+            >
               <p className="text-muted mb-0">No Banners Found</p>
             </div>
           )}
@@ -208,51 +222,69 @@ const LandingHeroSection: React.FC<LandingHeroSectionProps> = ({ manifest }) => 
           >
             <div className="row g-2 flex-grow-1">
               {topProducts.length > 0 ? (
-                topProducts.map((product: { id: any; image: string | undefined; price: any; }, index: React.Key | null | undefined) => (
-                  <div className="col-6" key={index}>
-                    <Link
-                      to={product.id ? `/product/${product.id}` : "/product/unknown"}
-                      className="card border-0 shadow-sm"
-                      style={{
-                        height: "140px",
-                        position: "relative",
-                        overflow: "hidden",
-                        display: "block",
-                      }}
-                    >
-                      <img
-                        src={product.image}
+                topProducts.map(
+                  (
+                    product: { id: any; image: string | undefined; price: any },
+                    index: React.Key | null | undefined
+                  ) => (
+                    <div className="col-6" key={index}>
+                      <Link
+                        to={
+                          product.id
+                            ? `/product/${product.id}`
+                            : "/product/unknown"
+                        }
+                        className="card border-0 shadow-sm"
                         style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                          transition: "transform 0.3s ease",
-                        }}
-                      />
-                      <div
-                        className="card-body p-2"
-                        style={{
-                          position: "absolute",
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          backgroundColor: "rgba(0, 0, 0, 0.7)",
-                          color: "white",
-                          padding: "5px",
+                          height: "140px",
+                          position: "relative",
+                          overflow: "hidden",
+                          display: "block",
                         }}
                       >
-                     {/*    <h6 className="fw-semibold mb-1 text-white" style={{ fontSize: "0.8rem" }}>
+                        <ShimmerImage
+                          src={
+                            product.image ||
+                            toAbsoluteUrl("media/products/placeholder.png")
+                          }
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                            transition: "transform 0.3s ease",
+                          }}
+                        />
+                        <div
+                          className="card-body p-2"
+                          style={{
+                            position: "absolute",
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            backgroundColor: "rgba(0, 0, 0, 0.7)",
+                            color: "white",
+                            padding: "5px",
+                          }}
+                        >
+                          {/*    <h6 className="fw-semibold mb-1 text-white" style={{ fontSize: "0.8rem" }}>
                           {product.name}
                         </h6> */}
-                        <p className="text-white small mb-0" style={{ fontSize: "0.7rem" }}>
-                          UGX {Utils.moneyFormat(product.price)}
-                        </p>
-                      </div>
-                    </Link>
-                  </div>
-                ))
+                          <p
+                            className="text-white small mb-0"
+                            style={{ fontSize: "0.7rem" }}
+                          >
+                            UGX {Utils.moneyFormat(product.price)}
+                          </p>
+                        </div>
+                      </Link>
+                    </div>
+                  )
+                )
               ) : (
-                <div className="d-flex align-items-center justify-content-center" style={{ height: "100%", width: "100%" }}>
+                <div
+                  className="d-flex align-items-center justify-content-center"
+                  style={{ height: "100%", width: "100%" }}
+                >
                   <p className="text-muted mb-0">No Products Found</p>
                 </div>
               )}
@@ -260,6 +292,9 @@ const LandingHeroSection: React.FC<LandingHeroSectionProps> = ({ manifest }) => 
           </motion.div>
         </div>
       </div>
+
+
+
     </motion.div>
   );
 };

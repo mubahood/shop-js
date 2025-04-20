@@ -1,6 +1,6 @@
 import { BASE_URL, DB_LOGGED_IN_PROFILE, DB_TOKEN } from "../../Constants";
 import { ProfileModel } from "../models/ProfileModel";
-import { http_get } from "./Api"; 
+import { http_get } from "./Api";
 
 class Utils {
   //static moneyFormat
@@ -60,7 +60,7 @@ class Utils {
     }
     return value;
   }
- 
+
   static formatDateTime(interview_scheduled_at: string) {
     var date = new Date(interview_scheduled_at);
     return date.toLocaleString();
@@ -252,6 +252,11 @@ class Utils {
       return "";
     }
     return BASE_URL + "/storage/files/" + last_segment;
+  }
+
+  moneyFormat(any: string): string { 
+    const str = String(any);
+    return str.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
 }
 

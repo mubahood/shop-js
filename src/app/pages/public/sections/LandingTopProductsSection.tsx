@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, Variants } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -7,92 +7,58 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { toAbsoluteUrl } from "../../../../_metronic/helpers";
 import Utils from "../../../services/Utils";
-import { useAuth } from "../../../modules/auth"; // adjust the path as needed
+import { useAuth } from "../../../modules/auth";
+import ShimmerImage from "../../../components/ShimmerImage";
 
-// Simple fade animation variant
 const fadeVariant: Variants = {
   hidden: { opacity: 0, y: 40 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.8, ease: "easeOut" },
-  },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
 };
 
-interface LandingTopProductsSectionProps {
-  manifest?: any;
+function divideIntoThree<T>(arr: T[]): T[][] {
+  const per = Math.ceil(arr.length / 3);
+  return [arr.slice(0, per), arr.slice(per, per * 2), arr.slice(per * 2)];
 }
 
-// Helper to chunk an array into 3 parts
-function divideIntoThree<T>(array: T[]): T[][] {
-  const total = array.length;
-  const perSlice = Math.ceil(total / 3);
-  const slices = [];
-  let start = 0;
-  for (let i = 0; i < 3; i++) {
-    const end = start + perSlice;
-    slices.push(array.slice(start, end));
-    start = end;
-  }
-  return slices;
-}
-
-const LandingTopProductsSection: React.FC<LandingTopProductsSectionProps> = ({ manifest }) => {
+const LandingTopProductsSection: React.FC<{ manifest?: any }> = ({
+  manifest,
+}) => {
   const [activeTab, setActiveTab] = useState(0);
   const { addToCart, isInCart } = useAuth();
 
-  // 1) Get products from manifest.SECTION_1_PRODUCTS or default to empty object
-  const section1Data = manifest?.SECTION_1_PRODUCTS || {};
-
-  // 2) Convert the object into an array of products
-  const productArray = Object.keys(section1Data).map((key) => {
-    const item = section1Data[key] || {};
+  const raw = Object.values(manifest?.SECTION_1_PRODUCTS || {});
+  const products = raw.map((item: any) => {
+    const num = Number(item.price_1) || 0;
     return {
       id: item.id,
-      name: item.name ?? "Untitled",
+      name: item.name || "Untitled",
       imageUrl: item.feature_photo
         ? Utils.img(item.feature_photo)
         : toAbsoluteUrl("media/products/placeholder.png"),
-      price: item.price_1 ? `UGX ${item.price_1}` : "UGX 0.00",
-      discount: item.discount, // may be undefined
+      priceNum: num,
+      priceLabel: `UGX ${Utils.moneyFormat(item.price_1)}`,
     };
   });
 
-  // 3) Split productArray into three parts
-  const [springSale, allUnderOne, quickShip] = divideIntoThree(productArray);
-
-  // 4) Build tab data
-  const tabData = [
-    { label: "BEST SELLERS", products: springSale },
-    { label: "LESS THAN 10K", products: allUnderOne },
-    { label: "QuickShip", products: quickShip },
+  const [first, second, third] = divideIntoThree(products);
+  const tabs = [
+    { label: "BEST SELLERS", items: first },
+    { label: "JUST IN", items: second },
+    { label: "QUICKSHIP", items: third },
   ];
 
-  const handleTabClick = (index: number) => {
-    setActiveTab(index);
-  };
-
-  // Add-to-cart handler for slider items
-  const handleAddToCart = (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    product: any
-  ) => {
+  const handleAdd = (e: React.MouseEvent, p: any) => {
     e.preventDefault();
     e.stopPropagation();
-    // Remove the "UGX " prefix and convert price
-    const priceNumber = parseFloat(product.price.replace("UGX ", ""));
-    const productModel = {
-      id: product.id.toString(),
-      price: priceNumber,
-      name: product.name,
-      mainImage: product.imageUrl,
-      discount: product.discount || 0,
-    };
-    addToCart(productModel);
+    addToCart({
+      id: String(p.id),
+      price: p.priceNum,
+      name: p.name,
+      mainImage: p.imageUrl,
+    });
   };
 
-  // Fallback if no products
-  if (productArray.length === 0) {
+  if (!products.length) {
     return (
       <div className="container py-5">
         <p className="text-center text-muted">No products found</p>
@@ -100,217 +66,201 @@ const LandingTopProductsSection: React.FC<LandingTopProductsSectionProps> = ({ m
     );
   }
 
-  useEffect(() => {
-    const style = document.createElement("style");
-    style.innerHTML = `
-      /* Card Styling */
-      .card {
-        background-color: #fff;
-        border: 0;
-        border-radius: 4px;
-        overflow: hidden;
-        transition: transform 0.2s, box-shadow 0.2s;
-      }
-      .card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      }
-      /* Image Container */
-      .card .position-relative {
-        background-color: #fff;
-      }
-      .card img {
-        object-fit: cover;
-      }
-      /* Overlay Cart Button */
-      .cart-btn {
-        position: absolute;
-        bottom: 10px;
-        right: 10px;
-        z-index: 10;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-        cursor: pointer;
-        transition: transform 0.2s ease, opacity 0.2s ease;
-        opacity: 0;
-      }
-      .card:hover .cart-btn {
-        opacity: 1;
-      }
-      /* Add-to-Cart Button (not in cart) */
-      .cart-btn.add {
-        background-color: transparent;
-        border: 2px solid #f33d02;
-        color: #f33d02;
-      }
-      .cart-btn.add:hover {
-        background-color: #f33d02;
-        color: #fff;
-        transform: scale(1.1);
-      }
-      /* Checkout Button (in cart) */
-      .cart-btn.checkout {
-        background-color: #114786;
-        border: none;
-        color: #fff;
-      }
-      .cart-btn.checkout:hover {
-        background-color: #0e3558;
-        transform: scale(1.1);
-      }
-      /* Tab Button Styling */
-      .tab-btn {
-        border: none;
-        background: none;
-        padding: 0;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: border-color 0.25s, color 0.25s;
-      }
-      /* Responsive: 6 slides per view on extra-large screens */
-      @media (min-width: 1200px) {
-        .swiper-slide {
-          flex: 0 0 16.66% !important;
-          max-width: 16.66% !important;
-        }
-      }
-      /* Browse button */
-      .cta-browse-btn {
-        text-decoration: none;
-        padding: 0.75rem 1.5rem;
-        font-size: 1.125rem;
-        font-weight: 600;
-        border-radius: 4px;
-        transition: background-color 0.2s ease, transform 0.2s ease;
-      }
-      .cta-browse-btn:hover {
-        background-color: #0056b3;
-        transform: scale(1.02);
-      }
-    `;
-    document.head.appendChild(style);
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, []);
-
   return (
     <motion.div
-      className="container py-5"
+      className="container px-10  py-4 pt-10 "
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, amount: 0.1 }}
+      viewport={{ once: true }}
       variants={fadeVariant}
     >
-      {/* Tabs */}
-      <div className="d-flex justify-content-center mb-4 gap-4">
-        {tabData.map((tab, index) => {
-          const isActive = activeTab === index;
-          return (
+      <div className=" ">
+        <div className="d-flex justify-content-center mb-3 gap-3">
+          {tabs.map((t, i) => (
             <button
-              key={index}
-              onClick={() => handleTabClick(index)}
-              className="tab-btn"
+              key={i}
+              onClick={() => setActiveTab(i)}
               style={{
-                color: isActive ? "#f33d02" : "#767676",
-                borderBottom: isActive
-                  ? "2px solid #f33d02"
-                  : "2px solid transparent",
+                border: "none",
+                background: "none",
+                fontSize: "1.4rem",
+                cursor: "pointer",
+                color: activeTab === i ? "#F75E1EFF" : "#767676",
+                borderBottom:
+                  activeTab === i
+                    ? "2px solid #F75E1EFF"
+                    : "2px solid transparent",
+                fontWeight: 600,
+                padding: "0 8px",
               }}
             >
-              {tab.label}
+              {t.label}
             </button>
-          );
-        })}
-      </div>
+          ))}
+        </div>
 
-      {/* Horizontal Slider */}
-      <Swiper
-        modules={[Navigation]}
-        navigation
-        spaceBetween={10}
-        slidesPerView={2}
-        breakpoints={{
-          576: { slidesPerView: 3 },
-          768: { slidesPerView: 4 },
-          992: { slidesPerView: 5 },
-          1200: { slidesPerView: 6 },
-        }}
-      >
-        {tabData[activeTab].products.map((product) => (
-          <SwiperSlide key={product.id}>
-            <Link
-              to={`/product/${product.id}`}
-              style={{ textDecoration: "none", color: "inherit" }}
-            >
-              <motion.div
-                className="card"
-                whileHover={{ scale: 1.02 }}
-                style={{ position: "relative", overflow: "hidden" }}
+        <Swiper
+          modules={[Navigation]}
+          navigation
+          spaceBetween={20}
+          breakpoints={{
+            0: { slidesPerView: 2 },
+            576: { slidesPerView: 3 },
+            768: { slidesPerView: 4 },
+            992: { slidesPerView: 4 },
+            1200: { slidesPerView: 5 },
+          }}
+        >
+          {tabs[activeTab].items.map((p) => (
+            <SwiperSlide key={p.id}>
+              <Link
+                to={`/product/${p.id}`}
+                style={{ textDecoration: "none", color: "inherit" }}
               >
-                <div
-                  className="position-relative w-100"
-                  style={{ height: "220px" }}
+                <motion.div
+                className="card py-2 px-2 shadow-sm border-0 rounded-3 overflow-hidden"
+                  whileHover={{
+                    scale: 1.03,
+                    y: -4,
+                    boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
+                  }}
+                  style={{
+                    borderRadius: 8,
+                    overflow: "hidden",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                    display: "flex",
+                    flexDirection: "column",
+                    height: "100%",
+                    background: "#f8f9fa",
+                  }}
                 >
-                  <img
-                    src={product.imageUrl}
-                    alt={product.name}
-                    className="img-fluid w-100 h-100"
-                    style={{ objectFit: "cover" }}
-                  />
-                  {isInCart(product.id.toString()) ? (
-                    <Link
-                      to="/cart"
-                      className="cart-btn checkout"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <i className="bi bi-cart-check"></i>
-                    </Link>
-                  ) : (
-                    <button
-                      onClick={(e) => handleAddToCart(e, product)}
-                      className="cart-btn add"
-                    >
-                      <i className="bi bi-cart-plus"></i>
-                    </button>
-                  )}
-                </div>
-                <div className="card-body p-2">
-                  <h6 className="fw-semibold mb-1" style={{ fontSize: "0.9rem" }}>
-                    {product.name}
-                  </h6>
-                  <div className="d-flex align-items-center">
-                    <span
-                      className="text-primary fw-bold me-2"
-                      style={{ fontSize: "1rem" }}
-                    >
-                      {product.price}
-                    </span>
-                    {product.discount && (
-                      <span
-                        className="badge bg-danger text-white"
-                        style={{ fontSize: "0.75rem" }}
+                  <div
+                    style={{
+                      position: "relative",
+                      height: 260,
+                      background: "#e9ecef",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <ShimmerImage
+                      src={p.imageUrl}
+                      alt={p.name}
+                      width={300}
+                      height={260}
+                      style={{
+                        objectFit: "contain",
+                        width: "100%",
+                        height: "100%",
+                      }}
+                    />
+                    {isInCart(String(p.id)) ? (
+                      <Link
+                        to="/cart"
+                        style={{
+                          position: "absolute",
+                          bottom: 8,
+                          right: 8,
+                          background: "#0517A1FF",
+                          borderRadius: "50%",
+                          width: 36,
+                          height: 36,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
                       >
-                        {product.discount}
-                      </span>
+                        <i
+                          className="bi bi-cart-check"
+                          style={{ color: "#fff" }}
+                        />
+                      </Link>
+                    ) : (
+                      <button
+                        onClick={(e) => handleAdd(e, p)}
+                        style={{
+                          position: "absolute",
+                          bottom: 8,
+                          right: 8,
+                          background: "#F75E1EFF",
+                          border: "none",
+                          borderRadius: "50%",
+                          width: 36,
+                          height: 36,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <i
+                          className="bi bi-cart-plus"
+                          style={{ color: "#fff" }}
+                        />
+                      </button>
                     )}
                   </div>
-                </div>
-              </motion.div>
-            </Link>
-          </SwiperSlide>
-        ))}
-      </Swiper>
-      <div className="text-center mt-5">
-        <a href="/shop" className="btn btn-lg btn-primary cta-browse-btn">
-          Browse All Products
-        </a>
+                  <div
+                    style={{
+                      padding: "8px",
+                      background: "#ffffff",
+                      flexGrow: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: "0.9rem",
+                        fontWeight: 500,
+                        lineHeight: 1.2,
+                        height: "2.8rem",
+                        overflow: "hidden",
+                        marginBottom: 6,
+                      }}
+                    >
+                      {p.name}
+                    </div>
+                    <div
+                      style={{
+                        marginTop: "auto",
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      <span
+                        style={{
+                          color: "#0517A1FF",
+                          fontWeight: 600,
+                          fontSize: "1rem",
+                        }}
+                      >
+                        {p.priceLabel}
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+              </Link>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+
+        <div className="text-center mt-4">
+          <Link
+            to="/shop"
+            style={{
+              display: "inline-block",
+              background: "linear-gradient(90deg, #0517A1FF, #F75E1EFF)",
+              color: "#fff",
+              padding: "10px 20px",
+              borderRadius: 4,
+              fontWeight: 600,
+            }}
+          >
+            Browse All Products
+          </Link>
+        </div>
       </div>
     </motion.div>
   );
