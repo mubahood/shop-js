@@ -1,6 +1,5 @@
 import { useEffect } from "react";
-import { Outlet, useLocation } from "react-router-dom";
-import { HeaderWrapper } from "./components/header";
+import { Outlet, useLocation } from "react-router-dom"; 
 import { RightToolbar } from "../partials/layout/RightToolbar";
 import { ScrollTop } from "./components/scroll-top";
 import { FooterWrapper } from "./components/footer";
@@ -14,6 +13,7 @@ import {
 import { PageDataProvider } from "./core";
 import { reInitMenu } from "../helpers";
 import { Bounce, ToastContainer } from "react-toastify";
+import HeaderWrapper from "../../app/components/Header/HeaderWrapper";
 
 const MasterLayout = () => {
   const location = useLocation();
