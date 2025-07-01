@@ -1,0 +1,97 @@
+/* src/app/components/HomePage/HeroSection.css */
+
+/* ===================================================================
+   1. Category List Styling
+   =================================================================== */
+.category-list-wrapper {
+  background-color: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 10px 0;
+  height: 100%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  font-size: var(--base-font-size);
+  font-weight: 500;
+  color: var(--text-color);
+  text-decoration: none;
+  border-left: 3px solid transparent; /* For hover effect */
+  transition: all 0.2s ease-in-out;
+}
+
+.category-item:hover {
+  background-color: var(--body-bg);
+  color: var(--primary-color);
+  border-left-color: var(--primary-color);
+}
+
+.category-item i {
+  font-size: 18px;
+  width: 20px; /* Ensures icons are aligned */
+  text-align: center;
+  color: var(--text-color-light);
+}
+
+.category-item:hover i {
+  color: var(--primary-color);
+}
+
+/* ===================================================================
+   2. Hero Carousel Styling
+   =================================================================== */
+.hero-carousel-wrapper {
+  border-radius: var(--border-radius);
+  overflow: hidden; /* This is CRUCIAL for making the border-radius apply to the images */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  height: 400px; /* Fixed height for the hero section */
+}
+
+/* Customizing the Carousel Controls (Arrows) */
+.hero-carousel-wrapper .carousel-control-prev-icon,
+.hero-carousel-wrapper .carousel-control-next-icon {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  background-size: 50%;
+}
+
+/* Customizing the Carousel Indicators (Dots) */
+.hero-carousel-wrapper .carousel-indicators [data-bs-target] {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.5);
+  margin: 0 5px;
+  border: none;
+}
+
+.hero-carousel-wrapper .carousel-indicators .active {
+  background-color: var(--primary-color);
+}
+
+/* Customizing the Carousel Caption */
+.hero-carousel-wrapper .carousel-caption {
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding-bottom: 2rem; /* More space for caption */
+}
+
+/* Responsive adjustments for the hero section */
+@media (max-width: 991.98px) {
+  .hero-section .row {
+    margin-top: 1rem;
+  }
+}

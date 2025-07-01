@@ -1,45 +1,28 @@
-import { createRoot } from "react-dom/client";
-// Axios
-import axios from "axios";
-import { Chart, registerables } from "chart.js";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-// Apps
-import { MetronicI18nProvider } from "./_metronic/i18n/Metronici18n";
-import "./_metronic/assets/sass/style.react.scss";
-import "./_metronic/assets/fonticon/fonticon.css";
-import "./_metronic/assets/keenicons/duotone/style.css";
-import "./_metronic/assets/keenicons/outline/style.css";
-import "./_metronic/assets/keenicons/solid/style.css";
-/**
- * TIP: Replace this style import with rtl styles to enable rtl mode
- *
- * import './_metronic/assets/css/style.rtl.css'
- **/
-import "./_metronic/assets/sass/style.scss";
-import { AppRoutes } from "./app/routing/AppRoutes";
-import { AuthProvider } from "./app/modules/auth";
-/**
- * Creates `axios-mock-adapter` instance for provided `axios` instance, add
- * basic Metronic mocks and returns it.
- *
- * @see https://github.com/ctimmerm/axios-mock-adapter
- */
-/**
- * Inject Metronic interceptors for axios.
- *
- * @see https://github.com/axios/axios#interceptors
- */
-Chart.register(...registerables);
+// src/main.tsx
 
-// const queryClient = new QueryClient();
-const container = document.getElementById("root");
-if (container) {
-  createRoot(container).render(
-    <MetronicI18nProvider>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
-    </MetronicI18nProvider>
-  );
-}
+// 1) Plain Bootstrap
+import "bootstrap/dist/css/bootstrap.min.css";
+
+// 2) Bootstrap Icons (for bi-*)
+import "bootstrap-icons/font/bootstrap-icons.css";
+
+// 3) Your custom header styles (and any global overrides)
+import "./app/components/Header/Header.css";
+import "./app/components/css/blitxpress-theme.css";
+import "./app/components/HomePage/TopProductsSection.css"; // NEW: For the Top Products section
+import "./app/components/Layout/Footer.css";
+
+
+
+import React from "react";
+import { createRoot } from "react-dom/client";
+import App from "./app/App";
+import { BrowserRouter } from "react-router-dom";
+
+const container = document.getElementById("root")!;
+const root = createRoot(container);
+root.render(
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
+);

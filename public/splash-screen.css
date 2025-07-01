@@ -82,3 +82,13 @@ html[data-bs-theme='dark'] .splash-screen .dark-logo {
   align-items: center;
   margin-top: 1.25rem;
 }
+
+/* <<< NEW: fade-out support >>> */
+.splash-screen {
+  transition: opacity 0.3s ease;
+}
+
+.splash-screen.fade-out {
+  opacity: 0;
+  display: flex !important;
+}
