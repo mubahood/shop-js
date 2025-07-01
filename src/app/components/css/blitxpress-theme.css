@@ -8,10 +8,10 @@
    =================================================================== */
 :root {
   /* --- Colors --- */
-  --primary-color: #0a1f4b; /* Consistent Blitxpress Red */
-  --primary-color-dark: #05179F; /* Darker Red for hover */
-  --primary-color-light: #040f7a; /* Lighter Red for gradient start */
-  --accent-color: #b81222; /* A complementary blue for highlights */
+  --primary-color: #d71529; /* Consistent Blitxpress Red */
+  --primary-color-dark: #b81222; /* Darker Red for hover */
+  --primary-color-light: #ff3a4c; /* Lighter Red for gradient start */
+  --accent-color: #007bff; /* A complementary blue for highlights */
 
   --text-color-dark: #212529;
   --text-color-medium: #495057;
