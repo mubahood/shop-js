@@ -1,311 +1,430 @@
 // src/app/pages/ProductDetailPage/ProductDetailPage.tsx
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Container, Row, Col, Button, Form, ProgressBar } from 'react-bootstrap';
-// Assuming dummyDeals now contains rich PDP data based on our previous updates
-import { dummyDeals } from '../../data/dummyProducts'; // Updated import path
+import React, { useEffect, useState, useMemo } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import {
+  Container,
+  Row,
+  Col,
+  Button,
+  Form,
+  ProgressBar,
+  Spinner,
+  Modal,
+} from 'react-bootstrap';
+import { useGetProductByIdQuery } from '../../services/productsApi';
 import { ProductModel } from '../../models/ProductModel';
-import './ProductDetailPage.css'; // New CSS file for PDP styling
+import { useDispatch } from 'react-redux';
+import { addItem } from '../../store/slices/cartSlice';
+import { showNotification } from '../../store/slices/notificationSlice';
+import './ProductDetailPage.css';
 
-interface ProductDetailPageProps {}
+interface RouteParams {
+  id?: string;
+}
 
-const ProductDetailPage: React.FC<ProductDetailPageProps> = () => {
-  const { id } = useParams<{ id: string }>();
-  const [product, setProduct] = useState<ProductModel | null>(null);
-  const [selectedMainImage, setSelectedMainImage] = useState<string>(''); // Currently displayed main image
-  const [mainImageError, setMainImageError] = useState<boolean>(false); // State for main image load error
-  const [quantity, setQuantity] = useState<number>(1);
-  // State for selected variants (e.g., { color: 'Red', size: 'M' })
-  const [selectedVariants, setSelectedVariants] = useState<{ [key: string]: string }>({});
+const ProductDetailPage: React.FC = () => {
+  const { id } = useParams<RouteParams>();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
+  const productId = useMemo(() => parseInt(id || '0', 10), [id]);
+
+  const {
+    data: product,
+    isLoading,
+    isFetching,
+    isError,
+    error,
+  } = useGetProductByIdQuery(productId, {
+    skip: !productId,
+  });
+
+  // Local UI state
+  const [selectedImage, setSelectedImage] = useState<string>('');
+  const [imageErrored, setImageErrored] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+  const [variantsSelection, setVariantsSelection] = useState<
+    Record<string, string>
+  >({});
+  const [showModal, setShowModal] = useState(false);
+
+  // Initialize image & variants when product loads
   useEffect(() => {
-    const foundProduct = dummyDeals.find(p => p.id === parseInt(id || '0'));
+    if (!product) return;
 
-    if (foundProduct) {
-      setProduct(foundProduct);
-      // Set the initial main image to the feature_photo
-      setSelectedMainImage(foundProduct.feature_photo);
-      setMainImageError(false); // Reset error state
+    setSelectedImage(product.feature_photo);
+    setImageErrored(false);
 
-      // Initialize selected variants if product has them
-      if (foundProduct.variants) {
-        const initialSelections: { [key: string]: string } = {};
-        Object.keys(foundProduct.variants).forEach(variantType => {
-          if (foundProduct.variants && foundProduct.variants[variantType] && foundProduct.variants[variantType].length > 0) {
-            initialSelections[variantType] = foundProduct.variants[variantType][0]; // Select first option by default
-          }
-        });
-        setSelectedVariants(initialSelections);
-      }
-    } else {
-      setProduct(null);
-      console.error(`Product with ID ${id} not found.`);
-      // In a real app, you might redirect to a 404 page here
-    }
-  }, [id]);
+    const initial: Record<string, string> = {};
+    Object.entries(product.variants || {}).forEach(([type, opts]) => {
+      if (opts.length) initial[type] = opts[0];
+    });
+    setVariantsSelection(initial);
+  }, [product]);
 
-  if (!product) {
+  // Loading
+  if (isLoading || isFetching) {
     return (
-      <Container className="py-5 text-center">
-        <h3 className="text-color-dark">Loading product details...</h3>
-        {/* You could add a simple spinner here */}
+      <Container className="pdp-loading-container text-center my-5">
+        <Spinner animation="border" role="status" variant="primary" />
+        <h4 className="mt-3">Loading product details…</h4>
       </Container>
     );
   }
 
-  // --- Destructure product data for easier access ---
-  const price_1_num = parseFloat(product.price_1);
-  const price_2_num = parseFloat(product.price_2);
-  const discountPercent = price_2_num > price_1_num ? Math.round(((price_2_num - price_1_num) / price_2_num) * 100) : 0;
-  const itemsSold = product.stock?.items_sold || 0;
-  const totalItems = product.stock?.total_items || 0;
-  const stockProgress = totalItems > 0 ? (itemsSold / totalItems) * 100 : 0;
+  // Error
+  if (isError) {
+    return (
+      <Container className="pdp-error-container text-center my-5">
+        <h4 className="text-danger mb-3">Could not load product.</h4>
+        <p>{(error as any)?.data || 'Unexpected error occurred.'}</p>
+        <Button onClick={() => window.location.reload()}>Retry</Button>
+      </Container>
+    );
+  }
 
-  // --- Handlers ---
-  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    if (!isNaN(value) && value > 0) {
-      setQuantity(value);
-    } else if (e.target.value === '') {
-      setQuantity(0); // Allow clearing field
+  // Not found
+  if (!product) {
+    return (
+      <Container className="pdp-not-found-container text-center my-5">
+        <h4>Product not found.</h4>
+        <Button variant="outline-primary" onClick={() => navigate('/')}>
+          Back to Home
+        </Button>
+      </Container>
+    );
+  }
+
+  // Derived stock/pricing data
+  const price1 = Number(product.price_1);
+  const price2 = Number(product.price_2);
+  const discount =
+    price2 > price1 ? Math.round(((price2 - price1) / price2) * 100) : 0;
+
+  const sold = product.stock?.items_sold ?? 0;
+  const total = product.stock?.total_items ?? 0;
+  const remaining = total - sold;
+  const soldPct = total ? (sold / total) * 100 : 0;
+  const outOfStock = total > 0 && remaining <= 0;
+
+  // Handlers
+  const onQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = parseInt(e.target.value, 10);
+    if (isNaN(val)) return setQuantity(1);
+    if (val < 1) return setQuantity(1);
+    if (val > remaining) {
+      dispatch(
+        showNotification({
+          message: `Only ${remaining} available`,
+          type: 'warning',
+        })
+      );
+      return setQuantity(remaining);
     }
+    setQuantity(val);
   };
 
-  const handleVariantSelect = (variantType: string, value: string) => {
-    setSelectedVariants(prev => ({ ...prev, [variantType]: value }));
+  const onVariantSelect = (type: string, option: string) =>
+    setVariantsSelection((prev) => ({ ...prev, [type]: option }));
+
+  const onAddToCart = () => {
+    if (outOfStock || quantity < 1) {
+      dispatch(
+        showNotification({
+          message: 'Cannot add to cart – out of stock or invalid quantity.',
+          type: 'error',
+        })
+      );
+      return;
+    }
+    dispatch(addItem({ product, quantity, selectedVariants: variantsSelection }));
+    dispatch(
+      showNotification({
+        message: `${quantity} × ${product.name} added to cart.`,
+        type: 'success',
+      })
+    );
+    setQuantity(1);
   };
 
-  const handleAddToCart = () => {
-    console.log(`Added ${quantity} of ${product.name} (ID: ${product.id}) with variants ${JSON.stringify(selectedVariants)} to cart`);
-    // Implement actual add to cart logic (e.g., Redux, Context API, API call)
-    // Show a toast notification here!
+  const onBuyNow = () => {
+    if (outOfStock || quantity < 1) {
+      dispatch(
+        showNotification({
+          message: 'Cannot proceed – out of stock or invalid quantity.',
+          type: 'error',
+        })
+      );
+      return;
+    }
+    // TODO: navigate to checkout
+    dispatch(
+      showNotification({
+        message: `Proceeding to checkout with ${quantity} × ${product.name}.`,
+        type: 'info',
+      })
+    );
   };
 
-  const handleBuyNow = () => {
-      console.log(`Buying ${quantity} of ${product.name} (ID: ${product.id}) with variants ${JSON.stringify(selectedVariants)} now`);
-      // Implement direct buy logic (e.g., redirect to checkout with item pre-filled)
-  };
-
-  const renderStars = (rating: number) => {
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
-    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-
+  const renderStars = (rate: number) => {
+    const full = Math.floor(rate);
+    const half = rate % 1 >= 0.5;
+    const empty = 5 - full - (half ? 1 : 0);
     return (
       <>
-        {Array.from({ length: fullStars }, (_, i) => <i key={`full-${i}`} className="bi bi-star-fill text-warning"></i>)}
-        {hasHalfStar && <i key="half" className="bi bi-star-half text-warning"></i>)}
-        {Array.from({ length: emptyStars }, (_, i) => <i key={`empty-${i}`} className="bi bi-star text-warning"></i>)}
+        {Array(full)
+          .fill(0)
+          .map((_, i) => (
+            <i key={`f${i}`} className="bi bi-star-fill text-warning" />
+          ))}
+        {half && <i className="bi bi-star-half text-warning" />}
+        {Array(empty)
+          .fill(0)
+          .map((_, i) => (
+            <i key={`e${i}`} className="bi bi-star text-warning" />
+          ))}
       </>
     );
   };
 
-  // Combine feature_photo with additional images for the gallery
-  const galleryImages = [product.feature_photo, ...(product.images || [])];
-
+  const gallery = [product.feature_photo, ...(product.images || [])];
 
   return (
-    <Container className="my-4 my-lg-5 product-detail-page-container">
+    <Container className="product-detail-page-container my-5">
       <Row>
-        {/* Product Image Gallery (Left Column) */}
-        <Col md={6} lg={5} className="mb-4 mb-md-0">
-          <div className="product-image-gallery-main">
+        {/* Left: Images */}
+        <Col md={6} lg={5} className="mb-4">
+          <div className="product-image-main position-relative">
             <img
-              src={mainImageError ? "https://via.placeholder.com/600x600?text=Image+Unavailable" : selectedMainImage}
+              src={
+                imageErrored
+                  ? 'https://via.placeholder.com/600x600?text=No+Image'
+                  : selectedImage
+              }
               alt={product.name}
-              className="img-fluid product-main-image"
-              onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                setMainImageError(true);
-                e.currentTarget.onerror = null;
-              }}
+              className="img-fluid"
+              onError={() => setImageErrored(true)}
+              onClick={() => setShowModal(true)}
+              style={{ cursor: 'pointer' }}
             />
-            {discountPercent > 0 && (
-              <span className="product-discount-badge-lg">-{discountPercent}%</span>
+            {discount > 0 && (
+              <span className="badge bg-danger position-absolute top-0 end-0 m-2">
+                -{discount}%
+              </span>
             )}
           </div>
-          {/* Thumbnail gallery */}
-          <div className="product-thumbnail-gallery d-flex flex-wrap gap-3 mt-4 justify-content-center justify-content-md-start">
-            {galleryImages.map((imgUrl, index) => (
+          <div className="d-flex flex-wrap gap-2 mt-3">
+            {gallery.map((url, idx) => (
               <img
-                key={index}
-                src={imgUrl}
-                alt={`Thumbnail ${index + 1}`}
-                className={`product-thumbnail img-thumbnail ${selectedMainImage === imgUrl ? 'active' : ''}`}
-                onClick={() => { setSelectedMainImage(imgUrl); setMainImageError(false); }}
-                onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                  e.currentTarget.src = "https://via.placeholder.com/100x100?text=Error"; // Placeholder for broken thumbnail
-                  e.currentTarget.onerror = null;
+                key={idx}
+                src={url}
+                alt={`Thumb ${idx + 1}`}
+                className={`img-thumbnail ${
+                  url === selectedImage ? 'border-primary' : ''
+                }`}
+                style={{ width: '80px', cursor: 'pointer' }}
+                onClick={() => {
+                  setSelectedImage(url);
+                  setImageErrored(false);
                 }}
               />
             ))}
           </div>
         </Col>
 
-        {/* Product Information & Actions (Right Column) */}
+        {/* Right: Info & Actions */}
         <Col md={6} lg={7}>
-          <div className="product-info-details">
-            <h1 className="product-title-lg">{product.name}</h1>
+          <h1 className="mb-3">{product.name}</h1>
 
-            {/* Rating and Reviews */}
-            {product.rating !== undefined && product.rating > 0 && (
-              <div className="d-flex align-items-center mb-3 product-rating-summary">
-                <div className="product-stars-lg me-2">
-                  {renderStars(product.rating)}
-                </div>
-                <span className="fs-14 text-color-medium">
-                  {product.rating} / 5 ({product.reviewsCount ? product.reviewsCount.toLocaleString() : 0} Reviews)
-                </span>
-              </div>
-            )}
-
-            <hr className="my-3"/>
-
-            {/* Pricing */}
-            <div className="product-pricing-lg mb-4">
-              <span className="current-price-lg">UGX {price_1_num.toLocaleString()}</span>
-              {price_2_num > price_1_num && (
-                <span className="old-price-lg ms-3">UGX {price_2_num.toLocaleString()}</span>
-              )}
+          {/* Rating */}
+          {product.rating > 0 && (
+            <div className="d-flex align-items-center mb-3">
+              {renderStars(product.rating)}
+              <small className="ms-2 text-muted">
+                {product.rating} ({product.reviewsCount})
+              </small>
             </div>
+          )}
 
-            {/* Flash Deal Progress (if applicable) */}
-            {product.stock && totalItems > 0 && (
-              <div className="product-stock-progress-lg mb-4">
-                <p className="fs-14 text-color-medium mb-2">
-                  <i className="bi bi-truck me-2"></i> Only {totalItems - itemsSold} items left in stock!
-                </p>
-                <ProgressBar now={stockProgress} variant="primary" className="pdp-progress-bar">
-                  <span className="progress-bar-label text-white">{Math.round(stockProgress)}% Sold</span>
-                </ProgressBar>
-                <small className="items-sold-lg mt-1 d-block text-color-light">
-                  {itemsSold.toLocaleString()} / {totalItems.toLocaleString()} items sold
-                </small>
-              </div>
+          <hr />
+
+          {/* Price */}
+          <div className="mb-4">
+            <span className="fs-4 fw-bold">
+              UGX {price1.toLocaleString()}
+            </span>
+            {price2 > price1 && (
+              <span className="text-decoration-line-through text-muted ms-3">
+                UGX {price2.toLocaleString()}
+              </span>
             )}
+          </div>
 
-            {/* Product Variants (Color/Size etc.) */}
-            {product.variants && Object.keys(product.variants).length > 0 && (
-              <div className="product-variants mb-4">
-                {Object.entries(product.variants).map(([variantType, options]) => (
-                  <div key={variantType} className="mb-3">
-                    <h4 className="fs-16 text-color-dark mb-2 text-capitalize">{variantType}: <span className="text-color-medium">{selectedVariants[variantType]}</span></h4>
-                    <div className="d-flex flex-wrap gap-2">
-                      {options.map(option => (
-                        <Button
-                          key={option}
-                          variant={selectedVariants[variantType] === option ? 'primary' : 'outline-secondary'}
-                          size="sm"
-                          className="pdp-variant-btn"
-                          onClick={() => handleVariantSelect(variantType, option)}
-                        >
-                          {option}
-                        </Button>
-                      ))}
-                    </div>
+          {/* Stock */}
+          <p className="mb-3">
+            {outOfStock ? (
+              <span className="text-danger">Out of Stock</span>
+            ) : (
+              <>In Stock: {remaining} available</>
+            )}
+          </p>
+
+          {/* Progress Bar */}
+          {total > 0 && (
+            <ProgressBar
+              now={soldPct}
+              label={`${Math.round(soldPct)}% sold`}
+              className="mb-4"
+            />
+          )}
+
+          {/* Variants */}
+          {Object.keys(product.variants || {}).length > 0 && (
+            <div className="mb-4">
+              {Object.entries(product.variants).map(([type, opts]) => (
+                <Form.Group key={type} className="mb-2">
+                  <Form.Label className="fw-semibold text-capitalize">
+                    {type}
+                  </Form.Label>
+                  <div className="d-flex flex-wrap gap-2">
+                    {opts.map((opt) => (
+                      <Button
+                        key={opt}
+                        size="sm"
+                        variant={
+                          variantsSelection[type] === opt
+                            ? 'primary'
+                            : 'outline-secondary'
+                        }
+                        onClick={() => onVariantSelect(type, opt)}
+                        disabled={outOfStock}
+                      >
+                        {opt}
+                      </Button>
+                    ))}
                   </div>
-                ))}
-              </div>
-            )}
-
-            {/* Quantity Selector and Add to Cart Buttons */}
-            <div className="d-flex align-items-center gap-3 mb-4 product-actions-pdp">
-              <Form.Group controlId="productQuantity" className="mb-0">
-                <Form.Label className="sr-only">Quantity</Form.Label>
-                <Form.Control
-                  type="number"
-                  min="1"
-                  value={quantity}
-                  onChange={handleQuantityChange}
-                  className="quantity-input"
-                  style={{ width: '80px', textAlign: 'center' }} // Inline style as a quick fix, prefer CSS class
-                />
-              </Form.Group>
-              <Button variant="primary" className="btn-lg btn-add-to-cart-pdp" onClick={handleAddToCart}>
-                <i className="bi bi-cart-plus me-2"></i> Add to Cart
-              </Button>
-              <Button variant="outline-primary" className="btn-lg btn-buy-now-pdp" onClick={handleBuyNow}>
-                Buy Now
-              </Button>
+                </Form.Group>
+              ))}
             </div>
+          )}
 
-            {/* Short Description / Key Features */}
-            {product.description && (
-              <div className="product-short-description mb-4">
-                <h4 className="fs-16 text-color-dark mb-2">About this item:</h4>
-                <p className="text-color-medium" style={{ lineHeight: 1.6 }}>
-                  {product.description.split('. ').slice(0, 2).join('. ') + (product.description.split('. ').length > 2 ? '...' : '')} {/* Show first two sentences */}
-                  {/* You can add a "Read More" button here */}
-                </p>
-                {/* For more detailed features, consider parsing description into list or adding specific feature points */}
-                <ul className="list-unstyled product-features-list mt-3">
-                  <li><i className="bi bi-check-circle-fill text-success me-2"></i> High-resolution display</li>
-                  <li><i className="bi bi-check-circle-fill text-success me-2"></i> Advanced health sensors</li>
-                  <li><i className="bi bi-check-circle-fill text-success me-2"></i> Long battery life</li>
-                  <li><i className="bi bi-check-circle-fill text-success me-2"></i> Durable and water resistant</li>
-                </ul>
-              </div>
-            )}
+          {/* Quantity & Actions */}
+          <div className="d-flex align-items-center gap-3 mb-4">
+            <Form.Control
+              type="number"
+              value={quantity}
+              min={1}
+              max={remaining}
+              onChange={onQuantityChange}
+              style={{ width: '100px' }}
+              disabled={outOfStock}
+            />
+            <Button onClick={onAddToCart} disabled={outOfStock}>
+              <i className="bi bi-cart-plus me-1" />
+              Add to Cart
+            </Button>
+            <Button variant="outline-primary" onClick={onBuyNow} disabled={outOfStock}>
+              Buy Now
+            </Button>
           </div>
+
+          {/* Trust */}
+          <div className="mb-4">
+            <i className="bi bi-truck me-2" /> Free Shipping{' '}
+            <i className="bi bi-arrow-return-left ms-3 me-2" /> Easy Returns{' '}
+            <i className="bi bi-shield-check ms-3 me-2" /> 1-Year Warranty
+          </div>
+
+          {/* Short Description */}
+          {product.description && (
+            <div>
+              <h5>About this item</h5>
+              <p>{product.description}</p>
+            </div>
+          )}
         </Col>
       </Row>
 
-      {/* Product Description, Specifications, and Reviews (Full Width) */}
+      {/* Tabs: Description / Specs / Reviews */}
       <Row className="mt-5">
-        <Col xs={12}>
-          <div className="product-details-tabs">
-            {/* Using Bootstrap Navs for tabs */}
-            <ul className="nav nav-pills mb-3" id="pills-tab" role="tablist">
-              <li className="nav-item" role="presentation">
-                <button className="nav-link active" id="pills-description-tab" data-bs-toggle="pill" data-bs-target="#pills-description" type="button" role="tab" aria-controls="pills-description" aria-selected="true">Description</button>
+        <Col>
+          <ul className="nav nav-pills mb-3">
+            <li className="nav-item">
+              <button
+                className="nav-link active"
+                data-bs-toggle="pill"
+                data-bs-target="#desc-tab"
+              >
+                Description
+              </button>
+            </li>
+            {product.specifications.length > 0 && (
+              <li className="nav-item">
+                <button
+                  className="nav-link"
+                  data-bs-toggle="pill"
+                  data-bs-target="#spec-tab"
+                >
+                  Specifications
+                </button>
               </li>
-              {product.specifications && product.specifications.length > 0 && (
-                <li className="nav-item" role="presentation">
-                  <button className="nav-link" id="pills-specifications-tab" data-bs-toggle="pill" data-bs-target="#pills-specifications" type="button" role="tab" aria-controls="pills-specifications" aria-selected="false">Specifications</button>
-                </li>
-              )}
-              {product.reviewsCount !== undefined && (
-                <li className="nav-item" role="presentation">
-                  <button className="nav-link" id="pills-reviews-tab" data-bs-toggle="pill" data-bs-target="#pills-reviews" type="button" role="tab" aria-controls="pills-reviews" aria-selected="false">Reviews ({product.reviewsCount.toLocaleString()})</button>
-                </li>
-              )}
-            </ul>
-            <div className="tab-content" id="pills-tabContent">
-              <div className="tab-pane fade show active" id="pills-description" role="tabpanel" aria-labelledby="pills-description-tab">
-                {product.description ? (
-                  <p className="text-color-medium" style={{ lineHeight: 1.6 }}>{product.description}</p>
-                ) : (
-                  <p className="text-color-medium">No detailed description available for this product.</p>
-                )}
+            )}
+            <li className="nav-item">
+              <button
+                className="nav-link"
+                data-bs-toggle="pill"
+                data-bs-target="#review-tab"
+              >
+                Reviews ({product.reviewsCount})
+              </button>
+            </li>
+          </ul>
+          <div className="tab-content">
+            <div className="tab-pane fade show active" id="desc-tab">
+              <p>{product.description}</p>
+            </div>
+            {product.specifications.length > 0 && (
+              <div className="tab-pane fade" id="spec-tab">
+                <table className="table">
+                  <tbody>
+                    {product.specifications.map((s, i) => (
+                      <tr key={i}>
+                        <th>{s.label}</th>
+                        <td>{s.value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-              {product.specifications && product.specifications.length > 0 && (
-                <div className="tab-pane fade" id="pills-specifications" role="tabpanel" aria-labelledby="pills-specifications-tab">
-                  <h5 className="text-color-dark mb-3">Technical Specifications:</h5>
-                  <table className="table table-striped table-hover">
-                    <tbody>
-                      {product.specifications.map((spec, index) => (
-                        <tr key={index}>
-                          <th scope="row">{spec.label}</th>
-                          <td>{spec.value}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-              {product.reviewsCount !== undefined && (
-                <div className="tab-pane fade" id="pills-reviews" role="tabpanel" aria-labelledby="pills-reviews-tab">
-                  <h5 className="text-color-dark mb-3">Customer Reviews:</h5>
-                  {product.reviewsCount > 0 ? (
-                    <p className="text-color-medium">Displaying {product.reviewsCount.toLocaleString()} reviews. (Review section coming soon!)</p>
-                  ) : (
-                    <p className="text-color-medium">No reviews yet for this product. Be the first to leave one!</p>
-                  )}
-                </div>
+            )}
+            <div className="tab-pane fade" id="review-tab">
+              {product.reviewsCount > 0 ? (
+                <p>{product.reviewsCount} reviews coming soon…</p>
+              ) : (
+                <p>No reviews yet.</p>
               )}
             </div>
           </div>
         </Col>
       </Row>
+
+      {/* Image Lightbox */}
+      <Modal show={showModal} onHide={() => setShowModal(false)} size="xl" centered>
+        <Modal.Header closeButton>
+          <Modal.Title>{product.name}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="text-center">
+          <img
+            src={selectedImage}
+            alt={product.name}
+            className="img-fluid"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src =
+                'https://via.placeholder.com/800x800';
+            }}
+          />
+        </Modal.Body>
+      </Modal>
     </Container>
   );
 };

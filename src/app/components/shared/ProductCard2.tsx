@@ -40,39 +40,41 @@ const ProductCard2: React.FC<ProductCard2Props> = ({ product }) => {
           )}
         </div>
 
-        {/* Product Info Section */}
-        <div className="product-card2-info">
-          <h3 className="product-card2-name">{product.name}</h3>
+        {/* Product Info Section (No separate actions overlay anymore) */}
+        <div className="product-card2-info-block"> {/* This div contains the info part */}
+          <div className="product-card2-info">
+            <h3 className="product-card2-name">{product.name}</h3>
 
-          <div className="product-card2-pricing">
-            <span className="product-card2-price-new">
-              UGX {price_1_num.toLocaleString()}
-            </span>
-            {price_2_num > price_1_num && (
-              <span className="product-card2-price-old">
-                UGX {price_2_num.toLocaleString()}
+            <div className="product-card2-pricing">
+              <span className="product-card2-price-new">
+                UGX {price_1_num.toLocaleString()}
               </span>
+              {price_2_num > price_1_num && (
+                <span className="product-card2-price-old">
+                  UGX {price_2_num.toLocaleString()}
+                </span>
+              )}
+            </div>
+
+            {product.stock && product.stock.total_items > 0 && (
+              <div className="product-card2-stock-progress">
+                <div className="product-card2-progress-bar-container">
+                  <div
+                    className="product-card2-progress-bar-fill"
+                    style={{ width: `${stockProgress}%` }}
+                  ></div>
+                </div>
+                <span className="product-card2-items-sold-text">
+                  {product.stock.items_sold.toLocaleString()}/{product.stock.total_items.toLocaleString()} Sold
+                </span>
+              </div>
             )}
           </div>
-
-          {product.stock && product.stock.total_items > 0 && (
-            <div className="product-card2-stock-progress">
-              <div className="product-card2-progress-bar-container">
-                <div
-                  className="product-card2-progress-bar-fill"
-                  style={{ width: `${stockProgress}%` }}
-                ></div>
-              </div>
-              <span className="product-card2-items-sold-text">
-                {product.stock.items_sold.toLocaleString()}/{product.stock.total_items.toLocaleString()} Sold
-              </span>
-            </div>
-          )} 
-        </div>
-      </a> {/* End of product-card2-info-link */}
+        </div> {/* End of product-card2-info-block */}
+      </a> {/* End of product-card2-info-link - now wraps both image and info block */}
 
       {/* Add to Cart Button (Absolutely positioned, appears on hover, overlays content) */}
-      {/* The button is outside the <a> tag so its click doesn't trigger navigation */}
+      {/* This button remains outside the main <a> tag as its click is a separate action */}
       <button
         className="product-card2-add-to-cart-bar-btn"
         onClick={() => {

@@ -19,8 +19,20 @@ export interface PaginatedResponse<T> {
   total: number;
 }
 
+export interface Stock {
+  items_sold: number;
+  total_items: number;
+}
+
+export interface Specification {
+  label: string;
+  value: string;
+}
+
+export type VariantOptions = Record<string, string[]>;
+
 export class ProductModel {
-  // Basic Fields (adjust as needed)
+  // Basic Fields
   id: number = 0;
   name: string = "";
   price_1: string = "0.00";
@@ -37,6 +49,15 @@ export class ProductModel {
   status: number = 1;
   created_at: string = "";
   updated_at: string = "";
+
+  // --- Newly added fields ---
+  variants: VariantOptions = {};
+  images: string[] = [];
+  stock: Stock = { items_sold: 0, total_items: 0 };
+  rating: number = 0;
+  reviewsCount: number = 0;
+  specifications: Specification[] = [];
+  // --------------------------
 
   /**
    * Update fields with provided partial data.
@@ -65,14 +86,16 @@ export class ProductModel {
    */
   static fromJson(data: string | Record<string, any>): ProductModel {
     const model = new ProductModel();
-    let obj = typeof data === "string" ? {} : data;
+    let obj: Record<string, any> = {};
 
     if (typeof data === "string") {
       try {
         obj = JSON.parse(data);
       } catch (error) {
-        return model; // return default if parsing fails
+        return model;
       }
+    } else {
+      obj = data;
     }
 
     const modelKeys = Object.keys(model);
@@ -113,16 +136,10 @@ export class ProductModel {
    * Helper: Returns price_1 formatted to 2 decimals with UGX as currency.
    */
   getFormattedPrice(): string {
-    return Utils.moneyFormat(this.price_1); 
-    const numericPrice = parseFloat(this.price_1) || 0;
-    return `UGX ${numericPrice.toFixed(2)}`;
+    return Utils.moneyFormat(this.price_1);
   }
 
-  /**
-   * Fetch a paginated list of products (GET /products).
-   * @param page The page number to request.
-   * @param params Additional query params (filters, search, etc.)
-   */
+  /** Fetch a paginated list of products (GET /products). */
   static async fetchProducts(
     page = 1,
     params: Record<string, string | number> = {}
@@ -134,13 +151,10 @@ export class ProductModel {
           Object.entries(params).map(([key, val]) => [key, String(val)])
         ),
       });
-
-      // Example endpoint: /products
       const response = await http_get(`/products?${queryParams.toString()}`);
       if (response.code !== 1) {
         throw new Error(response.message || "Failed to fetch products.");
       }
-
       const paginatedData: PaginatedResponse<any> = response.data;
       paginatedData.data = paginatedData.data.map((item: any) =>
         ProductModel.fromJson(item)
@@ -152,10 +166,7 @@ export class ProductModel {
     }
   }
 
-  /**
-   * Fetch a single product by ID (GET /products/:id).
-   * @param id The product ID.
-   */
+  /** Fetch a single product by ID (GET /products/:id). */
   static async fetchProductById(id: string | number): Promise<ProductModel> {
     try {
       const response = await http_get(`/products/${id}`);
@@ -169,10 +180,7 @@ export class ProductModel {
     }
   }
 
-  /**
-   * Create a new product (POST /products).
-   * @param productData partial fields for the new product
-   */
+  /** Create a new product (POST /products). */
   static async createProduct(
     productData: Partial<ProductModel>
   ): Promise<ProductModel> {
@@ -188,17 +196,12 @@ export class ProductModel {
     }
   }
 
-  /**
-   * Update product (PUT /products/:id).
-   * @param id The product ID
-   * @param productData partial fields to update
-   */
+  /** Update product (PUT /products/:id). */
   static async updateProduct(
     id: string | number,
     productData: Partial<ProductModel>
   ): Promise<ProductModel> {
     try {
-      // often laravel uses _method=PUT if standard PUT is not accepted
       const response = await http_post(
         `/products/${id}?_method=PUT`,
         productData
@@ -213,10 +216,7 @@ export class ProductModel {
     }
   }
 
-  /**
-   * Delete product (DELETE /products/:id).
-   * @param id The product ID
-   */
+  /** Delete product (DELETE /products/:id). */
   static async deleteProduct(id: string | number): Promise<boolean> {
     try {
       const response = await http_post(`/products/${id}?_method=DELETE`, {});
@@ -230,3 +230,4 @@ export class ProductModel {
     }
   }
 }
+export default ProductModel; 

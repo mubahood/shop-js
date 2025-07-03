@@ -22,7 +22,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   return (
     <div className="product-card">
-      <a href="#" className="product-image-link">
+      <a href={`/product/${product.id}`} className="product-image-link">
         <img
           src={product.feature_photo}
           alt={product.name}
