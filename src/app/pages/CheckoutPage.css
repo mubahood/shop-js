@@ -1,0 +1,137 @@
+/* src/app/pages/CheckoutPage.css */
+
+.checkout-page {
+  padding-top: 20px;
+  padding-bottom: 60px;
+}
+
+.checkout-summary {
+  top: 20px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.checkout-summary .card-header {
+  background: var(--background-light);
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 600;
+}
+
+.order-item-image {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color-light);
+}
+
+.order-items {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--border-radius);
+  padding: 15px;
+  background: var(--background-light);
+}
+
+.order-item {
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color-light);
+}
+
+.order-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.order-totals .d-flex {
+  padding: 8px 0;
+  font-size: 15px;
+}
+
+.order-totals .d-flex:last-of-type {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.payment-methods .form-check {
+  padding: 12px 15px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+}
+
+.payment-methods .form-check:hover {
+  border-color: var(--primary-color);
+  background: var(--background-light);
+}
+
+.payment-methods .form-check-input:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.card-details {
+  padding: 20px;
+  background: var(--background-light);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color-light);
+}
+
+.security-notice {
+  padding-top: 15px;
+  border-top: 1px solid var(--border-color-light);
+}
+
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.25);
+}
+
+.is-invalid {
+  border-color: #dc3545;
+}
+
+.invalid-feedback {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 5px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 991.98px) {
+  .checkout-summary {
+    position: static;
+    margin-top: 30px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .checkout-page {
+    padding-top: 10px;
+  }
+  
+  .order-items {
+    max-height: 200px;
+  }
+  
+  .order-item-image {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .card-details {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .order-totals .d-flex {
+    font-size: 14px;
+  }
+  
+  .order-totals .d-flex:last-of-type {
+    font-size: 16px;
+  }
+}

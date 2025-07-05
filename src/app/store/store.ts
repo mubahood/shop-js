@@ -9,6 +9,8 @@ import { productsApi } from '../services/productsApi';
 import cartReducer from './slices/cartSlice';
 import authReducer from './slices/authSlice';
 import notificationReducer from './slices/notificationSlice';
+import wishlistReducer from './slices/wishlistSlice';
+import userReducer from './slices/userSlice';
 
 export const store = configureStore({
   reducer: {
@@ -19,6 +21,8 @@ export const store = configureStore({
     cart: cartReducer,
     auth: authReducer,
     notification: notificationReducer,
+    wishlist: wishlistReducer,
+    user: userReducer,
   },
   // Adding the api middleware enables caching, invalidation, polling,
   // and other useful features of RTK Query.

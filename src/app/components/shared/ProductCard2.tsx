@@ -1,89 +1,86 @@
 // src/app/components/shared/ProductCard2.tsx
-import React from "react";
-import { ProductModel } from "../../models/ProductModel";
-import "./ProductCard2.css"; // New CSS file for ProductCard2
+import React, { useState } from "react";
+import type { ProductCardProps } from "../../types";
+import { 
+  calculateDiscountPercent, 
+  getProductUrl,
+  getProductImage 
+} from "../../utils";
 
-interface ProductCard2Props {
-  product: ProductModel & {
-    stock?: { items_sold: number; total_items: number };
+const ProductCard2: React.FC<ProductCardProps> = ({ 
+  product, 
+  className = "", 
+  showStock = false // ProductCard2 doesn't show stock by default
+}) => {
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
+  
+  // Calculate price and discount
+  const discountPercent = calculateDiscountPercent(product.price_2, product.price_1);
+  const price1 = parseFloat(product.price_1);
+  const price2 = parseFloat(product.price_2);
+  
+  // Handlers
+  const handleImageLoad = () => setIsImageLoaded(true);
+  
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    e.currentTarget.src = "https://via.placeholder.com/300x300?text=No+Image";
+    e.currentTarget.onerror = null;
   };
-}
-
-const ProductCard2: React.FC<ProductCard2Props> = ({ product }) => {
-  // Safely parse prices and calculate discount
-  const price_1_num = parseFloat(product.price_1);
-  const price_2_num = parseFloat(product.price_2);
-  const discountPercent =
-    price_2_num > price_1_num ? Math.round(((price_2_num - price_1_num) / price_2_num) * 100) : 0;
-
-  const stockProgress = product.stock
-    ? (product.stock.items_sold / product.stock.total_items) * 100
-    : 0;
 
   return (
-    <div className="product-card2">
-      {/* Main clickable link now wraps all visible content */}
-      <a href={`/product/${product.id}`} className="product-card2-info-link">
-        {/* Product Image Section */}
+    <div className={`product-card2 ${className}`}>
+      <a href={getProductUrl(product.id)} className="product-card2-info-link">
         <div className="product-card2-image-wrapper">
           <img
-            src={product.feature_photo}
+            src={getProductImage(product)}
             alt={product.name}
-            className="product-card2-image"
-            onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-              e.currentTarget.src = "https://via.placeholder.com/180x180?text=No+Image";
-              e.currentTarget.onerror = null;
-            }}
+            className={`product-card2-image ${isImageLoaded ? 'loaded' : ''}`}
+            onLoad={handleImageLoad}
+            onError={handleImageError}
           />
+          
           {discountPercent > 0 && (
-            <span className="product-card2-discount-badge">-{discountPercent}%</span>
+            <div className="product-card2-discount-badge">
+              -{discountPercent}%
+            </div>
           )}
         </div>
-
-        {/* Product Info Section (No separate actions overlay anymore) */}
-        <div className="product-card2-info-block"> {/* This div contains the info part */}
-          <div className="product-card2-info">
-            <h3 className="product-card2-name">{product.name}</h3>
-
-            <div className="product-card2-pricing">
-              <span className="product-card2-price-new">
-                UGX {price_1_num.toLocaleString()}
-              </span>
-              {price_2_num > price_1_num && (
-                <span className="product-card2-price-old">
-                  UGX {price_2_num.toLocaleString()}
-                </span>
-              )}
+        
+        <div className="product-card2-info">
+          <h3 className="product-card2-name">{product.name}</h3>
+          
+          <div className="product-card2-pricing">
+            <div className="product-card2-price-new">
+              UGX {price1.toLocaleString()}
             </div>
-
-            {product.stock && product.stock.total_items > 0 && (
-              <div className="product-card2-stock-progress">
-                <div className="product-card2-progress-bar-container">
-                  <div
-                    className="product-card2-progress-bar-fill"
-                    style={{ width: `${stockProgress}%` }}
-                  ></div>
-                </div>
-                <span className="product-card2-items-sold-text">
-                  {product.stock.items_sold.toLocaleString()}/{product.stock.total_items.toLocaleString()} Sold
-                </span>
+            {price2 > price1 && (
+              <div className="product-card2-price-old">
+                UGX {price2.toLocaleString()}
               </div>
             )}
           </div>
-        </div> {/* End of product-card2-info-block */}
-      </a> {/* End of product-card2-info-link - now wraps both image and info block */}
-
-      {/* Add to Cart Button (Absolutely positioned, appears on hover, overlays content) */}
-      {/* This button remains outside the main <a> tag as its click is a separate action */}
-      <button
-        className="product-card2-add-to-cart-bar-btn"
-        onClick={() => {
-          console.log("Add to Cart clicked for ProductCard2:", product.name);
-          // Add your actual add-to-cart logic here
-        }}
-      >
-        <i className="bi bi-cart-plus me-2"></i> Add to Cart
-      </button>
+          
+          {product.rating && (
+            <div className="product-card2-rating">
+              <div className="rating-stars">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <i
+                    key={star}
+                    className={`bi ${
+                      star <= (product.rating || 0) 
+                        ? 'bi-star-fill' 
+                        : 'bi-star'
+                    }`}
+                  />
+                ))}
+              </div>
+              {product.reviewCount && (
+                <span className="review-count">({product.reviewCount})</span>
+              )}
+            </div>
+          )}
+        </div>
+      </a>
     </div>
   );
 };

@@ -7,7 +7,7 @@ import { toAbsoluteUrl } from "../../../../_metronic/helpers";
 import { useAuth } from "../core/Auth";
 import { login } from "../../../services/Api";
 import { toast } from "react-toastify";
-import { APP_NAME } from "../../../../Constants";
+import { APP_CONFIG } from "../../../constants";
 
 const loginSchema = Yup.object().shape({
   email: Yup.string()
@@ -74,7 +74,7 @@ export function Login() {
     >
       <div className="text-center mb-11">
         <div className="text-gray-500 fw-semibold fs-6">Welcome Back</div>
-        <h1 className="text-gray-900 fw-bolder mb-3 mt-2">{APP_NAME}</h1>
+        <h1 className="text-gray-900 fw-bolder mb-3 mt-2">{APP_CONFIG.NAME}</h1>
         <Link to="/" className="mb-12">
           <img
             alt="Logo"

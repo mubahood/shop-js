@@ -1,4 +1,4 @@
-import { BASE_URL, DB_LOGGED_IN_PROFILE, DB_TOKEN } from "../../Constants";
+import { BASE_URL, DB_LOGGED_IN_PROFILE, DB_TOKEN } from "../constants";
 import { ProfileModel } from "../models/ProfileModel";
 import { http_get } from "./Api";
 

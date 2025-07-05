@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { AuthModel } from "./_models";
 
-import { DB_TOKEN, DB_LOGGED_IN_PROFILE } from "../../../../Constants";
+import { DB_TOKEN, DB_LOGGED_IN_PROFILE } from "../../../constants";
 const getAuth = (): AuthModel | undefined => {
   if (!localStorage) {
     return;

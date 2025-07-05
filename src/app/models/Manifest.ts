@@ -1,6 +1,6 @@
 import Utils from "../services/Utils";
 import { http_get } from "../services/Api";
-import { BASE_URL, LOCAL_MANIFEST } from "../../Constants";
+import { BASE_URL, LOCAL_MANIFEST } from "../constants";
 import { DistrictModel } from "./DistrictModel";
 
 export class ManifestModel {

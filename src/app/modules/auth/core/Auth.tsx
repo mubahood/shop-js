@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import {
+import React, {
   FC,
   useState,
   useEffect,
@@ -7,12 +7,23 @@ import {
   useContext,
   Dispatch,
   SetStateAction,
+  ReactNode,
 } from "react";
-import { LayoutSplashScreen } from "../../../../_metronic/layout/core";
+// Simple splash screen component
+const LayoutSplashScreen: FC = () => (
+  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+    <div>Loading...</div>
+  </div>
+);
+
+// Simple children wrapper type
+interface WithChildren {
+  children?: ReactNode;
+}
+
 import { AuthModel } from "./_models";
 import * as authHelper from "./AuthHelpers";
-import { WithChildren } from "../../../../_metronic/helpers";
-import { DB_TOKEN, DB_LOGGED_IN_PROFILE } from "../../../../Constants";
+import { DB_TOKEN, DB_LOGGED_IN_PROFILE } from "../../../constants";
 import Utils from "../../../services/Utils";
 import { ProfileModel } from "../../../models/ProfileModel";
 import { CartItemModel } from "../../../models/CartItemModel"; // Import our CartItemModel class

@@ -8,10 +8,15 @@
    =================================================================== */
 :root {
   /* --- Colors --- */
-  --primary-color: #d71529; /* Consistent Blitxpress Red */
-  --primary-color-dark: #b81222; /* Darker Red for hover */
-  --primary-color-light: #ff3a4c; /* Lighter Red for gradient start */
-  --accent-color: #007bff; /* A complementary blue for highlights */
+  --primary-color: #05179F; /* Main primary blue */
+  --primary-color-dark: #041266; /* Darker blue for hover */
+  --primary-color-light: #0620B8; /* Lighter blue for gradient start */
+
+/*   
+    --primary-color: #d71529;
+  --primary-color-dark: #b81222;
+  --primary-color-light: #ff3a4c;  */
+  --accent-color: #d71529; /* A complementary red for highlights */
 
   --text-color-dark: #212529;
   --text-color-medium: #495057;
@@ -26,7 +31,7 @@
   /* --- Sizing & Typography --- */
   --header-height: 68px;
   --top-bar-height: 35px;
-  --mobile-search-height: 60px;
+  --mobile-search-height: 50px;
   --base-font-size: 16px;
 
   /* --- BORDER RADIUS --- */
@@ -56,7 +61,7 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: var(--base-font-size);
   color: var(--text-color-dark);
-  padding-top: calc(var(--header-height) + var(--top-bar-height));
+  padding-top: calc(var(--header-height) + var(--top-bar-height) - 20px); /* Adjusted for header and top bar */
   min-height: 100vh;
   overflow-y: auto !important;
   overflow-x: hidden !important;
@@ -386,27 +391,37 @@ a.text-primary:hover {
   font-size: 18px;
 }
 
-/* Search Bars (from previous snippet) */
+/* Search Bars */
 .search-form .input-group,
 .mobile-search-wrapper .input-group {
-  height: 48px; /* Taller search bar */
+  height: 48px;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
 }
+
 .search-form .form-control,
 .mobile-search-wrapper .form-control {
-  border: 1px solid var(--border-color);
+  border: none;
   box-shadow: none;
   color: var(--text-color-dark);
   font-size: var(--base-font-size);
-  border-radius: var(--border-radius) 0 0 var(--border-radius);
+  border-radius: 0;
   padding: .375rem .75rem;
+  background-color: var(--white);
 }
-.search-form .form-control {
-    border-right: none;
-}
+
 .search-form .form-control:focus,
 .mobile-search-wrapper .form-control:focus {
-  border-color: var(--accent-color);
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+  border: none;
+  box-shadow: none;
+  background-color: var(--white);
+}
+
+.search-form .input-group:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(5, 23, 159, 0.15);
 }
 
 .search-form .btn-search,
@@ -414,18 +429,36 @@ a.text-primary:hover {
   background: linear-gradient(to right, var(--primary-color-light), var(--primary-color));
   color: var(--white);
   border: none;
-  width: 65px; /* Wider button */
-  border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  width: 65px;
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.3rem; /* Larger icon */
+  font-size: 1.3rem;
+  transition: all var(--transition-speed) var(--transition-timing-function);
+  padding: 0;
+  height: 100%;
 }
+
 .search-form .btn-search:hover,
 .mobile-search-wrapper .btn-search:hover {
   background: linear-gradient(to right, var(--primary-color), var(--primary-color-dark));
-  box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
+  transform: none;
+  color: var(--white);
+}
+
+.search-form .btn-search:focus,
+.mobile-search-wrapper .btn-search:focus {
+  background: linear-gradient(to right, var(--primary-color), var(--primary-color-dark));
+  color: var(--white);
+  box-shadow: none;
+}
+
+.search-form .btn-search:active,
+.mobile-search-wrapper .btn-search:active {
+  background: linear-gradient(to right, var(--primary-color-dark), var(--primary-color));
+  color: var(--white);
+  transform: scale(0.98);
 }
 
 .mobile-search-wrapper {
@@ -436,8 +469,85 @@ a.text-primary:hover {
   display: flex;
   align-items: center;
 }
-.mobile-search-wrapper .form-control { border-radius: 25px 0 0 25px !important; }
-.mobile-search-wrapper .btn-search { border-radius: 0 25px 25px 0 !important; }
+
+.mobile-search-wrapper .search-input-group,
+.mobile-search-wrapper .mobile-search-input-group {
+  border-radius: 25px !important;
+}
+
+.mobile-search-wrapper .btn-search { 
+  border-radius: 0 25px 25px 0 !important; 
+  width: 50px;
+}
+
+/* Enhanced Search Form Integration */
+.search-form {
+  max-width: 600px;
+  margin: 0 20px;
+}
+
+.search-input-group {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-speed) var(--transition-timing-function);
+  display: flex;
+  height: 48px;
+}
+
+.search-input-group:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(5, 23, 159, 0.15);
+}
+
+.search-input {
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  background-color: var(--white);
+  flex: 1;
+  padding: 12px 16px;
+  font-size: var(--base-font-size);
+  color: var(--text-color-dark);
+}
+
+.search-input:focus {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.search-input::placeholder {
+  color: var(--text-color-light);
+}
+
+/* Mobile Search Input Group */
+.mobile-search-input-group {
+  border: 1px solid var(--border-color);
+  border-radius: 25px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  height: 44px;
+}
+
+.mobile-search-input {
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  background-color: var(--white);
+  flex: 1;
+  padding: 10px 16px;
+  font-size: 14px;
+  color: var(--text-color-dark);
+}
+
+.mobile-search-input:focus {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
 
 /* Desktop Action Icons (from previous snippet) */
 .action-icons {

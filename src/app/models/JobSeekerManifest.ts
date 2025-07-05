@@ -2,7 +2,7 @@
 
 import Utils from "../services/Utils";
 import { http_get } from "../services/Api";
-import { LOCAL_JOBSEEKER_MANIFEST } from "../../Constants";
+import { LOCAL_JOBSEEKER_MANIFEST } from "../constants";
 
 export class JobSeekerManifest {
   // Dashboard summary fields

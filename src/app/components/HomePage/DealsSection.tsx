@@ -2,7 +2,7 @@
 import React, { useRef } from "react"; // Import useRef
 import Countdown from "./Countdown";
 import ProductCard from "../shared/ProductCard";
-import { dummyDeals } from "../../data/dummyProducts";
+import { dealsData } from "../../data/optimized/products";
 import "./DealsSection.css";
 
 const DealsSection: React.FC = () => {
@@ -59,7 +59,7 @@ const DealsSection: React.FC = () => {
 
         {/* The Horizontally Scrolling Product Cards */}
         <div className="deals-container" ref={dealsContainerRef}> {/* Attach ref here */}
-          {dummyDeals.map((product) => (
+          {dealsData.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>

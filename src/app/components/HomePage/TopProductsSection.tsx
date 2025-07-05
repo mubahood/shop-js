@@ -1,8 +1,8 @@
 // src/app/components/HomePage/TopProductsSection.tsx
 import React from "react";
 import { Container, Button } from "react-bootstrap";
-import ProductCard2 from "../shared/ProductCard2"; // Using ProductCard2
-import { dummyTopProducts } from "../../data/dummyTopProducts";
+import ProductCard2 from "../shared/ProductCard2";
+import { topProductsData } from "../../data/optimized/products";
 import "./TopProductsSection.css"; // Dedicated CSS for this section
 
 const TopProductsSection: React.FC = () => {
@@ -26,7 +26,7 @@ const TopProductsSection: React.FC = () => {
           </a>
         </div>
         <div className="top-products-grid">
-          {dummyTopProducts.map((product) => (
+          {topProductsData.map((product) => (
             <ProductCard2 key={product.id} product={product} />
           ))}
         </div>

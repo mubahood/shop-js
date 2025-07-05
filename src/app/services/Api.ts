@@ -1,5 +1,5 @@
 import axios from "axios";
-import { DB_TOKEN, DB_LOGGED_IN_PROFILE, API_URL } from "../../Constants";
+import { DB_TOKEN, DB_LOGGED_IN_PROFILE, API_URL } from "../constants";
 import Utils from "./Utils";
 
 // Create an axios instance with default configuration
