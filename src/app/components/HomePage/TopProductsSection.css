@@ -54,8 +54,8 @@
 .top-products-grid {
   display: grid;
   /* Auto-fit based on desired item width for initial responsiveness */
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); /* Adjusted min card width for responsiveness */
-  gap: 15px; /* Tighter gap between cards */
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Optimized for new design */
+  gap: 16px; /* Perfect spacing for clean look */
 }
 
 /* --- Responsive Adjustments for Grid Columns (5 per row on web, 2 on mobile) --- */

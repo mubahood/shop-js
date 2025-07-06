@@ -77,8 +77,8 @@ const Footer: React.FC = () => {
               <h5 className="footer-heading mb-3">DOWNLOAD BLITXPRESS APP</h5>
               <div className="footer-app-badges">
                 {/* Generic placeholder images for app badges */}
-                <a href="#"><img src="https://via.placeholder.com/120x40?text=Google+Play" alt="Google Play" className="app-badge me-2"/></a>
-                <a href="#"><img src="https://via.placeholder.com/120x40?text=App+Store" alt="App Store" className="app-badge"/></a>
+                <a href="#"><img src="https://logos-world.net/wp-content/uploads/2020/12/Google-Play-Logo.png" alt="Google Play" className="app-badge me-2"/></a>
+                <a href="#"><img src="https://logos-world.net/wp-content/uploads/2021/02/App-Store-Logo.png" alt="App Store" className="app-badge"/></a>
               </div>
             </div>
           </Col>

@@ -7,6 +7,7 @@ import ProductCard from "../components/shared/ProductCard";
 import { dealsData, topProductsData } from "../data/optimized/products";
 import type { ProductWithExtras } from "../types";
 import { formatPrice } from "../utils";
+import { useManifestCategories } from "../hooks/useManifest";
 import "./ShopPage.css";
 
 const ShopPage: React.FC = () => {
@@ -27,14 +28,24 @@ const ShopPage: React.FC = () => {
     return [...dealsData, ...topProductsData];
   }, []);
 
-  // Available categories
+  // Get categories from manifest
+  const manifestCategories = useManifestCategories();
+  
+  // Available categories - combine manifest categories with product categories
   const categories = useMemo(() => {
-    const cats = new Set<string>();
+    const productCats = new Set<string>();
     allProducts.forEach(product => {
-      if (product.category_text) cats.add(product.category_text);
+      if (product.category_text) productCats.add(product.category_text);
     });
-    return Array.from(cats);
-  }, [allProducts]);
+    
+    const manifestCats = new Set<string>();
+    manifestCategories.forEach(category => {
+      if (category.category_text) manifestCats.add(category.category_text);
+    });
+    
+    // Combine both sets and return as array
+    return Array.from(new Set([...productCats, ...manifestCats]));
+  }, [allProducts, manifestCategories]);
 
   // Price ranges for filtering
   const priceRanges = [

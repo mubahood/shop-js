@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Form, Button, Alert, Spinner } from "react-bootstrap";
 import { useDispatch } from "react-redux";
-import { showNotification } from "../../store/slices/notificationSlice";
 import { loginUser } from "../../store/slices/authSlice";
+import ToastService from "../../services/ToastService";
 import { APP_CONFIG } from "../../constants";
 
 interface LoginFormData {
@@ -26,6 +26,7 @@ const LoginPage: React.FC = () => {
   
   const [errors, setErrors] = useState<Partial<LoginFormData>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [serverError, setServerError] = useState<string>("");
 
   const from = (location.state as any)?.from?.pathname || "/";
 
@@ -40,6 +41,11 @@ const LoginPage: React.FC = () => {
     if (errors[name as keyof LoginFormData]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
     }
+    
+    // Clear server error when user starts typing
+    if (serverError) {
+      setServerError("");
+    }
   };
 
   const validateForm = (): boolean => {
@@ -53,8 +59,8 @@ const LoginPage: React.FC = () => {
 
     if (!formData.password) {
       newErrors.password = "Password is required";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+    } else if (formData.password.length < 1) {
+      newErrors.password = "Password is required";
     }
 
     setErrors(newErrors);
@@ -67,6 +73,8 @@ const LoginPage: React.FC = () => {
     if (!validateForm()) return;
     
     setIsLoading(true);
+    setErrors({}); // Clear any previous errors
+    setServerError(""); // Clear server error
     
     try {
       // Use the auth slice login action
@@ -76,19 +84,19 @@ const LoginPage: React.FC = () => {
       }) as any);
       
       if (result.success) {
-        dispatch(showNotification({
-          type: "success",
-          message: "Welcome back!"
-        }));
+        ToastService.loginSuccess();
         navigate(from, { replace: true });
       } else {
-        setErrors({ email: result.error || "Login failed" });
+        // Show the API error message in the form
+        const errorMessage = result.error || "Login failed";
+        setServerError(errorMessage);
+        ToastService.loginError(errorMessage);
       }
-    } catch (error) {
-      dispatch(showNotification({
-        type: "error",
-        message: "Login failed. Please try again."
-      }));
+    } catch (error: any) {
+      // Handle any unexpected errors
+      const errorMessage = error?.message || "Login failed. Please try again.";
+      setServerError(errorMessage);
+      ToastService.loginError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -101,12 +109,11 @@ const LoginPage: React.FC = () => {
         <p className="text-muted">Welcome back! Please sign in to your account</p>
       </div>
 
-      {/* Demo Credentials */}
-      <Alert variant="info" className="small mb-4">
-        <strong>Demo Credentials:</strong><br />
-        Email: demo@example.com<br />
-        Password: password
-      </Alert>
+      {serverError && (
+        <Alert variant="danger" className="mb-4">
+          {serverError}
+        </Alert>
+      )}
 
       <Form onSubmit={handleSubmit}>
         <Form.Group className="mb-3">
@@ -183,23 +190,7 @@ const LoginPage: React.FC = () => {
           </Link>
         </div>
 
-        {/* Social Login */}
-        <div className="social-login mt-4">
-          <div className="text-center mb-3">
-            <span className="text-muted small">Or continue with</span>
-          </div>
-          
-          <div className="d-grid gap-2">
-            <Button variant="outline-primary" className="social-btn">
-              <i className="bi bi-google me-2"></i>
-              Continue with Google
-            </Button>
-            <Button variant="outline-dark" className="social-btn">
-              <i className="bi bi-facebook me-2"></i>
-              Continue with Facebook
-            </Button>
-          </div>
-        </div>
+    
       </Form>
     </div>
   );

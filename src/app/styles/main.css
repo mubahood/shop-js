@@ -10,6 +10,7 @@
 /* 2. Layout Components */
 @import "../components/Header/Header.css";
 @import "../components/Layout/Footer.css";
+@import '../components/Layout/AuthLayout.css';
 
 /* 3. Shared Components */
 @import "../components/shared/ProductCard.css";
@@ -99,6 +100,3 @@ html {
 .wishlist-card:hover .card-img-top {
   transform: scale(1.05);
 }
-
-/* Import Auth Layout Styles */
-@import '../components/Layout/AuthLayout.css';

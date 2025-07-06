@@ -1,41 +1,40 @@
-// src/app/components/Header/ModernMainNav.tsx
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../../store/store";
-import { selectIsAuthenticated, selectUser, logout } from "../../store/slices/authSlice";
+import { RootState, AppDispatch } from "../../store/store";
+import { selectIsAuthenticated } from "../../store/slices/authSlice";
+import { loadWishlistFromAPI } from "../../store/slices/wishlistSlice";
+import { useCart } from "../../hooks/useCart";
+import { useAppCounts } from "../../hooks/useManifest";
+import LiveSearchBox from "../search/LiveSearchBox";
 import "./ModernMainNav.css";
 
 const ModernMainNav: React.FC = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   
-  // Cart and Wishlist selectors
-  const { items } = useSelector((state: RootState) => state.cart);
-  const { items: wishlistItems } = useSelector((state: RootState) => state.wishlist);
-  const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
-  const wishlistCount = wishlistItems.length;
+  // Use manifest counts instead of individual state selectors
+  const { cartCount } = useCart();
+  const appCounts = useAppCounts();
+  const wishlistCount = appCounts.wishlist_count;
   
   // Auth selectors
   const isAuthenticated = useSelector(selectIsAuthenticated);
-  const user = useSelector(selectUser);
   
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [isMegaMenuOpen, setMegaMenuOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
-  const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
   const categoryRef = useRef<HTMLDivElement>(null);
   const megaMenuRef = useRef<HTMLDivElement>(null);
-  const searchRef = useRef<HTMLInputElement>(null);
 
   const toggleMenu = () => setMenuOpen(!isMenuOpen);
   const hasNotifications = false; // This would come from notifications state
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate('/');
-    setMenuOpen(false);
-  };
+  // Load wishlist when user is authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      dispatch(loadWishlistFromAPI());
+    }
+  }, [isAuthenticated, dispatch]);
 
   // Enhanced mega menu hover handling
   useEffect(() => {
@@ -72,28 +71,6 @@ const ModernMainNav: React.FC = () => {
       }
     };
   }, []);
-
-  const recentSearches = ["Smartphones", "Laptops", "Headphones"];
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchValue.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchValue.trim())}`);
-      setShowSearchSuggestions(false);
-    }
-  };
-
-  const handleSearchFocus = () => {
-    if (recentSearches.length > 0 && !searchValue) {
-      setShowSearchSuggestions(true);
-    }
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchValue(value);
-    setShowSearchSuggestions(value.length > 0 || (!value && recentSearches.length > 0));
-  };
 
   return (
     <>
@@ -146,8 +123,8 @@ const ModernMainNav: React.FC = () => {
                 <Link to="/cart" className="mobile-action-link">
                   <div className="mobile-action-icon-wrapper">
                     <i className="bi bi-bag"></i>
-                    {cartItemCount > 0 && (
-                      <span className="mobile-cart-badge">{cartItemCount}</span>
+                    {cartCount > 0 && (
+                      <span className="mobile-cart-badge">{cartCount}</span>
                     )}
                   </div>
                 </Link>
@@ -156,23 +133,15 @@ const ModernMainNav: React.FC = () => {
           </div>
         </div>
 
-        {/* Bottom Row: Search Bar */}
+        {/* Bottom Row: Live Search */}
         <div className="mobile-nav-bottom">
           <div className="container-fluid">
-            <form className="mobile-search-form" onSubmit={handleSearchSubmit}>
-              <div className="mobile-search-input-group">
-                <input
-                  type="search"
-                  className="mobile-search-input"
-                  placeholder="Search for products, brands, categories..."
-                  value={searchValue}
-                  onChange={handleSearchChange}
-                />
-                <button className="btn btn-search" type="submit" aria-label="Search">
-                  <i className="bi bi-search"></i>
-                </button>
-              </div>
-            </form>
+            <LiveSearchBox 
+              placeholder="Search for products, brands, categories..."
+              className="mobile-search-box"
+              size="sm"
+              showRecentSearches={true}
+            />
           </div>
         </div>
       </div>
@@ -350,62 +319,14 @@ const ModernMainNav: React.FC = () => {
               </div>
             </div>
           </div>
-          {/* Enhanced Search Form */}
-          <form className="search-form flex-grow-1 position-relative" role="search" onSubmit={handleSearchSubmit}>
-            <div className="search-input-wrapper">
-              <div className="search-input-group">
-                <input
-                  ref={searchRef}
-                  type="search"
-                  className="search-input"
-                  placeholder="Search for products, brands, categories..."
-                  value={searchValue}
-                  onChange={handleSearchChange}
-                  onFocus={handleSearchFocus}
-                  onBlur={() => setTimeout(() => setShowSearchSuggestions(false), 200)}
-                />
-                <button className="btn btn-search" type="submit" aria-label="Search">
-                  <i className="bi bi-search"></i>
-                </button>
-              </div>
-              
-              {/* Search Suggestions Dropdown */}
-              {showSearchSuggestions && (
-                <div className="search-suggestions">
-                  {searchValue ? (
-                    <div className="suggestions-section">
-                      <div className="suggestion-header">
-                        <i className="bi bi-search"></i>
-                        <span>Search for "{searchValue}"</span>
-                      </div>
-                      <div className="suggestion-item active">
-                        <i className="bi bi-search"></i>
-                        <span>{searchValue} in Electronics</span>
-                      </div>
-                      <div className="suggestion-item">
-                        <i className="bi bi-search"></i>
-                        <span>{searchValue} in Fashion</span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="suggestions-section">
-                      <div className="suggestion-header">
-                        <i className="bi bi-clock-history"></i>
-                        <span>Recent Searches</span>
-                      </div>
-                      {recentSearches.map((search, index) => (
-                        <div key={index} className="suggestion-item" onClick={() => setSearchValue(search)}>
-                          <i className="bi bi-clock"></i>
-                          <span>{search}</span>
-                          <i className="bi bi-arrow-up-left suggestion-action"></i>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </form>
+          {/* Enhanced Live Search */}
+          <div className="search-form flex-grow-1 position-relative">
+            <LiveSearchBox 
+              placeholder="Search for products, brands, categories..."
+              className="desktop-search-box"
+              showRecentSearches={true}
+            />
+          </div>
 
           {/* Enhanced Action Icons */}
           <div className="action-icons">
@@ -424,7 +345,7 @@ const ModernMainNav: React.FC = () => {
                     {hasNotifications && <span className="notification-dot"></span>}
                   </div>
                   <div className="action-text">
-                    {user?.firstName || 'Account'}
+                    Account
                   </div>
                 </Link>
                 <Link to="/wishlist" className="action-link">
@@ -457,8 +378,8 @@ const ModernMainNav: React.FC = () => {
             <Link to="/cart" className="action-link">
               <div className="action-icon-wrapper">
                 <i className="bi bi-bag action-icon"></i>
-                {cartItemCount > 0 && (
-                  <span className="cart-badge">{cartItemCount}</span>
+                {cartCount > 0 && (
+                  <span className="cart-badge">{cartCount}</span>
                 )}
               </div>
               <div className="action-text">Cart</div>
@@ -533,7 +454,7 @@ const ModernMainNav: React.FC = () => {
           {isAuthenticated ? (
             <div className="mobile-nav-section">
               <h6 className="mobile-nav-heading">
-                Welcome, {user?.firstName || 'User'}!
+                Welcome back!
               </h6>
               <ul className="nav-links">
                 <li>
@@ -563,12 +484,6 @@ const ModernMainNav: React.FC = () => {
                     <i className="bi bi-geo-alt"></i>
                     <span>Addresses</span>
                   </Link>
-                </li>
-                <li>
-                  <button onClick={handleLogout} className="nav-logout-btn">
-                    <i className="bi bi-box-arrow-right"></i>
-                    <span>Logout</span>
-                  </button>
                 </li>
               </ul>
             </div>

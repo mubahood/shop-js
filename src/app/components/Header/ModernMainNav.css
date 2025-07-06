@@ -8,7 +8,7 @@
   display: flex;
   align-items: center;
   padding: 0 16px; /* Reduced from 20px */
-  background: linear-gradient(135deg, var(--white) 0%, #fafbfc 100%);
+  background: var(--white);
   border-bottom: 1px solid var(--border-color);
   position: relative;
   overflow: visible;
@@ -240,7 +240,7 @@
   color: var(--text-color-light);
   background: var(--background-light);
   padding: 2px 6px;
-  border-radius: 8px;
+  border-radius: var(--border-radius);
   font-weight: 500;
   transition: all 0.25s ease;
 }
@@ -353,7 +353,6 @@
   padding: 0 12px;
   height: 100%;
   font-weight: 400;
-  flex: 1;
 }
 
 .search-input::placeholder {
@@ -881,10 +880,11 @@
   animation: bounceIn 0.5s ease-out;
 }
 
-/* Mobile Navigation Bottom Row - Search */
+/* Mobile Navigation Bottom Row - Always Visible Search */
 .mobile-nav-bottom {
-  background: var(--white);
-  padding: 12px 16px 16px 16px;
+  background: #ffffff;
+  padding: 8px 12px 12px 12px;
+  border-bottom: 1px solid #f3f4f6;
 }
 
 .mobile-search-form {
@@ -894,63 +894,55 @@
 .mobile-search-input-group {
   display: flex;
   align-items: center;
-  background: rgba(248, 249, 250, 0.9);
-  border: 1px solid rgba(226, 232, 234, 0.6);
-  border-radius: var(--border-radius);
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
   overflow: hidden;
-  height: 44px;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
+  height: 38px;
+  transition: all 0.2s ease;
 }
 
 .mobile-search-input-group:focus-within {
-  background: var(--white);
-  border-color: var(--primary-color);
-  box-shadow: 0 2px 8px rgba(215, 21, 41, 0.1);
-  transform: translateY(-1px);
+  background: #ffffff;
+  border-color: #d7152a;
+  box-shadow: 0 0 0 2px rgba(215, 21, 42, 0.08);
 }
 
 .mobile-search-input {
   flex: 1;
   border: none;
   background: transparent;
-  padding: 0 16px;
-  font-size: 0.9rem;
-  color: var(--text-color-dark);
+  padding: 0 12px;
+  font-size: 14px;
+  color: #374151;
   height: 100%;
   outline: none;
 }
 
 .mobile-search-input::placeholder {
-  color: var(--text-color-light);
+  color: #9ca3af;
   font-weight: 400;
 }
 
 .mobile-search-btn {
-  background: var(--primary-color);
-  color: var(--white);
+  background: #d7152a;
+  color: #ffffff;
   border: none;
-  width: 44px;
+  width: 38px;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .mobile-search-btn:hover {
-  background: var(--primary-color-dark);
-  transform: scale(1.02);
+  background: #b8121f;
 }
 
 .mobile-search-btn i {
-  font-size: 1rem;
-  transition: all 0.3s ease;
-}
-
-.mobile-search-btn:hover i {
-  transform: scale(1.05);
+  font-size: 14px;
 }
 
 /* Mobile Offcanvas Logo */
@@ -960,56 +952,123 @@
   object-fit: contain;
 }
 
-/* Mobile Navigation Logout Button */
-.nav-logout-btn {
+/* ===================================================================
+   Live Search Integration Styles - Light & Minimalistic
+   =================================================================== */
+
+/* Mobile Search Box Integration */
+.mobile-nav-bottom .mobile-search-box {
   width: 100%;
-  display: flex;
-  align-items: center;
-  color: var(--text-color-dark);
-  padding: 16px 8px;
-  font-size: 17px;
-  font-weight: 500;
-  text-decoration: none;
-  border-bottom: 1px solid var(--border-color);
-  background: none;
+}
+
+.mobile-nav-bottom .mobile-search-box .search-input-group {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  height: 38px;
+}
+
+.mobile-nav-bottom .mobile-search-box .search-input-group:focus-within {
+  background: #ffffff;
+  border-color: #d7152a;
+  box-shadow: 0 0 0 2px rgba(215, 21, 42, 0.08);
+}
+
+.mobile-nav-bottom .mobile-search-box .search-input {
+  padding: 0 12px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.mobile-nav-bottom .mobile-search-box .search-input::placeholder {
+  color: #9ca3af;
+}
+
+.mobile-nav-bottom .mobile-search-box .btn-search {
+  width: 38px;
+  background: #d7152a;
+  color: #ffffff;
+}
+
+.mobile-nav-bottom .mobile-search-box .btn-search:hover {
+  background: #b8121f;
+}
+
+/* Desktop Search Box Integration */
+.desktop-search-wrapper .live-search-box .search-input-group {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+.desktop-search-wrapper .live-search-box .search-input-group:focus-within {
+  border-color: #d7152a;
+  box-shadow: 0 0 0 2px rgba(215, 21, 42, 0.08);
+}
+
+/* Desktop Search Box Integration */
+.desktop-search-box {
+  width: 100%;
+  max-width: 600px;
+}
+
+.desktop-search-box .form-control {
+  background: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 12px 45px 12px 16px;
+  font-size: 14px;
+  color: var(--text-color);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.desktop-search-box .form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(var(--primary-rgb), 0.25);
+}
+
+.desktop-search-box .btn-search {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
   border: none;
-  border-bottom: 1px solid var(--border-color);
-  cursor: pointer;
-  transition: all var(--transition-speed) var(--transition-timing-function);
+  color: var(--text-muted);
+  padding: 8px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
 }
 
-.nav-logout-btn:hover {
-  color: #dc3545;
-  background-color: var(--background-light);
+.desktop-search-box .btn-search:hover {
+  background: var(--background-light);
+  color: var(--primary-color);
 }
 
-.nav-logout-btn i {
-  margin-right: 12px;
-  font-size: 16px;
+/* Search suggestions dropdown styling integration */
+.mobile-search-box .live-search-suggestions,
+.desktop-search-box .live-search-suggestions {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  background: var(--white);
+  max-height: 400px;
+  overflow-y: auto;
 }
 
-/* Responsive adjustments for mobile navigation */
-@media (max-width: 576px) {
-  .mobile-top-row {
-    padding: 10px 12px;
-    height: 56px;
-  }
-  
-  .mobile-logo {
-    height: 32px;
-    max-width: 120px;
-  }
-  
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
   .mobile-nav-bottom {
-    padding: 10px 12px 14px 12px;
+    padding: 12px 0;
   }
   
-  .mobile-search-input-group {
-    height: 42px;
+  .mobile-nav-bottom .mobile-search-box {
+    margin: 0;
   }
-  
-  .mobile-search-btn {
-    width: 42px;
+}
+
+@media (min-width: 992px) {
+  .search-form {
+    margin: 0 20px;
   }
 }
 

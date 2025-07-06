@@ -1,6 +1,6 @@
 // src/app/pages/account/AccountAddresses.tsx
 import React, { useState } from "react";
-import { Container, Row, Col, Card, Button, Form, Modal, Nav, Badge } from "react-bootstrap";
+import { Row, Col, Card, Button, Form, Modal, Nav, Badge } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { MapPin, Plus, Edit3, Trash2, Home, Building } from "lucide-react";
 
@@ -153,18 +153,16 @@ const AccountAddresses: React.FC = () => {
   };
 
   return (
-    <Container className="py-5">
-      <Row>
-        <Col>
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h1 className="h3 mb-0">My Addresses</h1>
-            <Button variant="primary" onClick={handleAddAddress}>
-              <Plus size={16} className="me-2" />
-              Add New Address
-            </Button>
-          </div>
-        </Col>
-      </Row>
+    <>
+      {/* Page Header */}
+      <div className="account-page-header">
+        <h1 className="account-page-title">My Addresses</h1>
+        <p className="account-page-subtitle">Manage your delivery addresses</p>
+        <Button variant="primary" onClick={handleAddAddress}>
+          <Plus size={16} className="me-2" />
+          Add New Address
+        </Button>
+      </div>
 
       {/* Addresses Grid */}
       <Row>
@@ -455,7 +453,7 @@ const AccountAddresses: React.FC = () => {
           </Nav>
         </Col>
       </Row>
-    </Container>
+    </>
   );
 };
 

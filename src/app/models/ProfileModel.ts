@@ -2,10 +2,10 @@
 
 /**
  * ProfileModel represents the structure of a user's profile.
- * All properties are strings initialized to an empty string by default.
+ * Following system rules: id is integer, rest are strings with empty defaults.
  */
 export class ProfileModel {
-  id: string = "";
+  id: number = 0;
   username: string = "";
   password: string = "";
   name: string = "";
@@ -188,7 +188,7 @@ export class ProfileModel {
    * Useful for initializing from API responses.
    * @param data The plain object containing profile data.
    */
-  static fromJson(data: string): ProfileModel {
+  static fromJson(data: string | any): ProfileModel {
     const model = new ProfileModel();
 
     if (!data) {
@@ -197,8 +197,8 @@ export class ProfileModel {
     }
 
     try {
-      // Parse the JSON string into an object
-      const obj = JSON.parse(data);
+      // Parse the JSON string into an object if it's a string
+      const obj = typeof data === 'string' ? JSON.parse(data) : data;
 
       // Get all keys from the ProfileModel instance
       const modelKeys = Object.keys(model);
@@ -206,11 +206,17 @@ export class ProfileModel {
       // Iterate through each key in the parsed JSON object
       for (const key of Object.keys(obj)) {
         if (modelKeys.includes(key)) {
-          // Type assertion is used here to assign the value dynamically
-          (model as any)[key] = obj[key];
+          if (key === 'id') {
+            // Ensure id is integer following system rules
+            (model as any)[key] = parseInt(obj[key]) || 0;
+          } else {
+            // All other fields are strings with empty defaults
+            (model as any)[key] = String(obj[key] || '');
+          }
         }
       }
     } catch (error) {
+      console.error('Error parsing ProfileModel data:', error);
       return new ProfileModel();
     }
     return model;

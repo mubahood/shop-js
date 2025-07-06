@@ -24,7 +24,7 @@ const NotFoundPage: React.FC = () => {
               <div className="display-1 fw-bold text-primary mb-3">404</div>
               <div className="position-relative d-inline-block">
                 <img 
-                  src="/public/media/auth/404-error.png" 
+                  src="/media/auth/404-error.png" 
                   alt="404 Error"
                   className="img-fluid"
                   style={{ maxHeight: "300px" }}

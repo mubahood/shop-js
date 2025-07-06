@@ -6,6 +6,7 @@
 
 import { APP_CONFIG, PRODUCT_CONFIG } from '../constants';
 import type { ProductBase, ProductWithExtras } from '../types';
+import Utils from '../services/Utils';
 
 // ===================================================================
 // FORMATTING UTILITIES
@@ -83,7 +84,22 @@ export const hasDiscount = (product: ProductBase): boolean => {
  * Get product main image with fallback
  */
 export const getProductImage = (product: ProductBase): string => {
-  return product.feature_photo || PRODUCT_CONFIG.DEFAULT_IMAGE;
+  // Use getMainImage method if available (ProductModel instances)
+  if (product && 'getMainImage' in product && typeof product.getMainImage === 'function') {
+    try {
+      return product.getMainImage();
+    } catch (error) {
+      console.warn('Error calling getMainImage():', error);
+    }
+  }
+  
+  // Fallback: construct the URL manually using the same logic as ProductModel
+  if (product?.feature_photo) {
+    return Utils.img(product.feature_photo);
+  }
+  
+  // Final fallback
+  return PRODUCT_CONFIG.DEFAULT_IMAGE;
 };
 
 /**

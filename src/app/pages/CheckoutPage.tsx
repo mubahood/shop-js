@@ -1,454 +1,311 @@
 // src/app/pages/CheckoutPage.tsx
-import React, { useState } from "react";
-import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../store/store";
-import { clearCart } from "../store/slices/cartSlice";
-import { showNotification } from "../store/slices/notificationSlice";
-import { formatPrice } from "../utils";
-import "./CheckoutPage.css";
+import React, { useState, useEffect } from 'react';
+import { Container, Row, Col, Button, Spinner, Alert, Modal } from 'react-bootstrap';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { OrderModel } from '../models/OrderModel';
+import { useCart } from '../hooks/useCart';
+import { formatPrice } from '../utils';
+import ToastService from '../services/ToastService';
+import { http_post } from '../services/Api';
+import { OrderModelUtils } from '../utils/OrderModelUtils';
+import './CheckoutPage.css';
 
-interface CheckoutFormData {
-  email: string;
-  firstName: string;
-  lastName: string;
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
-  paymentMethod: string;
-  cardNumber: string;
-  expiryDate: string;
-  cvv: string;
-  billingAddress: string;
+interface LocationState {
+  order: OrderModel;
 }
 
 const CheckoutPage: React.FC = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { items } = useSelector((state: RootState) => state.cart);
-  
-  const [formData, setFormData] = useState<CheckoutFormData>({
-    email: "",
-    firstName: "",
-    lastName: "",
-    address: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    country: "US",
-    paymentMethod: "card",
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
-    billingAddress: "same"
+  const location = useLocation();
+  const { order: initialOrder } = (location.state as LocationState) || {};
+  const { cartItems, getFormattedTotal, clearCart } = useCart();
+
+  // Early validation to prevent crashes
+  useEffect(() => {
+    if (!initialOrder || cartItems.length === 0) {
+      console.warn('CheckoutPage: Missing order data or empty cart, redirecting to cart');
+      navigate('/cart');
+    }
+  }, [initialOrder, cartItems.length, navigate]);
+
+  const [order, setOrder] = useState<OrderModel>(() => {
+    // Create order with proper initialization and safety checks
+    if (initialOrder && typeof initialOrder === 'object') {
+      return OrderModelUtils.ensureOrderModel(initialOrder);
+    }
+    return new OrderModel();
   });
-  
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [errors, setErrors] = useState<Partial<CheckoutFormData>>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.product.price_1) * item.quantity), 0);
-  const shipping = subtotal > 100 ? 0 : 9.99;
-  const tax = subtotal * 0.08;
-  const total = subtotal + shipping + tax;
+  // Calculate totals with safety checks
+  const cartTotal = parseFloat(getFormattedTotal().replace(/[^0-9.-]+/g, '')) || 0;
+  const deliveryAmount = parseFloat(order?.delivery_amount || '0') || 0;
+  const payableAmount = parseFloat(order?.payable_amount || '0') || 0;
+  const finalTotal = cartTotal + deliveryAmount;
 
-  const handleInputChange = (e: React.ChangeEvent<any>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    // Clear error when user starts typing
-    if (errors[name as keyof CheckoutFormData]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
-    }
-  };
-
-  const validateForm = (): boolean => {
-    const newErrors: Partial<CheckoutFormData> = {};
-
-    if (!formData.email) newErrors.email = "Email is required";
-    if (!formData.firstName) newErrors.firstName = "First name is required";
-    if (!formData.lastName) newErrors.lastName = "Last name is required";
-    if (!formData.address) newErrors.address = "Address is required";
-    if (!formData.city) newErrors.city = "City is required";
-    if (!formData.state) newErrors.state = "State is required";
-    if (!formData.zipCode) newErrors.zipCode = "ZIP code is required";
-
-    if (formData.paymentMethod === "card") {
-      if (!formData.cardNumber) newErrors.cardNumber = "Card number is required";
-      if (!formData.expiryDate) newErrors.expiryDate = "Expiry date is required";
-      if (!formData.cvv) newErrors.cvv = "CVV is required";
+  useEffect(() => {
+    if (!initialOrder || cartItems.length === 0) {
+      navigate('/cart');
+      return;
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) return;
-    
-    setIsProcessing(true);
-    
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+    // Update order amounts exactly like Dart: widget.order.payable_amount = (mainController.tot + Utils.int_parse(widget.order.delivery_amount)).toString();
+    setOrder(prevOrder => {
+      // Ensure proper OrderModel instance with all methods
+      const currentOrder = OrderModelUtils.ensureOrderModel(prevOrder);
       
-      // Clear cart and redirect to success page
-      dispatch(clearCart());
-      dispatch(showNotification({
-        type: "success",
-        message: "Order placed successfully!"
-      }));
-      navigate("/order-success");
-    } catch (error) {
-      dispatch(showNotification({
-        type: "error",
-        message: "Failed to process order. Please try again."
-      }));
+      // Update calculated values
+      currentOrder.order_total = cartTotal.toString();
+      currentOrder.payable_amount = (cartTotal + deliveryAmount).toString(); // Items total + delivery (before tax)
+      
+      return currentOrder;
+    });
+  }, [cartTotal, deliveryAmount, initialOrder, cartItems.length, navigate]);
+
+  const submitOrder = async () => {
+    try {
+      setIsLoading(true);
+      setErrorMessage('');
+
+      // Validate order data
+      if (!order || typeof order !== 'object') {
+        setErrorMessage('Order information is invalid. Please restart the checkout process.');
+        navigate('/cart');
+        return;
+      }
+
+      if (!order.customer_name || !order.customer_phone_number_1) {
+        setErrorMessage('Order information is incomplete. Please go back and fill all required fields.');
+        return;
+      }
+
+      // Validate cart items
+      if (!cartItems || cartItems.length === 0) {
+        setErrorMessage('Your cart is empty. Please add items before checkout.');
+        navigate('/cart');
+        return;
+      }
+
+      // Prepare delivery data exactly like Dart implementation
+      const deliveryData = OrderModelUtils.toJson(order);
+      
+      // Handle phone numbers exactly like Dart code
+      deliveryData.phone_number_2 = order.customer_phone_number_2 || order.customer_phone_number_1;
+      deliveryData.phone_number_1 = order.customer_phone_number_1;
+      deliveryData.phone_number = deliveryData.phone_number_1;
+
+      console.log('Submitting order with data:', { 
+        items: cartItems.length + ' items',
+        delivery: deliveryData 
+      });
+
+      // Submit order to API with exact same structure as Dart
+      const response = await http_post('orders-create', {
+        items: JSON.stringify(cartItems),
+        delivery: JSON.stringify(deliveryData),
+      });
+
+      console.log('API Response:', response);
+
+      if (response.code !== 1) {
+        setErrorMessage(response.message || 'Failed to submit order');
+        ToastService.error(`Failed ${response.message || 'to submit order'}`);
+        return;
+      }
+
+      // Parse the created order from response
+      let createdOrder: OrderModel;
+      try {
+        if (response.data && typeof OrderModel.fromJson === 'function') {
+          createdOrder = OrderModel.fromJson(response.data);
+        } else {
+          // Fallback: use utility to ensure proper OrderModel
+          createdOrder = OrderModelUtils.ensureOrderModel(response.data);
+        }
+      } catch (error) {
+        console.error('Error parsing order response:', error);
+        setErrorMessage('Failed to process order response');
+        ToastService.error('Failed to process order response');
+        return;
+      }
+      
+      if (!createdOrder || createdOrder.id < 1) {
+        setErrorMessage(response.message || 'Invalid order response');
+        ToastService.error('Failed to submit order');
+        return;
+      }
+
+      // Clear cart after successful order submission (like Dart: await CartItem.deleteAll())
+      await clearCart();
+
+      ToastService.success('Order submitted successfully!', { autoClose: 4000 });
+
+      // Navigate to success page or home (like Dart: Get.offAll(() => const BoardingWelcomeScreen()))
+      navigate('/', { 
+        state: { 
+          orderSuccess: true, 
+          orderId: createdOrder.id,
+          paymentUrl: OrderModelUtils.getPaymentLink(createdOrder)
+        } 
+      });
+
+    } catch (error: any) {
+      console.error('Error submitting order:', error);
+      setErrorMessage(error.message || 'Failed to submit order');
+      ToastService.error('Failed to submit order: ' + (error.message || 'Unknown error'));
     } finally {
-      setIsProcessing(false);
+      setIsLoading(false);
+      setShowConfirmModal(false);
     }
   };
 
-  if (items.length === 0) {
+  const handleSubmitClick = () => {
+    setShowConfirmModal(true);
+  };
+
+  if (!initialOrder || cartItems.length === 0) {
     return (
-      <div className="checkout-page">
-        <Container>
-          <div className="text-center py-5">
-            <h2>Your cart is empty</h2>
-            <p className="text-muted">Add some items to your cart before checking out.</p>
-            <Link to="/shop" className="btn btn-primary">
-              Continue Shopping
-            </Link>
-          </div>
-        </Container>
-      </div>
+      <Container className="py-5">
+        <Alert variant="warning">
+          Your cart is empty or order information is missing. Please start from the cart.
+        </Alert>
+      </Container>
     );
   }
 
   return (
     <div className="checkout-page">
-      <Container>
-        {/* Breadcrumb */}
-        <nav aria-label="breadcrumb" className="my-4">
-          <ol className="breadcrumb">
-            <li className="breadcrumb-item">
-              <Link to="/" className="text-decoration-none">Home</Link>
-            </li>
-            <li className="breadcrumb-item">
-              <Link to="/cart" className="text-decoration-none">Cart</Link>
-            </li>
-            <li className="breadcrumb-item active">Checkout</li>
-          </ol>
-        </nav>
+      <Container className="py-4">
+        <Row className="justify-content-center">
+          <Col lg={8} xl={6}>
+            <div className="checkout-card">
+              <div className="checkout-header">
+                <h2 className="checkout-title">Order Summary</h2>
+                <p className="checkout-subtitle">
+                  Please confirm your order details below before proceeding to payment
+                </p>
+              </div>
 
-        <h1 className="h2 mb-4">Checkout</h1>
-
-        <Form onSubmit={handleSubmit}>
-          <Row>
-            {/* Checkout Form */}
-            <Col lg={8}>
-              {/* Contact Information */}
-              <Card className="mb-4">
-                <Card.Header>
-                  <h5 className="mb-0">Contact Information</h5>
-                </Card.Header>
-                <Card.Body>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Email Address</Form.Label>
-                    <Form.Control
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      isInvalid={!!errors.email}
-                      placeholder="john@example.com"
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {errors.email}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                </Card.Body>
-              </Card>
-
-              {/* Shipping Address */}
-              <Card className="mb-4">
-                <Card.Header>
-                  <h5 className="mb-0">Shipping Address</h5>
-                </Card.Header>
-                <Card.Body>
-                  <Row>
-                    <Col md={6}>
-                      <Form.Group className="mb-3">
-                        <Form.Label>First Name</Form.Label>
-                        <Form.Control
-                          type="text"
-                          name="firstName"
-                          value={formData.firstName}
-                          onChange={handleInputChange}
-                          isInvalid={!!errors.firstName}
-                        />
-                        <Form.Control.Feedback type="invalid">
-                          {errors.firstName}
-                        </Form.Control.Feedback>
-                      </Form.Group>
-                    </Col>
-                    <Col md={6}>
-                      <Form.Group className="mb-3">
-                        <Form.Label>Last Name</Form.Label>
-                        <Form.Control
-                          type="text"
-                          name="lastName"
-                          value={formData.lastName}
-                          onChange={handleInputChange}
-                          isInvalid={!!errors.lastName}
-                        />
-                        <Form.Control.Feedback type="invalid">
-                          {errors.lastName}
-                        </Form.Control.Feedback>
-                      </Form.Group>
-                    </Col>
-                  </Row>
-
-                  <Form.Group className="mb-3">
-                    <Form.Label>Address</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="address"
-                      value={formData.address}
-                      onChange={handleInputChange}
-                      isInvalid={!!errors.address}
-                      placeholder="123 Main Street"
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {errors.address}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-
-                  <Row>
-                    <Col md={6}>
-                      <Form.Group className="mb-3">
-                        <Form.Label>City</Form.Label>
-                        <Form.Control
-                          type="text"
-                          name="city"
-                          value={formData.city}
-                          onChange={handleInputChange}
-                          isInvalid={!!errors.city}
-                        />
-                        <Form.Control.Feedback type="invalid">
-                          {errors.city}
-                        </Form.Control.Feedback>
-                      </Form.Group>
-                    </Col>
-                    <Col md={3}>
-                      <Form.Group className="mb-3">
-                        <Form.Label>State</Form.Label>
-                        <Form.Control
-                          type="text"
-                          name="state"
-                          value={formData.state}
-                          onChange={handleInputChange}
-                          isInvalid={!!errors.state}
-                        />
-                        <Form.Control.Feedback type="invalid">
-                          {errors.state}
-                        </Form.Control.Feedback>
-                      </Form.Group>
-                    </Col>
-                    <Col md={3}>
-                      <Form.Group className="mb-3">
-                        <Form.Label>ZIP Code</Form.Label>
-                        <Form.Control
-                          type="text"
-                          name="zipCode"
-                          value={formData.zipCode}
-                          onChange={handleInputChange}
-                          isInvalid={!!errors.zipCode}
-                        />
-                        <Form.Control.Feedback type="invalid">
-                          {errors.zipCode}
-                        </Form.Control.Feedback>
-                      </Form.Group>
-                    </Col>
-                  </Row>
-                </Card.Body>
-              </Card>
-
-              {/* Payment Method */}
-              <Card className="mb-4">
-                <Card.Header>
-                  <h5 className="mb-0">Payment Method</h5>
-                </Card.Header>
-                <Card.Body>
-                  <div className="payment-methods mb-4">
-                    <Form.Check
-                      type="radio"
-                      name="paymentMethod"
-                      value="card"
-                      checked={formData.paymentMethod === "card"}
-                      onChange={handleInputChange}
-                      label="Credit/Debit Card"
-                      className="mb-2"
-                    />
-                    <Form.Check
-                      type="radio"
-                      name="paymentMethod"
-                      value="paypal"
-                      checked={formData.paymentMethod === "paypal"}
-                      onChange={handleInputChange}
-                      label="PayPal"
-                      className="mb-2"
-                    />
+              <div className="checkout-content">
+                {/* Order Items Total */}
+                <div className="summary-item">
+                  <div className="summary-item-content">
+                    <h4 className="summary-item-title">Order Items Total</h4>
+                    <p className="summary-item-subtitle">
+                      Total amount of all items in your cart
+                    </p>
                   </div>
+                  <div className="summary-item-amount">
+                    {formatPrice(cartTotal.toString())}
+                  </div>
+                </div>
 
-                  {formData.paymentMethod === "card" && (
-                    <div className="card-details">
-                      <Form.Group className="mb-3">
-                        <Form.Label>Card Number</Form.Label>
-                        <Form.Control
-                          type="text"
-                          name="cardNumber"
-                          value={formData.cardNumber}
-                          onChange={handleInputChange}
-                          isInvalid={!!errors.cardNumber}
-                          placeholder="1234 5678 9012 3456"
-                        />
-                        <Form.Control.Feedback type="invalid">
-                          {errors.cardNumber}
-                        </Form.Control.Feedback>
-                      </Form.Group>
+                <div className="summary-divider"></div>
 
-                      <Row>
-                        <Col md={6}>
-                          <Form.Group className="mb-3">
-                            <Form.Label>Expiry Date</Form.Label>
-                            <Form.Control
-                              type="text"
-                              name="expiryDate"
-                              value={formData.expiryDate}
-                              onChange={handleInputChange}
-                              isInvalid={!!errors.expiryDate}
-                              placeholder="MM/YY"
-                            />
-                            <Form.Control.Feedback type="invalid">
-                              {errors.expiryDate}
-                            </Form.Control.Feedback>
-                          </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                          <Form.Group className="mb-3">
-                            <Form.Label>CVV</Form.Label>
-                            <Form.Control
-                              type="text"
-                              name="cvv"
-                              value={formData.cvv}
-                              onChange={handleInputChange}
-                              isInvalid={!!errors.cvv}
-                              placeholder="123"
-                            />
-                            <Form.Control.Feedback type="invalid">
-                              {errors.cvv}
-                            </Form.Control.Feedback>
-                          </Form.Group>
-                        </Col>
-                      </Row>
-                    </div>
+                {/* Delivery Cost */}
+                <div className="summary-item">
+                  <div className="summary-item-content">
+                    <h4 className="summary-item-title">Delivery Cost</h4>
+                    <p className="summary-item-subtitle">
+                      {`${order?.delivery_address_text || 'Delivery address'}, ${order?.delivery_address_details || ''}`}
+                    </p>
+                  </div>
+                  <div className="summary-item-amount">
+                    {formatPrice(order?.delivery_amount || "0")}
+                  </div>
+                </div>
+
+                <div className="summary-divider-bold"></div>
+
+                {/* Total */}
+                <div className="summary-item summary-total">
+                  <div className="summary-item-content">
+                    <h3 className="summary-total-title">Total</h3>
+                    <p className="summary-item-subtitle">
+                      Final amount including all charges
+                    </p>
+                  </div>
+                  <div className="summary-total-amount">
+                    {formatPrice(finalTotal.toString())}
+                  </div>
+                </div>
+              </div>
+
+              {/* Error Message */}
+              {errorMessage && (
+                <Alert variant="danger" className="checkout-error">
+                  {errorMessage}
+                </Alert>
+              )}
+
+              {/* Submit Button */}
+              <div className="checkout-actions">
+                <Button
+                  variant="outline-secondary"
+                  onClick={() => navigate('/delivery-address', { state: { order } })}
+                  className="btn-back-checkout"
+                  disabled={isLoading}
+                >
+                  Back to Delivery Info
+                </Button>
+                
+                <Button
+                  onClick={handleSubmitClick}
+                  disabled={isLoading}
+                  className="btn-submit-order"
+                >
+                  {isLoading ? (
+                    <>
+                      <Spinner size="sm" className="me-2" />
+                      Submitting Order...
+                    </>
+                  ) : (
+                    'Submit Order'
                   )}
-                </Card.Body>
-              </Card>
-            </Col>
-
-            {/* Order Summary */}
-            <Col lg={4}>
-              <Card className="checkout-summary sticky-top">
-                <Card.Header>
-                  <h5 className="mb-0">Order Summary</h5>
-                </Card.Header>
-                <Card.Body>
-                  {/* Items */}
-                  <div className="order-items mb-4">
-                    {items.map((item, index) => (
-                      <div key={`${item.product.id}-${index}`} className="order-item d-flex align-items-center mb-3">
-                        <img
-                          src={item.product.feature_photo}
-                          alt={item.product.name}
-                          className="order-item-image me-3"
-                          onError={(e) => {
-                            e.currentTarget.src = "/media/products/placeholder.jpg";
-                          }}
-                        />
-                        <div className="flex-grow-1">
-                          <h6 className="mb-1 small">{item.product.name}</h6>
-                          <small className="text-muted">Qty: {item.quantity}</small>
-                        </div>
-                        <div className="text-end">
-                          <span className="fw-semibold">
-                            {formatPrice(parseFloat(item.product.price_1) * item.quantity)}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Totals */}
-                  <div className="order-totals">
-                    <div className="d-flex justify-content-between mb-2">
-                      <span>Subtotal:</span>
-                      <span>{formatPrice(subtotal)}</span>
-                    </div>
-                    <div className="d-flex justify-content-between mb-2">
-                      <span>Shipping:</span>
-                      <span>
-                        {shipping === 0 ? (
-                          <span className="text-success">FREE</span>
-                        ) : (
-                          formatPrice(shipping)
-                        )}
-                      </span>
-                    </div>
-                    <div className="d-flex justify-content-between mb-3">
-                      <span>Tax:</span>
-                      <span>{formatPrice(tax)}</span>
-                    </div>
-                    <hr />
-                    <div className="d-flex justify-content-between mb-4">
-                      <strong>Total:</strong>
-                      <strong className="text-primary">{formatPrice(total)}</strong>
-                    </div>
-                  </div>
-
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    size="lg"
-                    className="w-100"
-                    disabled={isProcessing}
-                  >
-                    {isProcessing ? (
-                      <>
-                        <Spinner size="sm" className="me-2" />
-                        Processing...
-                      </>
-                    ) : (
-                      "Place Order"
-                    )}
-                  </Button>
-
-                  <div className="security-notice text-center mt-3">
-                    <small className="text-muted">
-                      <i className="bi bi-shield-check me-1"></i>
-                      Your payment information is secure
-                    </small>
-                  </div>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-        </Form>
+                </Button>
+              </div>
+            </div>
+          </Col>
+        </Row>
       </Container>
+
+      {/* Confirmation Modal */}
+      <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Order Submission</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Are you sure you want to submit this order?</p>
+          <div className="modal-order-summary">
+            <strong>Total Amount: {formatPrice(finalTotal.toString())}</strong>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button 
+            variant="outline-secondary" 
+            onClick={() => setShowConfirmModal(false)}
+            disabled={isLoading}
+          >
+            Cancel
+          </Button>
+          <Button 
+            variant="primary" 
+            onClick={submitOrder}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <Spinner size="sm" className="me-2" />
+                Submitting...
+              </>
+            ) : (
+              'Confirm Order'
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

@@ -260,8 +260,8 @@ const ProductHeroSection: React.FC = () => {
                 <i className="bi bi-lock-fill me-1" /> Secured
               </div>
               <div className="d-flex justify-content-center gap-2 mb-1">
-                <img src="/logos/fedex.svg" height={24} />
-                <img src="/logos/dhl.svg" height={24} />
+                <span className="badge bg-light text-dark me-2">📦 FedEx</span>
+                <span className="badge bg-light text-dark">🚚 DHL</span>
               </div>
               <div className="text-primary small text-center">Fastest cross-border</div>
             </Card.Body>

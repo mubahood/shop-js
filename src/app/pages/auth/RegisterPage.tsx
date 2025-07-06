@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Form, Button, Alert, Spinner } from "react-bootstrap";
 import { useDispatch } from "react-redux";
-import { showNotification } from "../../store/slices/notificationSlice";
 import { registerUser } from "../../store/slices/authSlice";
+import ToastService from "../../services/ToastService";
 
 interface RegisterFormData {
   firstName: string;
@@ -41,6 +41,7 @@ const RegisterPage: React.FC = () => {
 
   const [errors, setErrors] = useState<RegisterFormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [serverError, setServerError] = useState<string>("");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -52,6 +53,11 @@ const RegisterPage: React.FC = () => {
     // Clear error when user starts typing
     if (name in errors) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+    
+    // Clear server error when user starts typing
+    if (serverError) {
+      setServerError("");
     }
   };
 
@@ -74,11 +80,8 @@ const RegisterPage: React.FC = () => {
 
     if (!formData.password) {
       newErrors.password = "Password is required";
-    } else if (formData.password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password =
-        "Password must contain uppercase, lowercase, and number";
+    } else if (formData.password.length < 4) {
+      newErrors.password = "Password must be at least 4 characters";
     }
 
     if (!formData.confirmPassword) {
@@ -101,6 +104,8 @@ const RegisterPage: React.FC = () => {
     if (!validateForm()) return;
 
     setIsLoading(true);
+    setErrors({}); // Clear any previous errors
+    setServerError(""); // Clear server error
 
     try {
       // Use the auth slice register action
@@ -112,29 +117,19 @@ const RegisterPage: React.FC = () => {
       }) as any);
 
       if (result.success) {
-        dispatch(
-          showNotification({
-            type: "success",
-            message: "Account created successfully! Welcome to our store!",
-          })
-        );
-
+        ToastService.registerSuccess(`${formData.firstName} ${formData.lastName}`);
         navigate("/");
       } else {
-        dispatch(
-          showNotification({
-            type: "error",
-            message: result.error || "Registration failed. Please try again.",
-          })
-        );
+        // Show the API error message in the form
+        const errorMessage = result.error || "Registration failed. Please try again.";
+        setServerError(errorMessage);
+        ToastService.registerError(errorMessage);
       }
-    } catch (error) {
-      dispatch(
-        showNotification({
-          type: "error",
-          message: "Registration failed. Please try again.",
-        })
-      );
+    } catch (error: any) {
+      // Handle any unexpected errors
+      const errorMessage = error?.message || "Registration failed. Please try again.";
+      setServerError(errorMessage);
+      ToastService.registerError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -146,6 +141,12 @@ const RegisterPage: React.FC = () => {
         <h2 className="h3 fw-bold">Create Account</h2>
         <p className="text-muted">Join us and start shopping today!</p>
       </div>
+
+      {serverError && (
+        <Alert variant="danger" className="mb-4">
+          {serverError}
+        </Alert>
+      )}
 
       <Form onSubmit={handleSubmit}>
         <Form.Group className="mb-3">
@@ -211,7 +212,7 @@ const RegisterPage: React.FC = () => {
             {errors.password}
           </Form.Control.Feedback>
           <Form.Text className="text-muted">
-            Must be 8+ characters with uppercase, lowercase, and number
+            Must be at least 4 characters
           </Form.Text>
         </Form.Group>
 
@@ -289,24 +290,7 @@ const RegisterPage: React.FC = () => {
             Sign in
           </Link>
         </div>
-
-        {/* Social Registration */}
-        <div className="social-register mt-4">
-          <div className="text-center mb-3">
-            <span className="text-muted small">Or sign up with</span>
-          </div>
-
-          <div className="d-grid gap-2">
-            <Button variant="outline-primary" className="social-btn">
-              <i className="bi bi-google me-2"></i>
-              Continue with Google
-            </Button>
-            <Button variant="outline-dark" className="social-btn">
-              <i className="bi bi-facebook me-2"></i>
-              Continue with Facebook
-            </Button>
-          </div>
-        </div>
+ 
       </Form>
     </div>
   );

@@ -1,6 +1,6 @@
 // src/app/components/HomePage/SuperBuyerFeatureCard.tsx
 import React from 'react';
-import { SuperBuyerCardData } from '../../data/dummySuperBuyerData';
+import { SuperBuyerCardData } from './SuperBuyerSection';
 // No need for a separate CSS for this, we'll style within SuperBuyerSection.css
 
 interface SuperBuyerFeatureCardProps {
@@ -20,7 +20,7 @@ const SuperBuyerFeatureCard: React.FC<SuperBuyerFeatureCardProps> = ({ card }) =
                 alt={`Product ${product.id}`}
                 className="mini-product-image"
                 onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                  e.currentTarget.src = "https://via.placeholder.com/80?text=No+Image";
+                  e.currentTarget.src = "/media/svg/files/blank-image.svg";
                   e.currentTarget.onerror = null;
                 }}
               />

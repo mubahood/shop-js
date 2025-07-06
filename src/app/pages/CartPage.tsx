@@ -1,46 +1,99 @@
 // src/app/pages/CartPage.tsx
-import React from "react";
-import { Container, Row, Col, Card, Button, Form, Table, Badge } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Container, Row, Col, Button, Image, Alert } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../store/store";
-import { 
-  removeItem, 
-  updateItemQuantity, 
-  clearCart
-} from "../store/slices/cartSlice";
+import { useCart } from "../hooks/useCart";
+import { CartItemModel } from "../models/CartItemModel";
+import { OrderModel } from "../models/OrderModel";
 import { formatPrice } from "../utils";
+import { useSelector } from "react-redux";
+import { RootState } from "../store/store";
+import ToastService from "../services/ToastService";
 import "./CartPage.css";
 
 const CartPage: React.FC = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { items } = useSelector((state: RootState) => state.cart);
+  const { 
+    cartItems, 
+    cartCount, 
+    isEmpty, 
+    isLoading,
+    updateQuantity, 
+    removeFromCart,
+    clearCart,
+    getFormattedTotal 
+  } = useCart();
+  
+  // Get user from Redux store
+  const { user } = useSelector((state: RootState) => state.auth);
+  
+  // Order state to track delivery method and info
+  const [order, setOrder] = useState<OrderModel>(() => {
+    const newOrder = new OrderModel();
+    newOrder.delivery_method = "delivery"; // Default to delivery as per Dart code
+    return newOrder;
+  });
 
-  const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.product.price_1) * item.quantity), 0);
-  const shipping = subtotal > 100 ? 0 : 9.99;
-  const tax = subtotal * 0.08; // 8% tax
-  const total = subtotal + shipping + tax;
+  // Initialize order with user info when user is available
+  useEffect(() => {
+    if (user) {
+      const updatedOrder = new OrderModel();
+      Object.assign(updatedOrder, order);
+      updatedOrder.mail = user.email || "";
+      updatedOrder.customer_name = `${user.first_name || ""} ${user.last_name || ""}`.trim();
+      updatedOrder.customer_phone_number_1 = user.phone_number_1 || "";
+      updatedOrder.customer_phone_number_2 = user.phone_number_2 || "";
+      updatedOrder.delivery_method = "delivery";
+      setOrder(updatedOrder);
+    }
+  }, [user]);
 
-  const handleQuantityChange = (productId: number, newQuantity: number, selectedVariants?: { [key: string]: string }) => {
-    if (newQuantity < 1) {
-      dispatch(removeItem({ productId, selectedVariants }));
-    } else {
-      dispatch(updateItemQuantity({ productId, quantity: newQuantity, selectedVariants }));
+  const handleQuantityChange = async (item: CartItemModel, newQuantity: number) => {
+    await updateQuantity(item.product_id, newQuantity, item.variant);
+  };
+
+  const handleRemoveItem = async (item: CartItemModel) => {
+    await removeFromCart(item.product_id, item.variant);
+  };
+
+  const handleClearCart = async () => {
+    if (window.confirm('Are you sure you want to clear your cart?')) {
+      await clearCart();
     }
   };
 
-  if (items.length === 0) {
+  const handleCheckout = () => {
+    // Validate user is logged in
+    if (!user || !user.id) {
+      ToastService.error('Please login to continue');
+      navigate('/auth/login');
+      return;
+    }
+
+    // Validate cart is not empty
+    if (isEmpty) {
+      ToastService.error('Your cart is empty, Please add items to your cart');
+      return;
+    }
+
+    // For delivery method, proceed to delivery address page
+    navigate('/delivery-address', { state: { order } });
+  };
+
+  if (isEmpty) {
     return (
-      <div className="cart-page">
-        <Container>
-          <div className="empty-cart text-center py-5">
-            <i className="bi bi-cart-x fs-1 text-muted mb-4"></i>
-            <h2 className="mb-3">Your cart is empty</h2>
-            <p className="text-muted mb-4">
-              Looks like you haven't added anything to your cart yet.
+      <div className="cart-page-modern">
+        <Container className="py-5">
+          <div className="empty-cart-modern">
+            <div className="empty-cart-icon">
+              <i className="bi bi-cart-x"></i>
+            </div>
+            <h2 className="empty-cart-title">Your cart is empty</h2>
+            <p className="empty-cart-subtitle">
+              Discover amazing products and add them to your cart
             </p>
-            <Link to="/shop" className="btn btn-primary btn-lg">
+            <Link to="/products" className="btn-modern btn-modern-primary">
+              <i className="bi bi-shop me-2"></i>
               Start Shopping
             </Link>
           </div>
@@ -50,204 +103,181 @@ const CartPage: React.FC = () => {
   }
 
   return (
-    <div className="cart-page">
-      <Container>
-        {/* Breadcrumb */}
-        <nav aria-label="breadcrumb" className="my-4">
-          <ol className="breadcrumb">
-            <li className="breadcrumb-item">
-              <Link to="/" className="text-decoration-none">Home</Link>
-            </li>
-            <li className="breadcrumb-item active">Shopping Cart</li>
-          </ol>
-        </nav>
-
-        {/* Page Header */}
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <h1 className="h2 mb-0">Shopping Cart</h1>
-          <Badge bg="secondary">{items.length} item{items.length !== 1 ? 's' : ''}</Badge>
+    <div className="cart-page-modern">
+      <Container className="py-4">
+        {/* Modern Header */}
+        <div className="cart-header">
+          <div className="cart-title-section">
+            <h1 className="cart-main-title">Shopping Cart</h1>
+            <p className="cart-items-count">{cartCount} {cartCount === 1 ? 'item' : 'items'}</p>
+          </div>
+          <Button 
+            variant="link" 
+            className="clear-cart-btn"
+            onClick={handleClearCart}
+            disabled={isLoading}
+          >
+            <i className="bi bi-trash3 me-1"></i>
+            Clear All
+          </Button>
         </div>
 
-        <Row>
-          {/* Cart Items */}
+        <Row className="g-4">
+          {/* Cart Items - Minimalistic Cards */}
           <Col lg={8}>
-            <Card className="cart-items-card">
-              <Card.Body className="p-0">
-                <div className="table-responsive">
-                  <Table className="cart-table mb-0">
-                    <thead className="table-light">
-                      <tr>
-                        <th>Product</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th>Total</th>
-                        <th></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {items.map((item, index) => (
-                        <tr key={`${item.product.id}-${index}`}>
-                          <td>
-                            <div className="d-flex align-items-center">
-                              <img
-                                src={item.product.feature_photo}
-                                alt={item.product.name}
-                                className="cart-item-image me-3"
-                                onError={(e) => {
-                                  e.currentTarget.src = "/media/products/placeholder.jpg";
-                                }}
-                              />
-                              <div>
-                                <h6 className="mb-1">
-                                  <Link 
-                                    to={`/product/${item.product.id}`}
-                                    className="text-decoration-none text-dark"
-                                  >
-                                    {item.product.name}
-                                  </Link>
-                                </h6>
-                                {item.selectedVariants && Object.entries(item.selectedVariants).map(([key, value]) => (
-                                  <small key={key} className="text-muted d-block">
-                                    {key}: {value}
-                                  </small>
-                                ))}
-                              </div>
-                            </div>
-                          </td>
-                          <td className="align-middle">
-                            <span className="fw-semibold">{formatPrice(parseFloat(item.product.price_1))}</span>
-                          </td>
-                          <td className="align-middle">
-                            <div className="quantity-controls d-flex align-items-center">
-                              <Button
-                                variant="outline-secondary"
-                                size="sm"
-                                onClick={() => handleQuantityChange(item.product.id, item.quantity - 1, item.selectedVariants)}
-                                className="quantity-btn"
-                              >
-                                <i className="bi bi-dash"></i>
-                              </Button>
-                              <Form.Control
-                                type="number"
-                                value={item.quantity}
-                                onChange={(e) => handleQuantityChange(item.product.id, parseInt(e.target.value) || 1, item.selectedVariants)}
-                                className="quantity-input mx-2 text-center"
-                                min="1"
-                                style={{ width: "70px" }}
-                              />
-                              <Button
-                                variant="outline-secondary"
-                                size="sm"
-                                onClick={() => handleQuantityChange(item.product.id, item.quantity + 1, item.selectedVariants)}
-                                className="quantity-btn"
-                              >
-                                <i className="bi bi-plus"></i>
-                              </Button>
-                            </div>
-                          </td>
-                          <td className="align-middle">
-                            <span className="fw-bold">
-                              {formatPrice(parseFloat(item.product.price_1) * item.quantity)}
-                            </span>
-                          </td>
-                          <td className="align-middle">
-                            <Button
-                              variant="outline-danger"
-                              size="sm"
-                              onClick={() => dispatch(removeItem({ productId: item.product.id, selectedVariants: item.selectedVariants }))}
-                              className="remove-btn"
-                            >
-                              <i className="bi bi-trash"></i>
-                            </Button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </Table>
-                </div>
-              </Card.Body>
-            </Card>
+            <div className="cart-items-modern">
+              {cartItems.map((item: CartItemModel, index) => (
+                <div key={item.id} className="cart-item-modern">
+                  <div className="cart-item-image-section">
+                    <Image 
+                      src={item.getImageUrl()}
+                      alt={item.product_name}
+                      className="cart-item-image-modern"
+                      onError={(e) => {
+                        e.currentTarget.src = '/media/svg/files/blank-image.svg';
+                      }}
+                    />
+                  </div>
 
-            {/* Cart Actions */}
-            <div className="cart-actions d-flex justify-content-between mt-4">
-              <Link to="/shop" className="btn btn-outline-primary">
+                  <div className="cart-item-details">
+                    <Link 
+                      to={`/product/${item.product_id}`}
+                      className="cart-item-name"
+                    >
+                      {item.product_name}
+                    </Link>
+                    
+                    {item.hasVariant() && (
+                      <div className="cart-item-variant">
+                        {item.getVariantDisplay()}
+                      </div>
+                    )}
+                    
+                    <div className="cart-item-price">
+                      {formatPrice(item.product_price_1)}
+                    </div>
+                  </div>
+
+                  <div className="cart-item-quantity">
+                    <div className="quantity-control-modern">
+                      <button
+                        className="quantity-btn-modern quantity-btn-minus"
+                        onClick={() => handleQuantityChange(item, Math.max(1, item.product_quantity - 1))}
+                        disabled={isLoading || item.product_quantity <= 1}
+                      >
+                        <i className="bi bi-dash"></i>
+                      </button>
+                      
+                      <span className="quantity-display-modern">
+                        {item.product_quantity}
+                      </span>
+                      
+                      <button
+                        className="quantity-btn-modern quantity-btn-plus"
+                        onClick={() => handleQuantityChange(item, item.product_quantity + 1)}
+                        disabled={isLoading}
+                      >
+                        <i className="bi bi-plus"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="cart-item-total">
+                    <div className="item-total-price">
+                      {formatPrice((item.getSubtotal()).toString())}
+                    </div>
+                    <button
+                      className="remove-item-btn-modern"
+                      onClick={() => handleRemoveItem(item)}
+                      disabled={isLoading}
+                      title="Remove item"
+                    >
+                      <i className="bi bi-x-lg"></i>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Continue Shopping */}
+            <div className="continue-shopping-section">
+              <Link to="/products" className="btn-modern btn-modern-outline">
                 <i className="bi bi-arrow-left me-2"></i>
                 Continue Shopping
               </Link>
-              <Button 
-                variant="outline-danger"
-                onClick={() => dispatch(clearCart())}
-              >
-                Clear Cart
-              </Button>
             </div>
           </Col>
 
-          {/* Order Summary */}
+          {/* Modern Order Summary */}
           <Col lg={4}>
-            <Card className="order-summary-card sticky-top">
-              <Card.Header>
-                <h5 className="mb-0">Order Summary</h5>
-              </Card.Header>
-              <Card.Body>
-                <div className="summary-row d-flex justify-content-between mb-2">
-                  <span>Subtotal:</span>
-                  <span>{formatPrice(subtotal)}</span>
+            <div className="order-summary-modern">
+              <h3 className="summary-title">Order Summary</h3>
+              
+              <div className="summary-details">
+                <div className="summary-line">
+                  <span>Subtotal ({cartCount} items)</span>
+                  <span className="summary-value">{getFormattedTotal()}</span>
                 </div>
-
-                <div className="summary-row d-flex justify-content-between mb-2">
-                  <span>Shipping:</span>
-                  <span>
-                    {shipping === 0 ? (
-                      <span className="text-success">FREE</span>
-                    ) : (
-                      formatPrice(shipping)
-                    )}
-                  </span>
+                
+                <div className="summary-line">
+                  <span>Shipping</span>
+                  <span className="summary-value summary-free">Calculated at checkout</span>
                 </div>
-
-                <div className="summary-row d-flex justify-content-between mb-3">
-                  <span>Tax:</span>
-                  <span>{formatPrice(tax)}</span>
+                
+                <div className="summary-line summary-total">
+                  <span>Total</span>
+                  <span className="summary-value summary-total-amount">{getFormattedTotal()}</span>
                 </div>
+              </div>
 
-                <hr />
-
-                <div className="summary-row d-flex justify-content-between mb-4">
-                  <strong>Total:</strong>
-                  <strong className="text-primary">{formatPrice(total)}</strong>
-                </div>
-
-                {/* Free Shipping Notice */}
-                {subtotal < 100 && (
-                  <div className="free-shipping-notice mb-4 p-3 bg-light rounded">
-                    <small className="text-muted">
-                      <i className="bi bi-truck me-2"></i>
-                      Add {formatPrice(100 - subtotal)} more for FREE shipping!
-                    </small>
+              {/* Delivery Information Section */}
+              <div className="delivery-info-section mb-4">
+                <div className="delivery-info-item">
+                  <div className="delivery-info-icon">
+                    <i className="bi bi-geo-alt-fill"></i>
                   </div>
-                )}
+                  <div className="delivery-info-content">
+                    <h6 className="delivery-info-title">Delivery Information</h6>
+                    <p className="delivery-info-subtitle">
+                      {order.delivery_amount ? 
+                        `${formatPrice(order.delivery_amount)}` : 
+                        'Select delivery address'
+                      }
+                    </p>
+                  </div>
+                  <div className="delivery-info-arrow">
+                    <i className="bi bi-chevron-right"></i>
+                  </div>
+                </div>
+              </div>
 
-                <Button
-                  variant="primary"
-                  size="lg"
-                  className="w-100"
-                  onClick={() => navigate("/checkout")}
+              <div className="checkout-actions">
+                <Button 
+                  className="btn-modern btn-modern-primary btn-checkout"
+                  onClick={handleCheckout}
+                  disabled={isLoading}
                 >
-                  Proceed to Checkout
+                  <i className="bi bi-shield-check me-2"></i>
+                  Checkout
                 </Button>
+              </div>
 
-                {/* Security badges */}
-                <div className="security-badges text-center mt-4">
-                  <small className="text-muted d-block mb-2">Secure Checkout</small>
-                  <div className="d-flex justify-content-center gap-2">
-                    <i className="bi bi-shield-check text-success"></i>
-                    <i className="bi bi-lock-fill text-muted"></i>
-                    <span className="small text-muted">SSL Encrypted</span>
-                  </div>
+              {/* Trust Indicators */}
+              <div className="trust-indicators">
+                <div className="trust-item">
+                  <i className="bi bi-shield-fill-check"></i>
+                  <span>Secure Payment</span>
                 </div>
-              </Card.Body>
-            </Card>
+                <div className="trust-item">
+                  <i className="bi bi-truck"></i>
+                  <span>Fast Delivery</span>
+                </div>
+                <div className="trust-item">
+                  <i className="bi bi-arrow-clockwise"></i>
+                  <span>Easy Returns</span>
+                </div>
+              </div>
+            </div>
           </Col>
         </Row>
       </Container>

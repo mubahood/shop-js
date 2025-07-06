@@ -1,6 +1,6 @@
 // src/app/pages/account/AccountSettings.tsx
 import React, { useState } from "react";
-import { Container, Row, Col, Card, Form, Button, Alert, Nav } from "react-bootstrap";
+import { Row, Col, Card, Form, Button, Alert, Nav } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { Settings, Shield, Bell, CreditCard, Eye, EyeOff, Save } from "lucide-react";
 
@@ -76,18 +76,16 @@ const AccountSettings: React.FC = () => {
   };
 
   return (
-    <Container className="py-5">
-      <Row>
-        <Col>
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h1 className="h3 mb-0">Account Settings</h1>
-            <Button variant="success" onClick={handleSettingsSave}>
-              <Save size={16} className="me-2" />
-              Save All Changes
-            </Button>
-          </div>
-        </Col>
-      </Row>
+    <>
+      {/* Page Header */}
+      <div className="account-page-header">
+        <h1 className="account-page-title">Account Settings</h1>
+        <p className="account-page-subtitle">Manage your account preferences and security</p>
+        <Button variant="success" onClick={handleSettingsSave}>
+          <Save size={16} className="me-2" />
+          Save All Changes
+        </Button>
+      </div>
 
       {/* Success Alert */}
       {showSuccess && (
@@ -438,7 +436,7 @@ const AccountSettings: React.FC = () => {
           </Nav>
         </Col>
       </Row>
-    </Container>
+    </>
   );
 };
 

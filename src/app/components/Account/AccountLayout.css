@@ -1,0 +1,489 @@
+/* ===================================================================
+   AccountLayout.css - Modern Account Layout with Sidebar
+   =================================================================== */
+
+/* --- Account Layout Container --- */
+.account-layout {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  min-height: 100vh;
+  font-family: var(--font-family);
+}
+
+.account-container {
+  max-width: 1200px !important;
+  margin: 0 auto;
+  padding: 0;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.08), 0 0 80px rgba(0, 0, 0, 0.04);
+  background-color: var(--white);
+}
+
+/* --- Sidebar Column --- */
+.account-sidebar-col {
+  background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-color-dark) 100%);
+  border-right: 1px solid rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  box-shadow: 2px 0 15px rgba(0, 0, 0, 0.08);
+}
+
+/* --- Content Column --- */
+.account-content-col {
+  background-color: var(--white);
+  min-height: 100vh;
+}
+
+.account-content-wrapper {
+  padding: var(--spacing-2xl) var(--spacing-3xl);
+  min-height: 100vh;
+  position: relative;
+}
+
+/* --- Sidebar Styles --- */
+.account-sidebar {
+  padding: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Sidebar Header --- */
+.sidebar-header {
+  padding: var(--spacing-2xl) var(--spacing-xl);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  color: var(--white);
+  text-align: center;
+}
+
+.user-avatar {
+  margin-bottom: var(--spacing-lg);
+  position: relative;
+}
+
+.user-avatar i {
+  font-size: 4rem;
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.1);
+  padding: var(--spacing-lg);
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: var(--spacing-xs);
+  color: var(--white);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.user-email {
+  font-size: 0.9rem;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 400;
+}
+
+/* --- Sidebar Navigation --- */
+.sidebar-nav {
+  flex: 1;
+  padding: var(--spacing-lg) 0;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.95);
+  margin: 0;
+}
+
+.sidebar-nav-item {
+  margin-bottom: var(--spacing-xs);
+}
+
+.sidebar-nav-link {
+  display: flex !important;
+  align-items: center;
+  padding: var(--spacing-lg) var(--spacing-xl) !important;
+  color: var(--text-color-dark) !important;
+  text-decoration: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  transition: all 0.3s ease;
+  position: relative;
+  font-weight: 500;
+  font-size: 0.95rem;
+  border-left: 3px solid transparent;
+}
+
+.sidebar-nav-link:hover {
+  background: linear-gradient(90deg, rgba(var(--primary-color-rgb), 0.1) 0%, transparent 100%) !important;
+  color: var(--primary-color) !important;
+  border-left-color: var(--primary-color);
+}
+
+.sidebar-nav-link:hover .sidebar-nav-icon {
+  transform: scale(1.1);
+}
+
+.sidebar-nav-link.active {
+  background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-color-dark) 100%) !important;
+  color: var(--white) !important;
+  font-weight: 600;
+  border-left-color: var(--primary-color-dark);
+  box-shadow: 0 2px 8px rgba(var(--primary-color-rgb), 0.3);
+}
+
+.sidebar-nav-link.active .sidebar-nav-icon {
+  color: var(--white) !important;
+}
+
+.sidebar-nav-icon {
+  font-size: 1.2rem;
+  margin-right: var(--spacing-md);
+  width: 22px;
+  text-align: center;
+  color: var(--text-color-medium);
+  transition: all 0.3s ease;
+}
+
+.sidebar-nav-text {
+  flex: 1;
+  font-size: 0.95rem;
+}
+
+.active-indicator {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: var(--accent-color);
+  border-radius: 2px 0 0 2px;
+}
+
+/* --- Logout Link --- */
+.logout-link {
+  color: var(--accent-color) !important;
+  font-weight: 600 !important;
+}
+
+.logout-link:hover {
+  background-color: rgba(220, 53, 69, 0.1) !important;
+  color: var(--accent-color) !important;
+}
+
+.logout-link:hover .sidebar-nav-icon {
+  transform: rotate(15deg) scale(1.1);
+}
+
+.logout-link .sidebar-nav-icon {
+  color: var(--accent-color) !important;
+}
+
+/* --- Sidebar Divider --- */
+.sidebar-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.1) 50%, transparent 100%);
+  margin: var(--spacing-lg) var(--spacing-xl);
+}
+
+/* --- Page Header Styles --- */
+.account-page-header {
+  background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+  border-bottom: 1px solid var(--border-color);
+  padding: var(--spacing-2xl) 0 var(--spacing-xl) 0;
+  margin-bottom: var(--spacing-2xl);
+  border-radius: 8px 8px 0 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.account-page-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 100%);
+}
+
+.account-page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-color-dark);
+  margin-bottom: var(--spacing-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.account-page-subtitle {
+  font-size: 1rem;
+  color: var(--text-color-medium);
+  margin: 0;
+  font-weight: 400;
+}
+
+.account-page-header .btn {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: none;
+  font-weight: 600;
+}
+
+/* --- Content Card Enhancements --- */
+.account-content-wrapper .card {
+  border: none;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.account-content-wrapper .card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+.account-content-wrapper .card-header {
+  background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 600;
+  color: var(--text-color-dark);
+}
+
+/* --- Beautiful Buttons --- */
+.account-content-wrapper .btn {
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.account-content-wrapper .btn-primary {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-dark) 100%);
+}
+
+.account-content-wrapper .btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.4);
+}
+
+/* --- Smooth Animations --- */
+.account-content-wrapper {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Beautiful Alerts and Badges --- */
+.account-content-wrapper .alert {
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.account-content-wrapper .badge {
+  border-radius: 6px;
+  font-weight: 600;
+  padding: 0.35em 0.65em;
+}
+
+/* --- Form Enhancements --- */
+.account-content-wrapper .form-control,
+.account-content-wrapper .form-select {
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  padding: 0.75rem 1rem;
+}
+
+.account-content-wrapper .form-control:focus,
+.account-content-wrapper .form-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.25);
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 991.98px) {
+  .account-layout {
+    background: var(--white);
+  }
+
+  .account-container {
+    box-shadow: none;
+  }
+
+  .account-sidebar-col {
+    position: static;
+    height: auto;
+    box-shadow: none;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .account-content-wrapper {
+    padding: var(--spacing-lg);
+  }
+
+  .sidebar-header {
+    padding: var(--spacing-lg);
+  }
+
+  .user-avatar i {
+    font-size: 3rem;
+    padding: var(--spacing-md);
+  }
+
+  .user-name {
+    font-size: 1rem;
+  }
+
+  .user-email {
+    font-size: 0.8rem;
+  }
+
+  .sidebar-nav {
+    padding: var(--spacing-md) 0;
+  }
+
+  .account-page-header {
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-lg) 0;
+  }
+
+  .account-page-title {
+    font-size: 1.5rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+  }
+}
+
+@media (max-width: 767.98px) {
+  .account-content-wrapper {
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+
+  .sidebar-nav-link {
+    padding: var(--spacing-md) var(--spacing-lg) !important;
+    font-size: 0.9rem;
+  }
+
+  .sidebar-nav-icon {
+    font-size: 1rem;
+    margin-right: var(--spacing-sm);
+  }
+
+  .account-page-title {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .account-content-wrapper {
+    padding: var(--spacing-md) var(--spacing-sm);
+  }
+
+  .sidebar-header {
+    padding: var(--spacing-md);
+  }
+
+  .user-avatar i {
+    font-size: 2.5rem;
+    padding: var(--spacing-sm);
+  }
+
+  .user-name {
+    font-size: 0.95rem;
+  }
+}
+
+/* --- Mobile Menu Toggle (if needed) --- */
+.mobile-sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: var(--spacing-lg);
+  left: var(--spacing-lg);
+  z-index: 1051;
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  border-radius: var(--border-radius);
+  padding: var(--spacing-sm);
+  font-size: 1.2rem;
+  box-shadow: var(--shadow-md);
+}
+
+@media (max-width: 991.98px) {
+  .mobile-sidebar-toggle {
+    display: block;
+  }
+}
+
+/* --- Content Area Specific Styles --- */
+.account-page-header {
+  background-color: var(--white);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+.account-page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-color-dark);
+  margin-bottom: var(--spacing-sm);
+}
+
+.account-page-subtitle {
+  color: var(--text-color-medium);
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.account-content-card {
+  background-color: var(--white);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-speed) var(--transition-timing);
+}
+
+.account-content-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* --- CSS Variable Fallbacks --- */
+:root {
+  --primary-color-rgb: 0, 123, 255;
+}
+
+/* --- Beautiful Scrollbar --- */
+.account-sidebar-col::-webkit-scrollbar {
+  width: 4px;
+}
+
+.account-sidebar-col::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.account-sidebar-col::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+.account-sidebar-col::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}

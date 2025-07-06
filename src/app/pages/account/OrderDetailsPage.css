@@ -1,0 +1,294 @@
+/* 
+================================================================
+|                                                              |
+|         ✨ Order Details Page - 2025 Design ✨              |
+|                                                              |
+================================================================
+*/
+
+.order-details-page {
+  min-height: 80vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+}
+
+/* --- Order Header Section --- */
+.order-header-section {
+  margin-bottom: 2rem;
+}
+
+.order-header-card {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+.order-amount-display {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.order-status-info {
+  margin-bottom: 1.5rem;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.status-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.order-invoice-info {
+  margin-top: 1.5rem;
+}
+
+.invoice-details {
+  flex: 1;
+}
+
+.invoice-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.invoice-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: none;
+  color: #3b82f6;
+  font-size: 1.25rem;
+}
+
+/* --- Order Details Card --- */
+.order-details-card {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.order-details-card .card-body {
+  padding: 2rem;
+}
+
+/* --- Detail Sections --- */
+.detail-section {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.detail-icon {
+  width: 50px;
+  height: 50px;
+  background: #f1f5f9;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  color: #64748b;
+  font-size: 1.25rem;
+}
+
+.detail-content {
+  flex: 1;
+}
+
+.detail-title {
+  font-size: 0.875rem;
+  color: #64748b;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.detail-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+/* --- Accordion Styles --- */
+.order-accordion {
+  border: none;
+}
+
+.order-accordion .accordion-item {
+  border: none;
+  border-bottom: 1px solid #e2e8f0;
+  background: transparent;
+}
+
+.order-accordion .accordion-item:last-child {
+  border-bottom: none;
+}
+
+.order-accordion .accordion-header {
+  border: none;
+}
+
+.order-accordion .accordion-button {
+  background: transparent;
+  border: none;
+  padding: 1rem 0;
+  font-weight: 500;
+  color: #1e293b;
+  box-shadow: none;
+}
+
+.order-accordion .accordion-button:not(.collapsed) {
+  background: transparent;
+  color: #3b82f6;
+}
+
+.order-accordion .accordion-button:focus {
+  box-shadow: none;
+}
+
+.accordion-header-content {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.order-accordion .accordion-body {
+  padding: 0 0 1.5rem 0;
+}
+
+/* --- Order Summary Details --- */
+.order-summary-details {
+  background: #f8fafc;
+  padding: 1.5rem;
+  border-radius: 12px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.summary-row:last-child {
+  margin-bottom: 0;
+}
+
+.summary-row .amount {
+  font-weight: 600;
+  color: #3b82f6;
+}
+
+.summary-row.total-row {
+  padding-top: 0.75rem;
+  margin-top: 0.75rem;
+  border-top: 2px solid #e2e8f0;
+}
+
+.total-amount {
+  color: #059669 !important;
+  font-size: 1.125rem;
+}
+
+/* --- Delivery Info --- */
+.delivery-info,
+.contact-info {
+  line-height: 1.6;
+}
+
+.pickup-info {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background: #f0f9ff;
+  border-radius: 8px;
+  color: #0369a1;
+  font-weight: 500;
+}
+
+.delivery-details {
+  background: #f8fafc;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.address-info {
+  margin-bottom: 1rem;
+}
+
+/* --- Order Actions --- */
+.order-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.pay-order-btn {
+  padding: 0.875rem 2rem;
+  font-weight: 600;
+  font-size: 1.125rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.pay-order-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 768px) {
+  .order-amount-display {
+    font-size: 2rem;
+  }
+  
+  .invoice-number {
+    font-size: 1.25rem;
+  }
+  
+  .order-header-card {
+    padding: 1.5rem;
+  }
+  
+  .order-details-card .card-body {
+    padding: 1.5rem;
+  }
+  
+  .order-actions {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .order-actions .btn {
+    width: 100%;
+  }
+  
+  .detail-section {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .detail-icon {
+    margin: 0 auto 1rem auto;
+  }
+}

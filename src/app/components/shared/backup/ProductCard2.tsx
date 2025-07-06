@@ -31,7 +31,7 @@ const ProductCard2: React.FC<ProductCard2Props> = ({ product }) => {
             alt={product.name}
             className="product-card2-image"
             onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-              e.currentTarget.src = "https://via.placeholder.com/180x180?text=No+Image";
+              e.currentTarget.src = "/media/svg/files/blank-image.svg";
               e.currentTarget.onerror = null;
             }}
           />

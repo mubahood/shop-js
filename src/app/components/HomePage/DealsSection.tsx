@@ -1,8 +1,10 @@
 // src/app/components/HomePage/DealsSection.tsx
 import React, { useRef } from "react"; // Import useRef
+import { Link } from "react-router-dom";
 import Countdown from "./Countdown";
-import ProductCard from "../shared/ProductCard";
-import { dealsData } from "../../data/optimized/products";
+import ProductCardSimple from "../shared/ProductCardSimple";
+import { useGetProductsQuery } from "../../services/realProductsApi";
+import { Spinner, Alert } from "react-bootstrap";
 import "./DealsSection.css";
 
 const DealsSection: React.FC = () => {
@@ -12,6 +14,20 @@ const DealsSection: React.FC = () => {
 
   // Create a ref for the deals container
   const dealsContainerRef = useRef<HTMLDivElement>(null);
+
+  // Fetch the latest 12 products for deals
+  const { 
+    data: productsData, 
+    isLoading, 
+    error 
+  } = useGetProductsQuery({ 
+    page: 1, 
+    limit: 12,
+    sort_by: 'date_added',
+    sort_order: 'desc'
+  });
+
+  const products = productsData?.data || [];
 
   // Function to scroll left
   const scrollLeft = () => {
@@ -46,9 +62,9 @@ const DealsSection: React.FC = () => {
         {/* The Live Countdown Component */}
         <Countdown targetDate={targetDate} />
 
-        <a href="#" className="view-all-link">
+        <Link to="/products?deals=true" className="view-all-link">
           View All &rarr;
-        </a>
+        </Link>
       </div>
 
       {/* New: Add navigation controls */}
@@ -59,8 +75,18 @@ const DealsSection: React.FC = () => {
 
         {/* The Horizontally Scrolling Product Cards */}
         <div className="deals-container" ref={dealsContainerRef}> {/* Attach ref here */}
-          {dealsData.map((product) => (
-            <ProductCard key={product.id} product={product} />
+          {isLoading && (
+            <div className="d-flex justify-content-center p-4">
+              <Spinner animation="border" />
+            </div>
+          )}
+          {error && (
+            <Alert variant="danger" className="m-3">
+              Error loading deals: {JSON.stringify(error)}
+            </Alert>
+          )}
+          {!isLoading && !error && products.map((product) => (
+            <ProductCardSimple key={product.id} product={product} />
           ))}
         </div>
 

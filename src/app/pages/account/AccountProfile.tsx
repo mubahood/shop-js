@@ -1,6 +1,6 @@
 // src/app/pages/account/AccountProfile.tsx
 import React, { useState } from "react";
-import { Container, Row, Col, Card, Form, Button, Alert, Nav } from "react-bootstrap";
+import { Row, Col, Card, Form, Button, Alert, Nav } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { User, Mail, Phone, Calendar, Save, Edit3 } from "lucide-react";
 
@@ -44,56 +44,48 @@ const AccountProfile: React.FC = () => {
   };
 
   return (
-    <Container className="py-5">
-      <Row>
-        <Col>
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h1 className="h3 mb-0">My Profile</h1>
-            <Button 
-              variant={isEditing ? "success" : "outline-primary"}
-              onClick={() => isEditing ? handleSave({} as React.FormEvent) : setIsEditing(true)}
-            >
-              {isEditing ? (
-                <>
-                  <Save size={16} className="me-2" />
-                  Save Changes
-                </>
-              ) : (
-                <>
-                  <Edit3 size={16} className="me-2" />
-                  Edit Profile
-                </>
-              )}
-            </Button>
-          </div>
-        </Col>
-      </Row>
+    <>
+      {/* Page Header */}
+      <div className="account-page-header">
+        <h1 className="account-page-title">My Profile</h1>
+        <p className="account-page-subtitle">Manage your personal information</p>
+        <Button 
+          variant={isEditing ? "success" : "outline-primary"}
+          onClick={() => isEditing ? handleSave({} as React.FormEvent) : setIsEditing(true)}
+        >
+          {isEditing ? (
+            <>
+              <Save size={16} className="me-2" />
+              Save Changes
+            </>
+          ) : (
+            <>
+              <Edit3 size={16} className="me-2" />
+              Edit Profile
+            </>
+          )}
+        </Button>
+      </div>
 
       {/* Success Alert */}
       {showSuccess && (
-        <Row className="mb-4">
-          <Col>
-            <Alert variant="success" className="d-flex align-items-center">
-              <Save size={16} className="me-2" />
-              Profile updated successfully!
-            </Alert>
-          </Col>
-        </Row>
+        <Alert variant="success" className="d-flex align-items-center mb-4">
+          <Save size={16} className="me-2" />
+          Profile updated successfully!
+        </Alert>
       )}
 
-      <Row>
-        {/* Profile Card */}
-        <Col lg={8} className="mb-4">
-          <Card className="border-0 shadow-sm">
-            <Card.Header className="bg-white border-bottom-0 py-3">
-              <h3 className="h5 mb-0 d-flex align-items-center">
-                <User size={20} className="me-2 text-primary" />
-                Personal Information
-              </h3>
-            </Card.Header>
-            <Card.Body className="p-4">
-              <Form onSubmit={handleSave}>
-                <Row>
+      {/* Profile Card */}
+      <Card className="border-0 shadow-sm mb-4">
+        <Card.Header className="bg-white border-bottom-0 py-3">
+          <h3 className="h5 mb-0 d-flex align-items-center">
+            <User size={20} className="me-2 text-primary" />
+            Personal Information
+          </h3>
+        </Card.Header>
+        <Card.Body className="p-4">
+          <Form onSubmit={handleSave}>
+            <Row>
                   <Col md={6} className="mb-3">
                     <Form.Group>
                       <Form.Label>First Name</Form.Label>
@@ -230,79 +222,25 @@ const AccountProfile: React.FC = () => {
               </Form>
             </Card.Body>
           </Card>
-        </Col>
-
-        {/* Profile Summary */}
-        <Col lg={4} className="mb-4">
-          <Card className="border-0 shadow-sm">
-            <Card.Body className="text-center p-4">
-              <div className="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style={{ width: "80px", height: "80px" }}>
-                <User size={40} />
-              </div>
-              <h3 className="h5 mb-1">{profile.firstName} {profile.lastName}</h3>
-              <p className="text-muted mb-3">{profile.email}</p>
-              <div className="border-top pt-3">
-                <div className="d-flex justify-content-between mb-2">
-                  <span className="text-muted">Member since:</span>
-                  <span>Jan 2023</span>
-                </div>
-                <div className="d-flex justify-content-between mb-2">
-                  <span className="text-muted">Total orders:</span>
-                  <span>12</span>
-                </div>
-                <div className="d-flex justify-content-between">
-                  <span className="text-muted">Loyalty points:</span>
-                  <span className="text-primary fw-semibold">2,450</span>
-                </div>
-              </div>
-            </Card.Body>
-          </Card>
-
-          {/* Quick Links */}
-          <Card className="border-0 shadow-sm mt-3">
-            <Card.Header className="bg-white border-bottom-0 py-3">
-              <h4 className="h6 mb-0">Quick Links</h4>
-            </Card.Header>
-            <Card.Body className="p-0">
-              <Nav className="flex-column">
-                <Nav.Link as={Link} to="/account" className="px-3 py-2 border-bottom">
-                  Dashboard
-                </Nav.Link>
-                <Nav.Link as={Link} to="/account/orders" className="px-3 py-2 border-bottom">
-                  My Orders
-                </Nav.Link>
-                <Nav.Link as={Link} to="/account/addresses" className="px-3 py-2 border-bottom">
-                  Addresses
-                </Nav.Link>
-                <Nav.Link as={Link} to="/account/settings" className="px-3 py-2">
-                  Settings
-                </Nav.Link>
-              </Nav>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
 
       {/* Navigation Tabs for Mobile */}
-      <Row className="d-lg-none mt-4">
-        <Col>
-          <Nav variant="pills" className="justify-content-center">
-            <Nav.Item>
-              <Nav.Link as={Link} to="/account">Dashboard</Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link as={Link} to="/account/orders">Orders</Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link as={Link} to="/account/profile" active>Profile</Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link as={Link} to="/account/settings">Settings</Nav.Link>
-            </Nav.Item>
-          </Nav>
-        </Col>
-      </Row>
-    </Container>
+      <div className="d-lg-none mt-4">
+        <Nav variant="pills" className="justify-content-center">
+          <Nav.Item>
+            <Nav.Link as={Link} to="/account">Dashboard</Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link as={Link} to="/account/orders">Orders</Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link as={Link} to="/account/profile" active>Profile</Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link as={Link} to="/account/settings">Settings</Nav.Link>
+          </Nav.Item>
+        </Nav>
+      </div>
+    </>
   );
 };
 

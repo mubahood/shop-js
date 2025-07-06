@@ -1,20 +1,29 @@
-/* src/app/pages/CheckoutPage.css */
+/* ===================================================================
+   CheckoutPage.css - Square Design System Compliant
+   =================================================================== */
 
 .checkout-page {
-  padding-top: 20px;
-  padding-bottom: 60px;
+  padding-top: var(--spacing-lg);
+  padding-bottom: var(--spacing-3xl);
+  background-color: var(--background-body);
 }
 
 .checkout-summary {
-  top: 20px;
+  position: sticky;
+  top: var(--spacing-lg);
   border: 1px solid var(--border-color);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+  background-color: var(--white);
 }
 
 .checkout-summary .card-header {
-  background: var(--background-light);
+  background-color: var(--background-light);
   border-bottom: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md) var(--spacing-lg);
   font-weight: 600;
+  color: var(--text-color-dark);
 }
 
 .order-item-image {
@@ -30,41 +39,47 @@
   overflow-y: auto;
   border: 1px solid var(--border-color-light);
   border-radius: var(--border-radius);
-  padding: 15px;
-  background: var(--background-light);
+  padding: var(--spacing-md);
+  background-color: var(--background-light);
 }
 
 .order-item {
-  padding-bottom: 10px;
+  padding-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
   border-bottom: 1px solid var(--border-color-light);
 }
 
 .order-item:last-child {
   border-bottom: none;
   padding-bottom: 0;
+  margin-bottom: 0;
 }
 
 .order-totals .d-flex {
-  padding: 8px 0;
+  padding: var(--spacing-sm) 0;
   font-size: 15px;
+  color: var(--text-color-dark);
 }
 
 .order-totals .d-flex:last-of-type {
   font-size: 18px;
   font-weight: 600;
+  color: var(--text-color-dark);
 }
 
+/* --- Payment Methods Section --- */
 .payment-methods .form-check {
-  padding: 12px 15px;
+  padding: var(--spacing-md) var(--spacing-lg);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
-  margin-bottom: 10px;
-  transition: all 0.3s ease;
+  margin-bottom: var(--spacing-sm);
+  background-color: var(--white);
+  transition: all var(--transition-speed) var(--transition-timing);
 }
 
 .payment-methods .form-check:hover {
   border-color: var(--primary-color);
-  background: var(--background-light);
+  background-color: var(--background-light);
 }
 
 .payment-methods .form-check-input:checked {
@@ -73,47 +88,52 @@
 }
 
 .card-details {
-  padding: 20px;
-  background: var(--background-light);
+  padding: var(--spacing-lg);
+  background-color: var(--background-light);
   border-radius: var(--border-radius);
   border: 1px solid var(--border-color-light);
 }
 
 .security-notice {
-  padding-top: 15px;
+  padding-top: var(--spacing-md);
   border-top: 1px solid var(--border-color-light);
+  color: var(--text-color-medium);
 }
 
+/* --- Form Controls --- */
 .form-control:focus {
   border-color: var(--primary-color);
   box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.25);
+  border-radius: var(--border-radius);
 }
 
 .is-invalid {
-  border-color: #dc3545;
+  border-color: var(--danger-color);
+  border-radius: var(--border-radius);
 }
 
 .invalid-feedback {
-  color: #dc3545;
+  color: var(--danger-color);
   font-size: 0.875rem;
-  margin-top: 5px;
+  margin-top: var(--spacing-xs);
 }
 
-/* Mobile Responsive */
+/* --- Responsive Design --- */
 @media (max-width: 991.98px) {
   .checkout-summary {
     position: static;
-    margin-top: 30px;
+    margin-top: var(--spacing-xl);
   }
 }
 
 @media (max-width: 767.98px) {
   .checkout-page {
-    padding-top: 10px;
+    padding-top: var(--spacing-sm);
   }
   
   .order-items {
     max-height: 200px;
+    padding: var(--spacing-sm);
   }
   
   .order-item-image {
@@ -122,7 +142,12 @@
   }
   
   .card-details {
-    padding: 15px;
+    padding: var(--spacing-md);
+  }
+  
+  .container {
+    padding-left: var(--spacing-md);
+    padding-right: var(--spacing-md);
   }
 }
 

@@ -87,9 +87,12 @@
 }
 
 /* Make cards snap to position */
-.deals-container .product-card {
+.deals-container .product-card-simple {
     scroll-snap-align: start;
-    flex-shrink: 0; /* Already there but reinforces it */
+    flex-shrink: 0;
+    flex: 0 0 200px;
+    max-width: 200px;
+    width: 200px;
 }
 
 

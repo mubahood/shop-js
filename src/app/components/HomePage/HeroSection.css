@@ -1,8 +1,22 @@
 /* src/app/components/HomePage/HeroSection.css */
 
 /* ===================================================================
-   1. Category List Styling
+   1. Hero Section - Side by Side Layout
    =================================================================== */
+.hero-section {
+  margin: 2rem 0;
+  padding: 0;
+}
+
+/* Clean carousel - no visible card */
+.hero-carousel-clean {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+/* Category List Styling */
 .category-list-wrapper {
   background-color: var(--white);
   border: 1px solid var(--border-color);
@@ -46,10 +60,25 @@
    2. Hero Carousel Styling
    =================================================================== */
 .hero-carousel-wrapper {
+  min-height: 400px;
+  background-color: #f8f9fa;
   border-radius: var(--border-radius);
-  overflow: hidden; /* This is CRUCIAL for making the border-radius apply to the images */
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  height: 400px; /* Fixed height for the hero section */
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.hero-carousel-wrapper .carousel {
+  min-height: 400px;
+}
+
+.hero-carousel-wrapper .carousel-item {
+  min-height: 400px;
+}
+
+.hero-carousel-wrapper .carousel-item img {
+  min-height: 400px;
+  object-fit: contain;
+  background-color: #f8f9fa;
 }
 
 /* Customizing the Carousel Controls (Arrows) */
@@ -89,9 +118,128 @@
   padding-bottom: 2rem; /* More space for caption */
 }
 
+/* Debug styles for carousel */
+.hero-carousel-wrapper .carousel-indicators {
+  bottom: 10px;
+}
+
+.hero-carousel-wrapper .carousel-control-prev,
+.hero-carousel-wrapper .carousel-control-next {
+  width: 5%;
+}
+
+/* Modern Hero Carousel Styles - No Cards */
+.modern-hero-carousel {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+}
+
+.modern-hero-carousel .carousel-inner {
+  border-radius: 12px;
+  overflow: hidden;
+  background: transparent;
+}
+
+.modern-hero-carousel .carousel-control-prev,
+.modern-hero-carousel .carousel-control-next {
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.modern-hero-carousel .carousel-control-prev {
+  left: 20px;
+}
+
+.modern-hero-carousel .carousel-control-next {
+  right: 20px;
+}
+
+.modern-hero-carousel .carousel-control-prev:hover,
+.modern-hero-carousel .carousel-control-next:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.modern-hero-carousel .carousel-control-prev-icon,
+.modern-hero-carousel .carousel-control-next-icon {
+  width: 20px;
+  height: 20px;
+  background-image: none;
+  color: #333;
+  font-weight: bold;
+}
+
+.modern-hero-carousel .carousel-control-prev-icon::before {
+  content: '‹';
+  font-size: 24px;
+  color: #333;
+}
+
+.modern-hero-carousel .carousel-control-next-icon::before {
+  content: '›';
+  font-size: 24px;
+  color: #333;
+}
+
+.modern-hero-carousel .carousel-indicators {
+  bottom: 20px;
+  margin-bottom: 0;
+}
+
+.modern-hero-carousel .carousel-indicators button {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  border: 2px solid transparent;
+  margin: 0 6px;
+  transition: all 0.3s ease;
+}
+
+.modern-hero-carousel .carousel-indicators button.active {
+  background: white;
+  transform: scale(1.2);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+/* Hero slide hover effects */
+.hero-slide {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.hero-slide:hover {
+  transform: scale(1.02);
+}
+
+.hero-slide-overlay {
+  background: rgba(0, 0, 0, 0.4);
+  transition: opacity 0.3s ease;
+}
+
+.hero-slide:hover .hero-slide-overlay {
+  opacity: 1 !important;
+}
+
 /* Responsive adjustments for the hero section */
 @media (max-width: 991.98px) {
   .hero-section .row {
     margin-top: 1rem;
   }
+}
+
+/* Text shadow for better readability on hero banners */
+.text-shadow {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
 }

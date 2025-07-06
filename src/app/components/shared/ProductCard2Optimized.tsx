@@ -23,7 +23,7 @@ const ProductCard2: React.FC<ProductCardProps> = ({
   const handleImageLoad = () => setIsImageLoaded(true);
   
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    e.currentTarget.src = "https://via.placeholder.com/300x300?text=No+Image";
+    e.currentTarget.src = "/media/svg/files/blank-image.svg";
     e.currentTarget.onerror = null;
   };
 

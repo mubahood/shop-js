@@ -33,6 +33,7 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "^6.30.0",
     "react-share": "^5.2.2",
+    "react-shimmer-effects": "^1.0.4",
     "react-toastify": "^11.0.5",
     "swiper": "^11.2.10"
   },

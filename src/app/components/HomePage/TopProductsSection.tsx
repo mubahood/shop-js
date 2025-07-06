@@ -1,11 +1,19 @@
 // src/app/components/HomePage/TopProductsSection.tsx
-import React from "react";
-import { Container, Button } from "react-bootstrap";
-import ProductCard2 from "../shared/ProductCard2";
-import { topProductsData } from "../../data/optimized/products";
+import React, { useEffect, useState } from "react";
+import { Container, Button, Spinner, Alert } from "react-bootstrap";
+import { Link } from "react-router-dom";
+import ProductCardSimple from "../shared/ProductCardSimple";
+import ProductModel from "../../models/ProductModel";
+import { useFeaturedProducts } from "../../hooks/useManifest";
 import "./TopProductsSection.css"; // Dedicated CSS for this section
 
 const TopProductsSection: React.FC = () => {
+  const featuredProducts = useFeaturedProducts();
+  const [isLoading, setIsLoading] = useState(false);
+
+  // For now, use featured products from manifest as top products
+  // In the future, we could add a separate top_products field to the manifest
+  const products = featuredProducts.slice(0, 12); // Limit to 12 products
   return (
     // This section wrapper acts as the visual container for the whole section
     <section className="top-products-section-wrapper my-0 px-0 pt-0 pt-md-4">
@@ -18,24 +26,36 @@ const TopProductsSection: React.FC = () => {
           <h2 className="top-products-title text-color-dark">
             Top 24 Products
           </h2>
-          <a
-            href="#"
+          <Link
+            to="/products?sort_by=rating&sort_order=desc"
             className="view-all-top-products-link text-primary fw-600"
           >
             View More <i className="bi bi-arrow-right ms-2"></i>
-          </a>
+          </Link>
         </div>
         <div className="top-products-grid">
-          {topProductsData.map((product) => (
-            <ProductCard2 key={product.id} product={product} />
+          {isLoading && (
+            <div className="d-flex justify-content-center p-4">
+              <Spinner animation="border" />
+            </div>
+          )}
+          {!isLoading && products.length === 0 && (
+            <div className="text-center py-4">
+              <p className="text-muted">No top products available at the moment.</p>
+            </div>
+          )}
+          {!isLoading && products.length > 0 && products.map((product) => (
+            <ProductCardSimple key={product.id} product={product} />
           ))}
         </div>
         {/* Optional: Load More button or pagination */}
-        <div className="text-center mt-5">
-          <Button variant="outline-primary" className="btn-lg">
-            Load More Products
-          </Button>
-        </div>
+        {!isLoading && products.length > 0 && (
+          <div className="text-center mt-5">
+            <Link to="/products" className="btn btn-outline-primary btn-lg">
+              View All Products
+            </Link>
+          </div>
+        )}
       </Container>
     </section>
   );

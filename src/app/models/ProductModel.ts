@@ -32,32 +32,46 @@ export interface Specification {
 export type VariantOptions = Record<string, string[]>;
 
 export class ProductModel {
-  // Basic Fields
+  // API Fields from Laravel backend
   id: number = 0;
   name: string = "";
+  metric: number = 0;
+  currency: number = 1;
+  description: string | null = null;
+  summary: string | null = null;
   price_1: string = "0.00";
   price_2: string = "0.00";
   feature_photo: string = "";
   rates: string = "[]";
-  description: string | null = null;
-  summary: string | null = null;
+  date_added: string = "";
+  date_updated: string = "";
+  user: number = 1;
   category: number | null = null;
-  category_text: string = "";
-  colors: string = "";
-  sizes: string = "";
-  in_stock: number = 1;
+  sub_category: number | null = null;
+  supplier: number = 1;
+  url: string | null = null;
   status: number = 1;
-  created_at: string = "";
+  in_stock: number = 1;
+  keywords: string = "[]";
+  p_type: string = "No";
+  local_id: string = "";
   updated_at: string = "";
+  created_at: string = "";
+  stripe_id: string | null = null;
+  stripe_price: string | null = null;
+  has_colors: string = "No";
+  colors: string = "";
+  has_sizes: string = "No";
+  sizes: string = "";
+  category_text: string = "";
 
-  // --- Newly added fields ---
+  // Frontend-specific fields for compatibility
   variants: VariantOptions = {};
   images: string[] = [];
   stock: Stock = { items_sold: 0, total_items: 0 };
   rating: number = 0;
   reviewsCount: number = 0;
   specifications: Specification[] = [];
-  // --------------------------
 
   /**
    * Update fields with provided partial data.
@@ -114,7 +128,7 @@ export class ProductModel {
   getMainImage(): string {
     return this.feature_photo
       ? Utils.img(this.feature_photo)
-      : Utils.img("media/products/placeholder.png");
+      : "/media/svg/files/blank-image.svg";
   }
 
   /**
@@ -133,10 +147,97 @@ export class ProductModel {
   }
 
   /**
+   * Helper: Returns array of all product images from rates JSON.
+   */
+  getAllImages(): string[] {
+    try {
+      const parsed = JSON.parse(this.rates || "[]");
+      if (Array.isArray(parsed)) {
+        const images = parsed.map(item => item.src).filter(Boolean);
+        return images.map(img => Utils.img(img));
+      }
+    } catch (err) {
+      console.warn("Failed to parse rates for product images:", this.id, err);
+    }
+    return [this.getMainImage()];
+  }
+
+  /**
    * Helper: Returns price_1 formatted to 2 decimals with UGX as currency.
    */
   getFormattedPrice(): string {
     return Utils.moneyFormat(this.price_1);
+  }
+
+  /**
+   * Helper: Returns price_2 formatted to 2 decimals with UGX as currency.
+   */
+  getFormattedPrice2(): string {
+    return Utils.moneyFormat(this.price_2);
+  }
+
+  /**
+   * Helper: Check if product is in stock.
+   */
+  isInStock(): boolean {
+    return this.in_stock === 1;
+  }
+
+  /**
+   * Helper: Check if product is active.
+   */
+  isActive(): boolean {
+    return this.status === 1;
+  }
+
+  /**
+   * Helper: Check if product has colors.
+   */
+  hasColors(): boolean {
+    return this.has_colors === "Yes" && this.colors.length > 0;
+  }
+
+  /**
+   * Helper: Get array of available colors.
+   */
+  getColors(): string[] {
+    if (!this.hasColors()) return [];
+    return this.colors.split(",").map(color => color.trim()).filter(Boolean);
+  }
+
+  /**
+   * Helper: Check if product has sizes.
+   */
+  hasSizes(): boolean {
+    return this.has_sizes === "Yes" && this.sizes.length > 0;
+  }
+
+  /**
+   * Helper: Get array of available sizes.
+   */
+  getSizes(): string[] {
+    if (!this.hasSizes()) return [];
+    return this.sizes.split(",").map(size => size.trim()).filter(Boolean);
+  }
+
+  /**
+   * Helper: Parse keywords JSON.
+   */
+  getKeywords(): Array<{id: string, min_qty: number, max_qty: number, price: string}> {
+    try {
+      const parsed = JSON.parse(this.keywords || "[]");
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (err) {
+      console.warn("Failed to parse keywords for product:", this.id, err);
+      return [];
+    }
+  }
+
+  /**
+   * Helper: Check if product is premium type.
+   */
+  isPremiumType(): boolean {
+    return this.p_type === "Yes";
   }
 
   /** Fetch a paginated list of products (GET /products). */
@@ -151,11 +252,11 @@ export class ProductModel {
           Object.entries(params).map(([key, val]) => [key, String(val)])
         ),
       });
-      const response = await http_get(`/products?${queryParams.toString()}`);
-      if (response.code !== 1) {
-        throw new Error(response.message || "Failed to fetch products.");
-      }
-      const paginatedData: PaginatedResponse<any> = response.data;
+      const response = await http_get(`products?${queryParams.toString()}`);
+      
+      // Handle both direct data and nested data structure
+      const paginatedData: PaginatedResponse<any> = response.data || response;
+      
       paginatedData.data = paginatedData.data.map((item: any) =>
         ProductModel.fromJson(item)
       );
@@ -169,13 +270,38 @@ export class ProductModel {
   /** Fetch a single product by ID (GET /products/:id). */
   static async fetchProductById(id: string | number): Promise<ProductModel> {
     try {
-      const response = await http_get(`/products/${id}`);
-      if (response.code !== 1) {
-        throw new Error(response.message || "Failed to fetch product.");
-      }
-      return ProductModel.fromJson(response.data);
+      const response = await http_get(`products/${id}`);
+      return ProductModel.fromJson(response);
     } catch (error) {
       console.error("Error fetching product by ID:", error);
+      throw error;
+    }
+  }
+
+  /** Fetch products by category (GET /products?category=:id). */
+  static async fetchProductsByCategory(
+    categoryId: number,
+    page = 1,
+    params: Record<string, string | number> = {}
+  ): Promise<PaginatedResponse<ProductModel>> {
+    try {
+      return await this.fetchProducts(page, { ...params, category: categoryId });
+    } catch (error) {
+      console.error("Error fetching products by category:", error);
+      throw error;
+    }
+  }
+
+  /** Search products (GET /products?search=:term). */
+  static async searchProducts(
+    searchTerm: string,
+    page = 1,
+    params: Record<string, string | number> = {}
+  ): Promise<PaginatedResponse<ProductModel>> {
+    try {
+      return await this.fetchProducts(page, { ...params, search: searchTerm });
+    } catch (error) {
+      console.error("Error searching products:", error);
       throw error;
     }
   }
@@ -185,11 +311,8 @@ export class ProductModel {
     productData: Partial<ProductModel>
   ): Promise<ProductModel> {
     try {
-      const response = await http_post("/products", productData);
-      if (response.code !== 1) {
-        throw new Error(response.message || "Failed to create product.");
-      }
-      return ProductModel.fromJson(response.data);
+      const response = await http_post("products", productData);
+      return ProductModel.fromJson(response);
     } catch (error) {
       console.error("Error creating product:", error);
       throw error;
@@ -203,13 +326,10 @@ export class ProductModel {
   ): Promise<ProductModel> {
     try {
       const response = await http_post(
-        `/products/${id}?_method=PUT`,
+        `products/${id}?_method=PUT`,
         productData
       );
-      if (response.code !== 1) {
-        throw new Error(response.message || "Failed to update product.");
-      }
-      return ProductModel.fromJson(response.data);
+      return ProductModel.fromJson(response);
     } catch (error) {
       console.error("Error updating product:", error);
       throw error;
@@ -219,10 +339,7 @@ export class ProductModel {
   /** Delete product (DELETE /products/:id). */
   static async deleteProduct(id: string | number): Promise<boolean> {
     try {
-      const response = await http_post(`/products/${id}?_method=DELETE`, {});
-      if (response.code !== 1) {
-        throw new Error(response.message || "Failed to delete product.");
-      }
+      await http_post(`products/${id}?_method=DELETE`, {});
       return true;
     } catch (error) {
       console.error("Error deleting product:", error);

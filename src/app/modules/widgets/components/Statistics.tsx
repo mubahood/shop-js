@@ -9,8 +9,11 @@ import {
 } from '../../../../_metronic/partials/widgets'
 import { ToolbarWrapper } from '../../../../_metronic/layout/components/toolbar'
 import { Content } from '../../../../_metronic/layout/components/content'
+import { useAdminStats, useAppCounts } from '../../../hooks/useManifest'
 
 const Statistics: FC = () => {
+  const adminStats = useAdminStats();
+  const counts = useAppCounts();
   return (
     <>
       <ToolbarWrapper />
@@ -121,8 +124,8 @@ const Statistics: FC = () => {
               className='card-xl-stretch mb-xl-8'
               svgIcon='basket'
               color='info'
-              description='Sales Change'
-              change='+256'
+              description='Total Products'
+              change={`${adminStats.totalProducts || 0}`}
             />
           </div>
 
@@ -131,8 +134,8 @@ const Statistics: FC = () => {
               className='card-xl-stretch mb-xl-8'
               svgIcon='element-11'
               color='success'
-              description='Weekly Income'
-              change='750$'
+              description='Total Categories'
+              change={`${adminStats.totalCategories || 0}`}
             />
           </div>
 
@@ -141,8 +144,42 @@ const Statistics: FC = () => {
               className='card-xl-stretch mb-5 mb-xl-8'
               svgIcon='briefcase'
               color='primary'
-              description='New Users'
-              change='+6.6K'
+              description='Total Users'
+              change={`${adminStats.totalUsers || 0}`}
+            />
+          </div>
+        </div>
+        {/* end::Row */}
+
+        {/* begin::Row */}
+        <div className='row g-5 g-xl-8'>
+          <div className='col-xl-4'>
+            <StatisticsWidget4
+              className='card-xl-stretch mb-xl-8'
+              svgIcon='shop'
+              color='warning'
+              description='Total Vendors'
+              change={`${adminStats.totalVendors || 0}`}
+            />
+          </div>
+
+          <div className='col-xl-4'>
+            <StatisticsWidget4
+              className='card-xl-stretch mb-xl-8'
+              svgIcon='map'
+              color='info'
+              description='Delivery Locations'
+              change={`${adminStats.totalDeliveryLocations || 0}`}
+            />
+          </div>
+
+          <div className='col-xl-4'>
+            <StatisticsWidget4
+              className='card-xl-stretch mb-5 mb-xl-8'
+              svgIcon='chart-line'
+              color='danger'
+              description='Pending Orders'
+              change={`${adminStats.pendingOrders || 0}`}
             />
           </div>
         </div>

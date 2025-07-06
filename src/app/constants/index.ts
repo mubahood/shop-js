@@ -4,6 +4,9 @@
  * Centralized application constants
  */
 
+// Import main constants from root
+export * from '../../Constants';
+
 // ===================================================================
 // API CONFIGURATION
 // ===================================================================
@@ -76,7 +79,7 @@ export const GRID_SETTINGS = {
 // ===================================================================
 
 export const PRODUCT_CONFIG = {
-  DEFAULT_IMAGE: "https://via.placeholder.com/300x300?text=No+Image",
+  DEFAULT_IMAGE: "/media/svg/files/blank-image.svg",
   STOCK_WARNING_THRESHOLD: 10,
   LOW_STOCK_PERCENTAGE: 70,
   CRITICAL_STOCK_PERCENTAGE: 90,
