@@ -245,7 +245,6 @@ function handleResponse(response: any) {
     data: resp.data || resp
   };
   
-  console.log('📋 Processed API response:', result);
   return result;
 }
 

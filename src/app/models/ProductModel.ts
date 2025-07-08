@@ -65,6 +65,21 @@ export class ProductModel {
   sizes: string = "";
   category_text: string = "";
 
+  // Backend API fields for tags and attributes
+  tags: string = "";
+  tags_array: string[] = [];
+  attributes_array: { name: string; value: string }[] = [];
+  category_attributes: { 
+    name: string; 
+    is_required: boolean; 
+    attribute_type: string; 
+    possible_values?: string; 
+  }[] = [];
+
+  // Review fields from backend
+  review_count: number = 0;
+  average_rating: number = 0;
+
   // Frontend-specific fields for compatibility
   variants: VariantOptions = {};
   images: string[] = [];
@@ -118,6 +133,15 @@ export class ProductModel {
         (model as any)[key] = obj[key];
       }
     }
+
+    // Map review fields for backward compatibility
+    if (obj.review_count !== undefined) {
+      model.reviewsCount = Number(obj.review_count) || 0;
+    }
+    if (obj.average_rating !== undefined) {
+      model.rating = Number(obj.average_rating) || 0;
+    }
+
     return model;
   }
 
@@ -141,7 +165,6 @@ export class ProductModel {
         return Utils.img(parsed[1].src);
       }
     } catch (err) {
-      console.warn("Failed to parse rates for product:", this.id, err);
     }
     return null;
   }
@@ -157,7 +180,6 @@ export class ProductModel {
         return images.map(img => Utils.img(img));
       }
     } catch (err) {
-      console.warn("Failed to parse rates for product images:", this.id, err);
     }
     return [this.getMainImage()];
   }
@@ -228,7 +250,6 @@ export class ProductModel {
       const parsed = JSON.parse(this.keywords || "[]");
       return Array.isArray(parsed) ? parsed : [];
     } catch (err) {
-      console.warn("Failed to parse keywords for product:", this.id, err);
       return [];
     }
   }
@@ -262,7 +283,6 @@ export class ProductModel {
       );
       return paginatedData as PaginatedResponse<ProductModel>;
     } catch (error) {
-      console.error("Error fetching products:", error);
       throw error;
     }
   }
@@ -273,7 +293,6 @@ export class ProductModel {
       const response = await http_get(`products/${id}`);
       return ProductModel.fromJson(response);
     } catch (error) {
-      console.error("Error fetching product by ID:", error);
       throw error;
     }
   }
@@ -287,7 +306,6 @@ export class ProductModel {
     try {
       return await this.fetchProducts(page, { ...params, category: categoryId });
     } catch (error) {
-      console.error("Error fetching products by category:", error);
       throw error;
     }
   }
@@ -301,7 +319,6 @@ export class ProductModel {
     try {
       return await this.fetchProducts(page, { ...params, search: searchTerm });
     } catch (error) {
-      console.error("Error searching products:", error);
       throw error;
     }
   }
@@ -314,7 +331,6 @@ export class ProductModel {
       const response = await http_post("products", productData);
       return ProductModel.fromJson(response);
     } catch (error) {
-      console.error("Error creating product:", error);
       throw error;
     }
   }
@@ -331,7 +347,6 @@ export class ProductModel {
       );
       return ProductModel.fromJson(response);
     } catch (error) {
-      console.error("Error updating product:", error);
       throw error;
     }
   }
@@ -342,7 +357,6 @@ export class ProductModel {
       await http_post(`products/${id}?_method=DELETE`, {});
       return true;
     } catch (error) {
-      console.error("Error deleting product:", error);
       throw error;
     }
   }

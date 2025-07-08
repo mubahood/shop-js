@@ -1,131 +1,143 @@
 // src/app/components/Layout/Footer.tsx
 import React from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
-import './Footer.css'; // CSS file for the Footer
+import { Link } from 'react-router-dom';
+import { COMPANY_INFO, SOCIAL_MEDIA, APP_LINKS } from '../../constants';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="main-footer mt-5 pt-5 pb-3">
-      <Container>
-        {/* Section 2: Main Navigation Columns */}
-        <Row className="footer-links-row mb-4">
-          {/* Column 1: BLITXPRESS */}
-          <Col xs={6} md={3} lg={2} className="mb-3">
-            <h5 className="footer-heading">BLITXPRESS</h5>
-            <ul className="list-unstyled footer-links">
-              <li><a href="#" className="footer-link">About Blitxpress</a></li>
-              <li><a href="#" className="footer-link">Blitxpress Express</a></li>
-              <li><a href="#" className="footer-link">Blitxpress Global</a></li>
-              <li><a href="#" className="footer-link">Careers</a></li>
-              <li><a href="#" className="footer-link">Blog</a></li>
-              <li><a href="#" className="footer-link">Tech & Innovation</a></li>
-              <li><a href="#" className="footer-link">Privacy Policy</a></li>
-              <li><a href="#" className="footer-link">Terms & Conditions</a></li>
-            </ul>
-          </Col>
-
-          {/* Column 2: HELP CENTER */}
-          <Col xs={6} md={3} lg={2} className="mb-3">
-            <h5 className="footer-heading">HELP CENTER</h5>
-            <ul className="list-unstyled footer-links">
-              <li><a href="#" className="footer-link">Help Center</a></li>
-              <li><a href="#" className="footer-link">Contact Us</a></li>
-              <li><a href="#" className="footer-link">How to shop on Blitxpress</a></li>
-              <li><a href="#" className="footer-link">How to pay on Blitxpress</a></li>
-              <li><a href="#" className="footer-link">Shipping & Delivery</a></li>
-              <li><a href="#" className="footer-link">Return Policy</a></li>
-              <li><a href="#" className="footer-link">Report a problem</a></li>
-            </ul>
-          </Col>
-
-          {/* Column 3: MAKE MONEY WITH BLITXPRESS */}
-          <Col xs={6} md={3} lg={2} className="mb-3">
-            <h5 className="footer-heading">MAKE MONEY WITH BLITXPRESS</h5>
-            <ul className="list-unstyled footer-links">
-              <li><a href="#" className="footer-link">Sell on Blitxpress</a></li>
-              <li><a href="#" className="footer-link">Blitxpress Affiliates</a></li>
-              <li><a href="#" className="footer-link">Blitxpress Logistics</a></li>
-              <li><a href="#" className="footer-link">Blitxpress Prime</a></li>
-              <li><a href="#" className="footer-link">Blitxpress Vouchers</a></li>
-            </ul>
-          </Col>
-
-          {/* Column 4: More BLITXPRESS */}
-          <Col xs={6} md={3} lg={2} className="mb-3">
-            <h5 className="footer-heading">MORE BLITXPRESS</h5>
-            <ul className="list-unstyled footer-links">
-              <li><a href="#" className="footer-link">Blitxpress Food</a></li>
-              <li><a href="#" className="footer-link">Blitxpress Travel</a></li>
-              <li><a href="#" className="footer-link">Blitxpress Deals</a></li>
-              <li><a href="#" className="footer-link">Blitxpress Services</a></li>
-            </ul>
-          </Col>
-
-          {/* Column 5 & 6 (Combined for larger screens for app & social) */}
-          <Col xs={12} lg={4} className="mb-3 d-flex flex-column align-items-lg-end"> {/* Right align on large screens */}
-            <div className="footer-social-app-wrapper text-lg-end"> {/* Align text right on large screens */}
-              {/* Social Media */}
-              <h5 className="footer-heading mb-3">FOLLOW US</h5>
-              <div className="footer-social-icons mb-4">
-                <a href="#" className="social-icon"><i className="bi bi-facebook"></i></a>
-                <a href="#" className="social-icon"><i className="bi bi-twitter"></i></a>
-                <a href="#" className="social-icon"><i className="bi bi-instagram"></i></a>
-                <a href="#" className="social-icon"><i className="bi bi-youtube"></i></a>
-              </div>
-
-              {/* App Download */}
-              <h5 className="footer-heading mb-3">DOWNLOAD BLITXPRESS APP</h5>
-              <div className="footer-app-badges">
-                {/* Generic placeholder images for app badges */}
-                <a href="#"><img src="https://logos-world.net/wp-content/uploads/2020/12/Google-Play-Logo.png" alt="Google Play" className="app-badge me-2"/></a>
-                <a href="#"><img src="https://logos-world.net/wp-content/uploads/2021/02/App-Store-Logo.png" alt="App Store" className="app-badge"/></a>
+    <footer className="modern-footer">
+      <div className="container">
+        {/* Main Footer Content */}
+        <div className="footer-main">
+          <div className="footer-columns">
+            {/* Company Information */}
+            <div className="footer-column">
+              <h3 className="footer-title">BlitXpress</h3>
+              <p className="footer-description">
+                Uganda's leading e-commerce platform connecting buyers and sellers nationwide. 
+                Shop with confidence and convenience.
+              </p>
+              <div className="footer-contact">
+                <div className="contact-item">
+                  <i className="bi bi-envelope"></i>
+                  <a href={`mailto:${COMPANY_INFO.EMAIL}`}>{COMPANY_INFO.EMAIL}</a>
+                </div>
+                <div className="contact-item">
+                  <i className="bi bi-telephone"></i>
+                  <a href={`tel:${COMPANY_INFO.PHONE}`}>{COMPANY_INFO.PHONE}</a>
+                </div>
+                <div className="contact-item">
+                  <i className="bi bi-whatsapp"></i>
+                  <a href={`https://wa.me/${COMPANY_INFO.WHATSAPP.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer">
+                    {COMPANY_INFO.WHATSAPP}
+                  </a>
+                </div>
               </div>
             </div>
-          </Col>
-        </Row>
 
-        <hr className="footer-divider my-4" />
-
-        {/* Section 3: Payment & Delivery Logos */}
-        <Row className="footer-payment-delivery-row mb-4">
-          <Col xs={12} md={6} className="mb-3">
-            <h5 className="footer-heading mb-3">PAYMENT METHODS</h5>
-            <div className="payment-delivery-icons">
-              {/* Generic placeholder payment icons */}
-              <img src="https://via.placeholder.com/60x40?text=Visa" alt="Visa" className="payment-icon"/>
-              <img src="https://via.placeholder.com/60x40?text=MasterCard" alt="MasterCard" className="payment-icon"/>
-              <img src="https://via.placeholder.com/60x40?text=MobileMoney" alt="Mobile Money" className="payment-icon"/>
-              <img src="https://via.placeholder.com/60x40?text=PayPal" alt="PayPal" className="payment-icon"/>
-              {/* Add more payment icons as needed */}
+            {/* Quick Links */}
+            <div className="footer-column">
+              <h4 className="footer-heading">Quick Links</h4>
+              <ul className="footer-links">
+                <li><Link to="/" className="footer-link">Home</Link></li>
+                <li><Link to="/products" className="footer-link">All Products</Link></li>
+                <li><Link to="/about" className="footer-link">About Us</Link></li>
+                <li><Link to="/contact" className="footer-link">Contact</Link></li>
+                <li><Link to="/help" className="footer-link">Help & Support</Link></li>
+                <li><Link to="/buyer-protection" className="footer-link">Buyer Protection</Link></li>
+              </ul>
             </div>
-          </Col>
-          <Col xs={12} md={6} className="mb-3">
-            <h5 className="footer-heading mb-3">DELIVERY PARTNERS</h5>
-            <div className="payment-delivery-icons">
-              {/* Generic placeholder delivery icons */}
-              <img src="https://via.placeholder.com/80x40?text=BlitXpress+Logistics" alt="BlitXpress Logistics" className="payment-icon"/>
-              <img src="https://via.placeholder.com/60x40?text=DHL" alt="DHL" className="payment-icon"/>
-              {/* Add more delivery icons as needed */}
+
+            {/* Account & Services */}
+            <div className="footer-column">
+              <h4 className="footer-heading">Account & Services</h4>
+              <ul className="footer-links">
+                <li><Link to="/account" className="footer-link">My Account</Link></li>
+                <li><Link to="/account/orders" className="footer-link">Order History</Link></li>
+                <li><Link to="/account/wishlist" className="footer-link">Wishlist</Link></li>
+                <li><Link to="/register" className="footer-link">Create Account</Link></li>
+                <li><Link to="/sell" className="footer-link">Sell on BlitXpress</Link></li>
+                <li><Link to="/mobile-apps" className="footer-link">Mobile Apps</Link></li>
+              </ul>
             </div>
-          </Col>
-        </Row>
 
-        <hr className="footer-divider my-4" />
-
-        {/* Section 4: Copyright & Legal */}
-        <Row className="footer-copyright-row text-center text-md-start">
-          <Col xs={12} md={6} className="mb-2">
-            <p className="copyright-text mb-0">&copy; {new Date().getFullYear()} Blitxpress. All rights reserved.</p>
-          </Col>
-          <Col xs={12} md={6} className="text-md-end mb-2">
-            <div className="legal-links">
-              <a href="#" className="legal-link me-3">Privacy Policy</a>
-              <a href="#" className="legal-link">Terms & Conditions</a>
+            {/* Legal & Policies */}
+            <div className="footer-column">
+              <h4 className="footer-heading">Legal & Policies</h4>
+              <ul className="footer-links">
+                <li><Link to="/terms" className="footer-link">Terms & Conditions</Link></li>
+                <li><Link to="/privacy" className="footer-link">Privacy Policy</Link></li>
+                <li><Link to="/buyer-protection" className="footer-link">Return Policy</Link></li>
+                <li><Link to="/help" className="footer-link">Shipping Info</Link></li>
+                <li><Link to="/help" className="footer-link">Payment Methods</Link></li>
+              </ul>
             </div>
-          </Col>
-        </Row>
+          </div>
+        </div>
 
-      </Container>
+        {/* Social Media & Apps Section */}
+        <div className="footer-secondary">
+          <div className="footer-social-apps">
+            {/* Social Media */}
+            <div className="footer-social">
+              <h4 className="footer-heading">Follow Us</h4>
+              <div className="social-links">
+                <a href={SOCIAL_MEDIA.FACEBOOK} target="_blank" rel="noopener noreferrer" className="social-link">
+                  <i className="bi bi-facebook"></i>
+                  <span>Facebook</span>
+                </a>
+                <a href={SOCIAL_MEDIA.INSTAGRAM} target="_blank" rel="noopener noreferrer" className="social-link">
+                  <i className="bi bi-instagram"></i>
+                  <span>Instagram</span>
+                </a>
+                <a href={SOCIAL_MEDIA.TWITTER} target="_blank" rel="noopener noreferrer" className="social-link">
+                  <i className="bi bi-twitter-x"></i>
+                  <span>X (Twitter)</span>
+                </a>
+                <a href={SOCIAL_MEDIA.TIKTOK} target="_blank" rel="noopener noreferrer" className="social-link">
+                  <i className="bi bi-tiktok"></i>
+                  <span>TikTok</span>
+                </a>
+              </div>
+            </div>
+
+            {/* Mobile Apps */}
+            <div className="footer-apps">
+              <h4 className="footer-heading">Download Our Apps</h4>
+              <div className="app-links">
+                <a href={APP_LINKS.IOS} target="_blank" rel="noopener noreferrer" className="app-link">
+                  <i className="bi bi-apple"></i>
+                  <div className="app-info">
+                    <span className="app-store">App Store</span>
+                    <span className="app-name">Download for iOS</span>
+                  </div>
+                </a>
+                <a href={APP_LINKS.ANDROID} target="_blank" rel="noopener noreferrer" className="app-link">
+                  <i className="bi bi-google-play"></i>
+                  <div className="app-info">
+                    <span className="app-store">Google Play</span>
+                    <span className="app-name">Download for Android</span>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer Bottom */}
+        <div className="footer-bottom">
+          <div className="footer-bottom-content">
+            <div className="footer-copyright">
+              <p>&copy; {new Date().getFullYear()} {COMPANY_INFO.NAME}. All rights reserved.</p>
+            </div>
+            <div className="footer-bottom-links">
+              <Link to="/terms" className="footer-bottom-link">Terms</Link>
+              <Link to="/privacy" className="footer-bottom-link">Privacy</Link>
+              <Link to="/help" className="footer-bottom-link">Support</Link>
+            </div>
+          </div>
+        </div>
+      </div>
     </footer>
   );
 };

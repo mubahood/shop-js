@@ -38,9 +38,7 @@ const ImageDebug: React.FC = () => {
       info.push('=== END DEBUG ===');
       
       setDebugInfo(info);
-      
-      // Also log to console
-      console.log(info.join('\n'));
+       
     }
   }, [products]);
 
@@ -67,12 +65,9 @@ const ImageDebug: React.FC = () => {
           src={imageUrl} 
           alt={product.name} 
           style={{ maxWidth: '200px', border: '1px solid #ddd' }}
-          onLoad={() => {
-            console.log('✅ Image loaded successfully:', imageUrl);
-            alert('✅ Image loaded successfully');
+          onLoad={() => { 
           }}
-          onError={(e) => {
-            console.log('❌ Image failed to load:', imageUrl);
+          onError={(e) => { 
             alert('❌ Image failed to load: ' + imageUrl);
           }}
         />

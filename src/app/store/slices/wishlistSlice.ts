@@ -30,12 +30,10 @@ const initialState: WishlistState = {
 // Async thunks for API integration
 export const loadWishlistFromAPI = createAsyncThunk(
   'wishlist/loadFromAPI',
-  async (_, { rejectWithValue, dispatch }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const wishlistItems = await ApiService.getWishlist();
-      // Update manifest wishlist count when loading from API
-      const { updateCounts } = await import('./manifestSlice');
-      dispatch(updateCounts({ wishlist_count: wishlistItems.length }));
+      // Don't update manifest count here since manifest includes wishlist data
       return wishlistItems;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to load wishlist');
@@ -48,9 +46,9 @@ export const addToWishlistAPI = createAsyncThunk(
   async (productId: number, { rejectWithValue, dispatch }) => {
     try {
       await ApiService.addToWishlist(productId);
-      // Update manifest wishlist count
-      const { incrementWishlistCount } = await import('./manifestSlice');
-      dispatch(incrementWishlistCount());
+      // Reload manifest to get updated counts instead of manually updating
+      const { loadManifest } = await import('./manifestSlice');
+      dispatch(loadManifest());
       return productId;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to add to wishlist');
@@ -63,9 +61,9 @@ export const removeFromWishlistAPI = createAsyncThunk(
   async (productId: number, { rejectWithValue, dispatch }) => {
     try {
       await ApiService.removeFromWishlist(productId);
-      // Update manifest wishlist count
-      const { decrementWishlistCount } = await import('./manifestSlice');
-      dispatch(decrementWishlistCount());
+      // Reload manifest to get updated counts instead of manually updating
+      const { loadManifest } = await import('./manifestSlice');
+      dispatch(loadManifest());
       return productId;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to remove from wishlist');
@@ -98,6 +96,22 @@ const wishlistSlice = createSlice({
     setWishlistItems: (state, action: PayloadAction<WishlistItem[]>) => {
       state.items = action.payload;
     },
+    syncFromManifest: (state, action: PayloadAction<any[]>) => {
+      // Sync wishlist from manifest data if current wishlist is empty
+      if (state.items.length === 0 && action.payload && action.payload.length > 0) {
+        state.items = action.payload.map((item: any) => ({
+          id: item.id,
+          user_id: item.user_id,
+          product_id: item.product_id,
+          product_name: item.product_name || item.name,
+          product_price: item.product_price || item.price_1,
+          product_sale_price: item.product_sale_price || item.price_2,
+          product_photo: item.product_photo || item.image,
+          created_at: item.created_at || new Date().toISOString(),
+          updated_at: item.updated_at || new Date().toISOString(),
+        }));
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -109,6 +123,8 @@ const wishlistSlice = createSlice({
       .addCase(loadWishlistFromAPI.fulfilled, (state, action) => {
         state.isLoading = false;
         state.items = action.payload;
+        // Also update the manifest count to keep it in sync
+        // This is done in the async thunk, so we don't need to do it here again
       })
       .addCase(loadWishlistFromAPI.rejected, (state, action) => {
         state.isLoading = false;
@@ -150,6 +166,7 @@ export const {
   setLoading,
   setError,
   setWishlistItems,
+  syncFromManifest,
 } = wishlistSlice.actions;
 
 export default wishlistSlice.reducer;

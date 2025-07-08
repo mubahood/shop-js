@@ -255,7 +255,6 @@ export class CvModel {
 
       return paginatedData as PaginatedResponse<CvModel>;
     } catch (error) {
-      console.error("Error fetching jobs:", error);
       throw error;
     }
   }
@@ -280,7 +279,6 @@ export class CvModel {
 
       // Example: GET /my-jobs?page=1&search=Engineer
       const response = await http_get(`/my-jobs?${queryParams.toString()}`);
-      console.log(response);
       if (response.code !== 1) {
         throw new Error(response.message || "Failed to fetch user jobs.");
       }
@@ -294,7 +292,6 @@ export class CvModel {
 
       return paginatedData as PaginatedResponse<CvModel>;
     } catch (error) {
-      console.error("Error fetching my-jobs:", error);
       throw error;
     }
   }
@@ -308,13 +305,11 @@ export class CvModel {
   static async fetchJobById(id: string | number): Promise<CvModel> {
     try {
       const response = await http_get(`/cvs/${id}`);
-      console.log(response);
       if (response.code !== 1) {
         throw new Error(response.message || "Failed to fetch job.");
       }
       return CvModel.fromJson(response.data);
     } catch (error) {
-      console.error("Error fetching job by ID:", error);
       throw error;
     }
   }
@@ -334,7 +329,6 @@ export class CvModel {
       }
       return CvModel.fromJson(response.data);
     } catch (error) {
-      console.error("Error creating job:", error);
       throw error;
     }
   }
@@ -357,7 +351,6 @@ export class CvModel {
       }
       return CvModel.fromJson(response.data);
     } catch (error) {
-      console.error("Error updating job:", error);
       throw error;
     }
   }
@@ -376,7 +369,6 @@ export class CvModel {
       }
       return true;
     } catch (error) {
-      console.error("Error deleting job:", error);
       throw error;
     }
   }

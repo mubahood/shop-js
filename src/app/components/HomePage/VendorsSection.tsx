@@ -3,12 +3,24 @@ import React from "react";
 import { Row, Col, Card } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { useManifestVendors } from "../../hooks/useManifest";
-import { Vendor } from "../../store/slices/manifestSlice";
 import Utils from "../../utils/imageUtils";
 import "./VendorsSection.css";
 
+// Temporary vendor interface until Vendor is properly defined
+interface Vendor {
+  id: number;
+  name: string;
+  logo?: string;
+  description?: string;
+  avatar?: string;
+  profile_photo?: string;
+  address?: string;
+  phone_number?: string;
+  email?: string;
+}
+
 const VendorsSection: React.FC = () => {
-  const vendors = useManifestVendors();
+  const vendors: Vendor[] = useManifestVendors(); // Type assertion since we know it returns empty array
 
   if (!vendors || vendors.length === 0) {
     return (

@@ -188,7 +188,6 @@ export class OrderModel {
       );
       return orders;
     } catch (error) {
-      console.error("Error fetching orders:", error);
       throw error;
     }
   }

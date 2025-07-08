@@ -28,7 +28,6 @@ export class OrderModelUtils {
           try {
             (order as any)[key] = source[key];
           } catch (error) {
-            console.warn(`Failed to copy property ${key}:`, error);
           }
         }
       });
@@ -46,7 +45,6 @@ export class OrderModelUtils {
         return parseFloat(order.getTax(amount.toString()) || '0') || 0;
       }
     } catch (error) {
-      console.warn('Error using getTax method, using fallback:', error);
     }
     
     // Fallback: 13% tax
@@ -63,7 +61,6 @@ export class OrderModelUtils {
         return order.toJson();
       }
     } catch (error) {
-      console.warn('Error using toJson method, using fallback:', error);
     }
 
     // Fallback: manual object creation
@@ -111,7 +108,6 @@ export class OrderModelUtils {
         return order.getPaymentLink() || '';
       }
     } catch (error) {
-      console.warn('Error using getPaymentLink method, using fallback:', error);
     }
 
     // Fallback: direct stripe_url access

@@ -4,6 +4,100 @@ import { Link } from "react-router-dom";
 import { Spinner, Alert } from "react-bootstrap";
 import { useManifestCategories, useManifest } from "../../hooks/useManifest";
 
+// Inline styles for CategoryList following the unified design system
+const categoryListStyles = `
+  .category-list-wrapper {
+    background-color: var(--white);
+    border: 1px solid var(--border-color-light);
+    border-radius: var(--border-radius);
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .category-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .category-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-color-dark);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border-color-light);
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .category-item:last-child {
+    border-bottom: none;
+  }
+
+  .category-item:hover {
+    background-color: var(--background-light);
+    color: var(--primary-color);
+    text-decoration: none;
+  }
+
+  .category-item:hover::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background-color: var(--primary-color);
+  }
+
+  .category-item i {
+    font-size: 1rem;
+    width: 18px;
+    text-align: center;
+    color: var(--text-color-medium);
+    transition: color 0.2s ease;
+  }
+
+  .category-item:hover i {
+    color: var(--primary-color);
+  }
+
+  .category-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    height: 100%;
+  }
+
+  .category-error {
+    padding: 1rem;
+  }
+
+  @media (max-width: 1199.98px) {
+    .category-item {
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+    }
+    
+    .category-item i {
+      font-size: 0.9rem;
+      width: 16px;
+    }
+  }
+
+  @media (max-width: 991.98px) {
+    .category-list-wrapper {
+      display: none;
+    }
+  }
+`;
+
 const CategoryList: React.FC = () => {
   const categories = useManifestCategories();
   const { isLoading: categoriesLoading, error: categoriesError } = useManifest();
@@ -33,19 +127,29 @@ const CategoryList: React.FC = () => {
 
   if (categoriesLoading) {
     return (
-      <div className="category-list-wrapper d-flex justify-content-center p-3">
-        <Spinner animation="border" size="sm" />
-      </div>
+      <>
+        <style dangerouslySetInnerHTML={{ __html: categoryListStyles }} />
+        <div className="category-list-wrapper">
+          <div className="category-loading">
+            <Spinner animation="border" size="sm" />
+          </div>
+        </div>
+      </>
     );
   }
 
   if (categoriesError) {
     return (
-      <div className="category-list-wrapper">
-        <Alert variant="warning" className="small">
-          Error loading categories
-        </Alert>
-      </div>
+      <>
+        <style dangerouslySetInnerHTML={{ __html: categoryListStyles }} />
+        <div className="category-list-wrapper">
+          <div className="category-error">
+            <Alert variant="warning" className="small mb-0">
+              Error loading categories
+            </Alert>
+          </div>
+        </div>
+      </>
     );
   }
 
@@ -54,24 +158,27 @@ const CategoryList: React.FC = () => {
     categories && categories.length > 9 ? categories.slice(0, 9) : categories;
 
   return (
-    <div className="category-list-wrapper">
-      <ul className="list-unstyled">
-        {displayCategories &&
-          displayCategories.map((category) => (
-            <li key={category.id}>
-              <Link
-                to={`/products?category=${category.id}`}
-                className="category-item"
-              >
-                <i
-                  className={`bi ${getIconForCategory(category.category)}`}
-                ></i>
-                <span>{category.category}</span>
-              </Link>
-            </li>
-          ))}
-      </ul>
-    </div>
+    <>
+      <style dangerouslySetInnerHTML={{ __html: categoryListStyles }} />
+      <div className="category-list-wrapper">
+        <ul className="category-list">
+          {displayCategories &&
+            displayCategories.map((category) => (
+              <li key={category.id}>
+                <Link
+                  to={`/products?category=${category.id}`}
+                  className="category-item"
+                >
+                  <i
+                    className={`bi ${getIconForCategory(category.category)}`}
+                  ></i>
+                  <span>{category.category}</span>
+                </Link>
+              </li>
+            ))}
+        </ul>
+      </div>
+    </>
   );
 };
 

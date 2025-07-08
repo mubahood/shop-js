@@ -369,7 +369,7 @@
   background: var(--primary-color);
   color: var(--white);
   border: none;
-  width: 42px;
+  width: 44px; /* Increased from 42px for better balance */
   height: 100%;
   display: flex;
   align-items: center;
@@ -378,6 +378,7 @@
   border-radius: 0;
   cursor: pointer;
   position: relative;
+  padding: 0; /* Ensure no extra padding */
 }
 
 .btn-search:hover {
@@ -386,12 +387,25 @@
 }
 
 .search-icon {
-  font-size: 0.95rem;
+  font-size: 1rem; /* Increased from 0.95rem for better visibility */
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 .btn-search:hover .search-icon {
   transform: scale(1.05);
+}
+
+/* Better icon centering for the search button */
+.btn-search i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 }
 
 /* Search Suggestions */
@@ -624,22 +638,6 @@
   border-radius: var(--border-radius);
   overflow: hidden;
   border: 1px solid var(--border-color); /* Reduced border width */
-  width: 100%; /* Ensure full width */
-}
-
-.mobile-search-form .form-control {
-  border: none;
-  background: var(--white);
-  font-size: 0.9rem;
-  padding: 0 15px;
-  width: 100%; /* Ensure input takes full available width */
-  flex: 1;
-}
-
-.mobile-search-form .btn-search {
-  width: 50px;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-color-dark));
-  border: none;
 }
 
 /* Mobile Navigation Sections */
@@ -751,6 +749,7 @@
   background: var(--white);
   box-shadow: var(--shadow-sm);
   border-bottom: 1px solid var(--border-color);
+  display: block !important;
 }
 
 /* Mobile Navigation Top Row */
@@ -883,8 +882,15 @@
 /* Mobile Navigation Bottom Row - Always Visible Search */
 .mobile-nav-bottom {
   background: #ffffff;
-  padding: 8px 12px 12px 12px;
+  padding: 4px 12px 6px 12px; /* Reduced from 8px 12px 12px 12px */
   border-bottom: 1px solid #f3f4f6;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+  min-height: 42px; /* Reduced from 50px */
 }
 
 .mobile-search-form {
@@ -892,7 +898,7 @@
 }
 
 .mobile-search-input-group {
-  display: flex;
+  display: flex !important;
   align-items: center;
   background: #f9fafb;
   border: 1px solid #e5e7eb;
@@ -900,6 +906,7 @@
   overflow: hidden;
   height: 38px;
   transition: all 0.2s ease;
+  width: 100%;
 }
 
 .mobile-search-input-group:focus-within {
@@ -909,40 +916,43 @@
 }
 
 .mobile-search-input {
-  flex: 1;
-  border: none;
-  background: transparent;
-  padding: 0 12px;
-  font-size: 14px;
-  color: #374151;
-  height: 100%;
-  outline: none;
+  flex: 1 !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 12px !important;
+  font-size: 14px !important;
+  color: #374151 !important;
+  height: 100% !important;
+  outline: none !important;
+  width: auto !important;
 }
 
 .mobile-search-input::placeholder {
-  color: #9ca3af;
-  font-weight: 400;
+  color: #9ca3af !important;
+  font-weight: 400 !important;
 }
 
 .mobile-search-btn {
-  background: #d7152a;
-  color: #ffffff;
-  border: none;
-  width: 38px;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  cursor: pointer;
+  background: #d7152a !important;
+  color: #ffffff !important;
+  border: none !important;
+  width: 38px !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  flex-shrink: 0 !important;
 }
 
 .mobile-search-btn:hover {
-  background: #b8121f;
+  background: #b8121f !important;
 }
 
 .mobile-search-btn i {
-  font-size: 14px;
+  font-size: 14px !important;
+  color: #ffffff !important;
 }
 
 /* Mobile Offcanvas Logo */
@@ -959,12 +969,17 @@
 /* Mobile Search Box Integration */
 .mobile-nav-bottom .mobile-search-box {
   width: 100%;
+  display: block !important;
+  visibility: visible !important;
 }
 
 .mobile-nav-bottom .mobile-search-box .search-input-group {
   background: #f9fafb;
   border: 1px solid #e5e7eb;
   height: 38px;
+  display: flex !important;
+  visibility: visible !important;
+  width: 100%;
 }
 
 .mobile-nav-bottom .mobile-search-box .search-input-group:focus-within {
@@ -1075,7 +1090,91 @@
 /* Body padding adjustment for mobile navigation */
 @media (max-width: 991.98px) {
   body {
-    padding-top: 120px !important; /* Adjust for two-row mobile nav */
+    padding-top: 102px !important; /* 60px top row + 42px search row */
+  }
+  
+  /* Ensure mobile navigation is visible */
+  .modern-mobile-nav {
+    display: block !important;
+    visibility: visible !important;
+  }
+  
+  /* Ensure mobile search bottom section is visible */
+  .mobile-nav-bottom {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  /* Ensure mobile search box is visible */
+  .mobile-nav-bottom .mobile-search-box {
+    display: block !important;
+    visibility: visible !important;
+  }
+  
+  /* Ensure search input group is visible */
+  .mobile-nav-bottom .mobile-search-box .search-input-group {
+    display: flex !important;
+    visibility: visible !important;
+  }
+}
+
+/* ===================================================================
+   Mobile Search Box Debug and Visibility Fixes
+   =================================================================== */
+
+/* Force visibility of mobile navigation on small screens */
+@media (max-width: 991.98px) {
+  .modern-mobile-nav {
+    display: block !important;
+    visibility: visible !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    z-index: 1030 !important;
+  }
+  
+  .mobile-nav-bottom {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background: #ffffff !important;
+    border-bottom: 1px solid #f3f4f6 !important;
+    padding: 8px 12px 12px 12px !important;
+  }
+  
+  .mobile-search-box {
+    display: block !important;
+    width: 100% !important;
+    visibility: visible !important;
+  }
+  
+  .mobile-search-box .live-search-box {
+    display: block !important;
+    width: 100% !important;
+  }
+  
+  .mobile-search-box .search-input-group {
+    display: flex !important;
+    width: 100% !important;
+    height: 38px !important;
+    background: #f9fafb !important;
+    border: 1px solid #e5e7eb !important;
+  }
+}
+
+/* Hide desktop navigation on mobile */
+@media (max-width: 991.98px) {
+  .d-none.d-lg-block {
+    display: none !important;
+  }
+}
+
+/* Show mobile navigation only on mobile */
+@media (min-width: 992px) {
+  .d-lg-none {
+    display: none !important;
   }
 }
 
@@ -1121,4 +1220,79 @@
 .action-link:focus-visible {
   outline: 2px solid var(--primary-color);
   outline-offset: 2px;
+}
+
+/* ===================================================================
+   Direct Mobile Search Form (Fallback)
+   =================================================================== */
+
+.mobile-search-wrapper {
+  width: 100%;
+  padding: 0;
+  margin: 0; /* Remove any default margin */
+}
+
+.mobile-search-form {
+  width: 100%;
+  margin: 0;
+  padding: 0; /* Remove any default padding */
+}
+
+.mobile-search-input-group {
+  display: flex !important;
+  align-items: center;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  overflow: hidden;
+  height: 36px; /* Reduced from 38px */
+  transition: all 0.2s ease;
+  width: 100%;
+  margin: 0; /* Remove any margin */
+}
+
+.mobile-search-input-group:focus-within {
+  background: #ffffff;
+  border-color: #d7152a;
+  box-shadow: 0 0 0 2px rgba(215, 21, 42, 0.08);
+}
+
+.mobile-search-input {
+  flex: 1 !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 12px !important;
+  font-size: 14px !important;
+  color: #374151 !important;
+  height: 100% !important;
+  outline: none !important;
+  width: auto !important;
+}
+
+.mobile-search-input::placeholder {
+  color: #9ca3af !important;
+  font-weight: 400 !important;
+}
+
+.mobile-search-btn {
+  background: #d7152a !important;
+  color: #ffffff !important;
+  border: none !important;
+  width: 38px !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  flex-shrink: 0 !important;
+}
+
+.mobile-search-btn:hover {
+  background: #b8121f !important;
+}
+
+.mobile-search-btn i {
+  font-size: 14px !important;
+  color: #ffffff !important;
 }

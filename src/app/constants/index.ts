@@ -152,3 +152,85 @@ export const SUCCESS_MESSAGES = {
   FORM_SUBMITTED: 'Form submitted successfully!',
   PROFILE_UPDATED: 'Profile updated successfully!',
 } as const;
+
+// ===================================================================
+// COMPANY INFORMATION
+// ===================================================================
+
+export const COMPANY_INFO = {
+  NAME: "BlitXpress",
+  TAGLINE: "Your trusted marketplace for quality products",
+  DESCRIPTION: "BlitXpress is Uganda's leading e-commerce platform connecting buyers and sellers across the country.",
+  EMAIL: "blitelofficial@gmail.com",
+  PHONE: "0800200146",
+  WHATSAPP: "+256 790 742428",
+  ADDRESS: "Kampala, Uganda",
+} as const;
+
+// ===================================================================
+// SOCIAL MEDIA LINKS
+// ===================================================================
+
+export const SOCIAL_MEDIA = {
+  TWITTER: "https://x.com/blit_xpress",
+  FACEBOOK: "https://www.facebook.com/people/Blit-Xpress/61575579878607/",
+  INSTAGRAM: "https://www.instagram.com/blit_xpress/",
+  TIKTOK: "https://www.tiktok.com/@blit_xpress",
+} as const;
+
+// ===================================================================
+// MOBILE APP LINKS
+// ===================================================================
+
+export const APP_LINKS = {
+  IOS: "https://apps.apple.com/in/app/blitxpress/id6742859129",
+  ANDROID: "https://play.google.com/store/apps/details?id=com.eurosatgroup.blitxpress&pli=1",
+} as const;
+
+// ===================================================================
+// STATIC PAGE CONTENT
+// ===================================================================
+
+export const STATIC_CONTENT = {
+  BUYER_PROTECTION: {
+    TITLE: "Buyer Protection",
+    SUBTITLE: "Shop with confidence on BlitXpress",
+    FEATURES: [
+      {
+        icon: "bi-shield-check",
+        title: "Secure Payments",
+        description: "All payments are processed securely through encrypted channels"
+      },
+      {
+        icon: "bi-truck",
+        title: "Safe Delivery",
+        description: "Track your orders and get guaranteed delivery to your doorstep"
+      },
+      {
+        icon: "bi-arrow-return-left",
+        title: "Easy Returns",
+        description: "Return items within 7 days if they don't meet your expectations"
+      },
+      {
+        icon: "bi-headset",
+        title: "24/7 Support",
+        description: "Our customer support team is always ready to help you"
+      }
+    ]
+  },
+  VENDOR_BENEFITS: [
+    "Reach thousands of customers across Uganda",
+    "Easy product listing and management",
+    "Secure payment processing",
+    "Marketing and promotional support",
+    "Real-time analytics and insights",
+    "Dedicated vendor support team"
+  ],
+  VENDOR_REQUIREMENTS: [
+    "Valid business registration or identification",
+    "Quality products that meet our standards",
+    "Competitive pricing and good customer service",
+    "Ability to fulfill orders within specified timeframes",
+    "Compliance with local laws and regulations"
+  ]
+} as const;

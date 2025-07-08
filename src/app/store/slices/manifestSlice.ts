@@ -14,11 +14,13 @@ export interface Category {
   category: string;
   name: string;
   category_text: number;
-  parent: number | null;
+  parent_id: number | null;
   image?: string;
   banner_image?: string | null;
   show_in_banner?: string;
   show_in_categories?: string;
+  is_parent?: string;
+  icon?: string;
 }
 
 export interface DeliveryLocation {
@@ -100,16 +102,6 @@ export interface RecentOrder {
   created_at: string;
 }
 
-export interface Vendor {
-  id: number;
-  name: string;
-  email: string;
-  phone_number?: string;
-  avatar?: string;
-  address?: string;
-  profile_photo?: string;
-}
-
 export interface ManifestData {
   app_info: AppInfo;
   categories: Category[];
@@ -122,8 +114,8 @@ export interface ManifestData {
   featured_products: Product[];
   recent_products: Product[];
   recent_orders?: RecentOrder[];
-  vendors: Vendor[];
   recent_search_suggestions?: string[];
+  wishlist?: any[]; // Include wishlist data in manifest
 }
 
 interface ManifestState {

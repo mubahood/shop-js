@@ -68,7 +68,6 @@ export class DeliveryAddressModel implements DeliveryAddress {
       const response = await http_get(DeliveryAddressModel.end_point, {});
       
       if (response.code !== 1) {
-        console.error("Failed to fetch delivery addresses:", response.message);
         return [];
       }
 
@@ -78,7 +77,6 @@ export class DeliveryAddressModel implements DeliveryAddress {
 
       return response.data.map((item: any) => DeliveryAddressModel.fromJson(item));
     } catch (error) {
-      console.error("Error fetching delivery addresses:", error);
       return [];
     }
   }

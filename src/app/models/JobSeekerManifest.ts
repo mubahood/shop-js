@@ -29,11 +29,9 @@ export class JobSeekerManifest {
       localData = await this.getLocal();
       // If we have a valid local manifest (using cv_views as a proxy), trigger online fetch in background
       if (localData) {
-        this.getOnline().catch(console.error);
         return localData;
       }
     } catch (error) {
-      console.error("Error fetching local jobseeker manifest:", error);
     }
 
     // Otherwise, fetch online and then load from local storage
@@ -84,12 +82,10 @@ export class JobSeekerManifest {
       try {
         Utils.saveToDatabase(LOCAL_JOBSEEKER_MANIFEST, response.data);
       } catch (error) {
-        console.error("Error saving remote jobseeker manifest:", error);
         alert("Failed to save jobseeker manifest: " + error);
         throw error;
       }
     } catch (error) {
-      console.error("Error fetching remote jobseeker manifest:", error);
       throw error;
     }
   }

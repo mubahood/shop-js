@@ -32,7 +32,7 @@ export const realProductsApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Product', 'Category', 'Vendor'],
+  tagTypes: ['Product', 'Category', 'Vendor', 'Review'],
   endpoints: (builder) => ({
     
     // ===== PRODUCTS =====
@@ -52,10 +52,14 @@ export const realProductsApi = createApi({
         const { page = 1, in_stock, ...otherParams } = params;
         const queryParams: Record<string, string> = {
           page: String(page),
-          ...Object.fromEntries(
-            Object.entries(otherParams).map(([key, val]) => [key, String(val)])
-          ),
         };
+        
+        // Only add defined parameters
+        Object.entries(otherParams).forEach(([key, val]) => {
+          if (val !== undefined && val !== null && val !== '') {
+            queryParams[key] = String(val);
+          }
+        });
         
         if (in_stock !== undefined) {
           queryParams.in_stock = in_stock ? '1' : '0';
@@ -238,36 +242,132 @@ export const realProductsApi = createApi({
       },
     }),
 
+    // ===== REVIEWS =====
+    getProductReviews: builder.query<any, { 
+      productId: number; 
+      page?: number; 
+      perPage?: number;
+      sortBy?: 'newest' | 'oldest' | 'highest_rating' | 'lowest_rating';
+    }>({
+      query: ({ productId, page = 1, perPage = 10, sortBy = 'newest' }) => {
+        const params = new URLSearchParams({
+          product_id: String(productId),
+          page: String(page),
+          per_page: String(perPage),
+          sort_by: sortBy,
+        });
+        return `reviews?${params}`;
+      },
+      transformResponse: (response: any) => {
+        if (response.success) {
+          return response.data;
+        }
+        return { reviews: [], pagination: { current_page: 1, last_page: 1, per_page: 10, total: 0 } };
+      },
+      providesTags: (result, error, { productId }) => [
+        { type: 'Product', id: productId },
+        'Review',
+      ],
+    }),
+
+    getReviewStats: builder.query<any, { productId: number }>({
+      query: ({ productId }) => `reviews/stats?product_id=${productId}`,
+      transformResponse: (response: any) => {
+        if (response.success) {
+          return response.data;
+        }
+        return { total_reviews: 0, average_rating: 0, rating_breakdown: {} };
+      },
+      providesTags: (result, error, { productId }) => [
+        { type: 'Product', id: productId },
+        'Review',
+      ],
+    }),
+
+    getUserReview: builder.query<any, { productId: number }>({
+      query: ({ productId }) => `reviews/user-review?product_id=${productId}`,
+      transformResponse: (response: any) => {
+        if (response.success) {
+          return response.data;
+        }
+        return null;
+      },
+      providesTags: (result, error, { productId }) => [
+        { type: 'Product', id: productId },
+        'Review',
+      ],
+    }),
+
     addProductReview: builder.mutation<any, {
       productId: number;
       rating: number;
       comment: string;
-      title?: string;
     }>({
-      query: ({ productId, ...reviewData }) => ({
-        url: `products/${productId}/reviews`,
+      query: ({ productId, rating, comment }) => ({
+        url: 'reviews',
         method: 'POST',
-        body: reviewData,
+        body: {
+          product_id: productId,
+          rating,
+          comment,
+        },
       }),
       transformResponse: (response: any) => {
-        if (response.code === 1) {
+        if (response.success) {
           return response.data;
         }
         throw new Error(response.message || 'Failed to submit review');
       },
       invalidatesTags: (result, error, { productId }) => [
         { type: 'Product', id: productId },
+        'Review',
       ],
     }),
 
-    getProductReviews: builder.query<any, { productId: number; page?: number }>({
-      query: ({ productId, page = 1 }) => `products/${productId}/reviews?page=${page}`,
+    updateProductReview: builder.mutation<any, {
+      reviewId: number;
+      rating: number;
+      comment: string;
+      productId?: number; // Optional for better cache invalidation
+    }>({
+      query: ({ reviewId, rating, comment }) => ({
+        url: `reviews/${reviewId}`,
+        method: 'PUT',
+        body: {
+          rating,
+          comment,
+        },
+      }),
       transformResponse: (response: any) => {
-        if (response.code === 1) {
+        if (response.success) {
           return response.data;
         }
-        return { data: [], total: 0 };
+        throw new Error(response.message || 'Failed to update review');
       },
+      invalidatesTags: (result, error, { productId }) => [
+        'Review',
+        ...(productId ? [{ type: 'Product' as const, id: productId }] : []),
+      ],
+    }),
+
+    deleteProductReview: builder.mutation<any, { 
+      reviewId: number; 
+      productId?: number; // Optional for better cache invalidation 
+    }>({
+      query: ({ reviewId }) => ({
+        url: `reviews/${reviewId}`,
+        method: 'DELETE',
+      }),
+      transformResponse: (response: any) => {
+        if (response.success) {
+          return response.data;
+        }
+        throw new Error(response.message || 'Failed to delete review');
+      },
+      invalidatesTags: (result, error, { productId }) => [
+        'Review',
+        ...(productId ? [{ type: 'Product' as const, id: productId }] : []),
+      ],
     }),
   }),
 });
@@ -286,6 +386,10 @@ export const {
   useAddToWishlistMutation,
   useRemoveFromWishlistMutation,
   useGetWishlistQuery,
-  useAddProductReviewMutation,
   useGetProductReviewsQuery,
+  useGetReviewStatsQuery,
+  useGetUserReviewQuery,
+  useAddProductReviewMutation,
+  useUpdateProductReviewMutation,
+  useDeleteProductReviewMutation,
 } = realProductsApi;

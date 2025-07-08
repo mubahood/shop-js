@@ -35,6 +35,16 @@ export interface ProductBase {
   in_stock?: number;
   status?: number;
   created_at?: string;
+  // Backend API fields for tags and attributes
+  tags?: string;
+  tags_array?: string[];
+  attributes_array?: { name: string; value: string }[];
+  category_attributes?: { 
+    name: string; 
+    is_required: boolean; 
+    attribute_type: string; 
+    possible_values?: string; 
+  }[];
 }
 
 export interface ProductWithExtras extends ProductBase {

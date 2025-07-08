@@ -89,7 +89,6 @@ export const getProductImage = (product: ProductBase): string => {
     try {
       return product.getMainImage();
     } catch (error) {
-      console.warn('Error calling getMainImage():', error);
     }
   }
   
@@ -198,7 +197,6 @@ export const copyToClipboard = async (text: string): Promise<boolean> => {
     await navigator.clipboard.writeText(text);
     return true;
   } catch (err) {
-    console.error('Failed to copy text: ', err);
     return false;
   }
 };
@@ -277,7 +275,6 @@ export const setLocalStorage = (key: string, value: any): boolean => {
     localStorage.setItem(key, JSON.stringify(value));
     return true;
   } catch (error) {
-    console.error('Error setting localStorage:', error);
     return false;
   }
 };
@@ -290,7 +287,6 @@ export const getLocalStorage = <T>(key: string, defaultValue: T): T => {
     const item = localStorage.getItem(key);
     return item ? JSON.parse(item) : defaultValue;
   } catch (error) {
-    console.error('Error getting localStorage:', error);
     return defaultValue;
   }
 };
@@ -303,7 +299,6 @@ export const removeLocalStorage = (key: string): boolean => {
     localStorage.removeItem(key);
     return true;
   } catch (error) {
-    console.error('Error removing localStorage:', error);
     return false;
   }
 };
@@ -322,7 +317,6 @@ export const safeAsync = async <T>(
   try {
     return await asyncFn();
   } catch (error) {
-    console.error('Async operation failed:', error);
     return defaultValue;
   }
 };

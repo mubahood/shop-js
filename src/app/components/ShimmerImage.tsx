@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import ContentLoader from "react-content-loader";
 
 interface ShimmerImageProps {
   src: string;
@@ -36,21 +35,41 @@ const ShimmerImage: React.FC<ShimmerImageProps> = ({
 }) => {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
 
   // Reset loaded/error state if src changes
   useEffect(() => {
     setLoaded(false);
     setError(false);
+    setImageLoading(true);
+    
+    // Pre-load the image to ensure it exists
+    if (src) {
+      const img = new Image();
+      img.onload = () => {
+        setImageLoading(false);
+      };
+      img.onerror = () => {
+        setError(true);
+        setImageLoading(false);
+      };
+      img.src = src;
+    } else {
+      setError(true);
+      setImageLoading(false);
+    }
   }, [src]);
 
   const handleLoad = () => {
     setLoaded(true);
     setError(false); // Ensure error state is cleared on successful load
+    setImageLoading(false);
   };
 
   const handleError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
     setError(true);
-    setLoaded(true); // Treat error as 'loaded' to hide shimmer
+    setLoaded(false); // Don't treat error as loaded
+    setImageLoading(false);
     if (onError) {
       onError(event); // Propagate error event if handler is provided
     }
@@ -61,75 +80,114 @@ const ShimmerImage: React.FC<ShimmerImageProps> = ({
   const containerWidth = typeof width === 'number' ? `${width}px` : width;
   const containerHeight = typeof height === 'number' ? `${height}px` : height;
 
+  // CSS-based shimmer keyframes
+  const shimmerKeyframes = `
+    @keyframes shimmer {
+      0% {
+        background-position: -200px 0;
+      }
+      100% {
+        background-position: calc(200px + 100%) 0;
+      }
+    }
+    
+    @keyframes shimmerGlow {
+      0% {
+        opacity: 0.5;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0.5;
+      }
+    }
+  `;
+
   return (
-    <div
-      className={className}
-      style={{
-        position: "relative", // Keep relative positioning
-        display: "inline-block", // Or 'block' depending on layout needs
-        width: containerWidth, // Apply width prop
-        height: containerHeight, // Apply height prop
-        overflow: "hidden", // Keep overflow hidden
-        backgroundColor: !loaded ? loaderBackgroundColor : 'transparent', // Optional: Background while loading
-        verticalAlign: 'middle', // Helps with inline-block alignment
-        ...style, // Allow overriding styles
-      }}
-    >
-      {!loaded && !error && ( // Show loader only if not loaded and no error
-        <ContentLoader
-          speed={loaderSpeed}
-          width={loaderWidth} // Use specific loader dimensions if needed
-          height={loaderHeight} // Use specific loader dimensions if needed
-          viewBox={`0 0 ${loaderWidth} ${loaderHeight}`}
-          backgroundColor={loaderBackgroundColor}
-          foregroundColor={loaderForegroundColor}
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%", // Loader fills the container
-            height: "100%", // Loader fills the container
-          }}
-        >
-          {/* You can customize the loader shape here */}
-          <rect x="0" y="0" rx="8" ry="8" width="100%" height="100%" />
-        </ContentLoader>
-      )}
+    <>
+      <style dangerouslySetInnerHTML={{ __html: shimmerKeyframes }} />
+      <div
+        className={className}
+        style={{
+          position: "relative", // Keep relative positioning
+          display: "flex", // Use flex for better centering in modal
+          alignItems: "center",
+          justifyContent: "center",
+          width: containerWidth, // Apply width prop
+          height: containerHeight, // Apply height prop
+          minHeight: typeof height === 'string' && height.includes('%') ? '300px' : containerHeight, // Ensure minimum height for percentage heights
+          overflow: "hidden", // Keep overflow hidden
+          backgroundColor: (!loaded && !error) ? loaderBackgroundColor : 'transparent', // Background while loading
+          ...style, // Allow overriding styles
+        }}
+      >
+        {(!loaded && !error && imageLoading) && ( // Show loader only if not loaded, no error, and image is loading
+          <>
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%", // Loader fills the container
+                height: "100%", // Loader fills the container
+                background: `linear-gradient(90deg, ${loaderBackgroundColor} 0%, ${loaderForegroundColor} 50%, ${loaderBackgroundColor} 100%)`,
+                backgroundSize: "200px 100%",
+                animation: `shimmer ${loaderSpeed}s ease-in-out infinite`,
+                minHeight: "200px", // Ensure shimmer is visible
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                background: `radial-gradient(circle, ${loaderForegroundColor} 0%, transparent 70%)`,
+                animation: `shimmerGlow ${loaderSpeed * 1.5}s ease-in-out infinite`,
+                minHeight: "200px", // Ensure shimmer is visible
+              }}
+            />
+          </>
+        )}
 
-      {/* Conditionally render an error placeholder if needed */}
-      {error && (
-         <div style={{ /* Basic error state indicator */
-            position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            backgroundColor: '#f0f0f0', color: '#888'
-         }}>
-            <span>Error</span>
-         </div>
-      )}
+        {/* Conditionally render an error placeholder if needed */}
+        {error && (
+           <div style={{ /* Basic error state indicator */
+              position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              backgroundColor: '#f0f0f0', color: '#888'
+           }}>
+              <span>Error</span>
+           </div>
+        )}
 
-      {/* Render image tag only if src is valid and no error initially,
-          control visibility via opacity */}
-      {src && (
-        <img
-          src={src}
-          alt={alt}
-          onLoad={handleLoad}
-          onError={handleError}
-          style={{
-            display: 'block', // Prevents extra space below image
-            position: "absolute", // Position over the loader/error placeholder
-            top: 0,
-            left: 0,
-            width: "100%", // Image fills container
-            height: "100%", // Image fills container
-            objectFit: objectFit, // Use object-fit prop
-            opacity: loaded && !error ? 1 : 0, // Fade in only if loaded and no error
-            transition: "opacity 0.4s ease-in-out",
-            visibility: loaded || error ? 'visible' : 'hidden', // Ensure it's visible once loaded/error
-          }}
-        />
-       )}
-    </div>
+        {/* Render image tag only if src is valid and no error initially,
+            control visibility via opacity */}
+        {src && !error && (
+          <img
+            src={src}
+            alt={alt}
+            onLoad={handleLoad}
+            onError={handleError}
+            style={{
+              display: 'block', // Prevents extra space below image
+              maxWidth: "100%", // Responsive image
+              maxHeight: "100%", // Responsive image
+              width: "auto", // Maintain aspect ratio
+              height: "auto", // Maintain aspect ratio
+              objectFit: objectFit, // Use object-fit prop
+              opacity: loaded ? 1 : 0, // Fade in only if loaded
+              transition: "opacity 0.4s ease-in-out",
+              visibility: loaded ? 'visible' : 'hidden', // Ensure it's visible once loaded
+              zIndex: 1, // Ensure image is above shimmer
+              margin: 'auto', // Center the image within flex container
+            }}
+          />
+         )}
+      </div>
+    </>
   );
 };
 

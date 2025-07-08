@@ -69,7 +69,7 @@ const ApiIntegrationStatusPage: React.FC = () => {
           success: true,
           bannersCount: manifest.banners.length,
           categoriesCount: manifest.categories.length,
-          vendorsCount: manifest.vendors.length,
+          vendorsCount: 0, // Vendors not implemented yet
           topProductsCount: manifest.topProducts.length,
           featuredCategoriesCount: manifest.featuredCategories.length,
           lastUpdated: manifest.lastUpdated,

@@ -18,11 +18,9 @@ export class ManifestModel {
     try {
       localData = await this.getLocal();
       if (localData && localData.CATEGORIES.length > 0) {
-        this.getOnline().catch(console.error);
         return localData;
       }
     } catch (error) {
-      console.error("Error fetching local data:", error);
     }
 
     try {
@@ -50,7 +48,6 @@ export class ManifestModel {
       }
       return manifest;
     } catch (error) {
-      console.error("Error reading local manifest:", error);
       return manifest;
     }
   }
@@ -63,7 +60,6 @@ export class ManifestModel {
       }
       Utils.saveToDatabase(LOCAL_MANIFEST, response.data);
     } catch (error) {
-      console.error("Error fetching remote manifest:", error);
       throw error;
     }
   }

@@ -9,25 +9,12 @@
 
 /* 2. Layout Components */
 @import "../components/Header/Header.css";
-@import "../components/Layout/Footer.css";
-@import '../components/Layout/AuthLayout.css';
+@import "../components/Layout/AuthLayout.css";
 
-/* 3. Shared Components */
-@import "../components/shared/ProductCard.css";
 @import "../components/shared/ProductCard2.css";
 
 /* 4. HomePage Components */
-@import "../components/HomePage/HeroSection.css";
-@import "../components/HomePage/DealsSection.css";
-@import "../components/HomePage/SuperBuyerSection.css";
-@import "../components/HomePage/TopProductsSection.css";
-
-/* 5. Page Specific Styles */
-@import "../pages/HomePage.css";
-@import "../pages/ProductDetailPage/ProductDetailPage.css";
-@import "../pages/ShopPage.css";
-@import "../pages/CartPage.css";
-@import "../pages/CheckoutPage.css";
+/* Inline styles moved to respective components */
 
 /* 6. Global Utility Classes and Overrides */
 
@@ -70,10 +57,18 @@ html {
 
 /* Responsive text */
 @media (max-width: 575.98px) {
-  .display-1 { font-size: 2.5rem; }
-  .display-2 { font-size: 2rem; }
-  .display-3 { font-size: 1.75rem; }
-  .display-4 { font-size: 1.5rem; }
+  .display-1 {
+    font-size: 2.5rem;
+  }
+  .display-2 {
+    font-size: 2rem;
+  }
+  .display-3 {
+    font-size: 1.75rem;
+  }
+  .display-4 {
+    font-size: 1.5rem;
+  }
 }
 
 /* Print styles */

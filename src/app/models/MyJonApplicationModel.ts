@@ -128,7 +128,6 @@ export class MyJonApplicationModel {
       const response = await http_get(
         `/my-job-applications?${queryParams.toString()}`
       );
-      console.log(response);
       // Your ApiResponser returns { code, message, data }
       if (response.code !== 1) {
         throw new Error(response.message || "Failed to fetch jobs.");
@@ -143,7 +142,6 @@ export class MyJonApplicationModel {
 
       return paginatedData as PaginatedResponse<MyJonApplicationModel>;
     } catch (error) {
-      console.error("Error fetching jobs:", error);
       throw error;
     }
   }
@@ -164,7 +162,6 @@ export class MyJonApplicationModel {
       const response = await http_get(
         `/company-job-applications?${queryParams.toString()}`
       );
-      console.log(response);
       // Your ApiResponser returns { code, message, data }
       if (response.code !== 1) {
         throw new Error(response.message || "Failed to fetch jobs.");
@@ -179,7 +176,6 @@ export class MyJonApplicationModel {
 
       return paginatedData as PaginatedResponse<MyJonApplicationModel>;
     } catch (error) {
-      console.error("Error fetching jobs:", error);
       throw error;
     }
   }
@@ -204,7 +200,6 @@ export class MyJonApplicationModel {
 
       // Example: GET /my-jobs?page=1&search=Engineer
       const response = await http_get(`/my-jobs?${queryParams.toString()}`);
-      console.log(response);
       if (response.code !== 1) {
         throw new Error(response.message || "Failed to fetch user jobs.");
       }
@@ -218,7 +213,6 @@ export class MyJonApplicationModel {
 
       return paginatedData as PaginatedResponse<MyJonApplicationModel>;
     } catch (error) {
-      console.error("Error fetching my-jobs:", error);
       throw error;
     }
   }
@@ -239,7 +233,6 @@ export class MyJonApplicationModel {
       }
       return MyJonApplicationModel.fromJson(response.data);
     } catch (error) {
-      console.error("Error fetching job by ID:", error);
       throw error;
     }
   }
@@ -261,7 +254,6 @@ export class MyJonApplicationModel {
       }
       return MyJonApplicationModel.fromJson(response.data);
     } catch (error) {
-      console.error("Error creating job:", error);
       throw error;
     }
   }
@@ -284,7 +276,6 @@ export class MyJonApplicationModel {
       }
       return MyJonApplicationModel.fromJson(response.data);
     } catch (error) {
-      console.error("Error updating job:", error);
       throw error;
     }
   }
@@ -303,7 +294,6 @@ export class MyJonApplicationModel {
       }
       return true;
     } catch (error) {
-      console.error("Error deleting job:", error);
       throw error;
     }
   }

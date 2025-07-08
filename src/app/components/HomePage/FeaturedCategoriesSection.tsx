@@ -14,16 +14,12 @@ const FeaturedCategoriesSection: React.FC = () => {
   // Filter and slice categories using useMemo for performance
   const categories = useMemo(() => {
     if (!allCategories) return [];
-    
-    console.log('📂 Loading categories for featured section...');
-    console.log('📂 All categories loaded:', allCategories.length);
+     
     
     // Filter for categories with show_in_categories = "Yes"
     const featuredCategories = allCategories
       .filter(cat => cat.show_in_categories?.toLowerCase() === 'yes')
-      .slice(0, 8); // Show top 8 categories
-      
-    console.log('📂 Featured categories found:', featuredCategories.length);
+      .slice(0, 8); // Show top 8 categories 
     return featuredCategories;
   }, [allCategories]);
   if (isLoading) {

@@ -1,11 +1,9 @@
 // src/app/pages/account/OrderDetailsPage.tsx
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Card, Badge, Spinner, Alert, Button, Accordion } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 import { OrderModel } from '../../models/OrderModel';
 import { formatPrice } from '../../utils';
 import ToastService from '../../services/ToastService';
-import './OrderDetailsPage.css';
 
 const OrderDetailsPage: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
@@ -43,23 +41,35 @@ const OrderDetailsPage: React.FC = () => {
   };
 
   const getOrderStatusBadge = (status: string) => {
-    switch (status) {
-      case '0':
-        return <Badge bg="danger">Pending</Badge>;
-      case '1':
-        return <Badge bg="warning">Processing</Badge>;
-      case '2':
-        return <Badge bg="success">Completed</Badge>;
-      case '3':
-        return <Badge bg="secondary">Canceled</Badge>;
-      case '4':
-        return <Badge bg="danger">Failed</Badge>;
-      default:
-        return <Badge bg="secondary">{status}</Badge>;
-    }
+    const statusMap: { [key: string]: { text: string; color: string } } = {
+      '0': { text: 'Pending', color: 'var(--danger-color)' },
+      '1': { text: 'Processing', color: 'var(--warning-color)' },
+      '2': { text: 'Completed', color: 'var(--success-color)' },
+      '3': { text: 'Canceled', color: 'var(--text-color-medium)' },
+      '4': { text: 'Failed', color: 'var(--danger-color)' }
+    };
+    
+    const statusInfo = statusMap[status] || { text: status, color: 'var(--text-color-medium)' };
+    
+    return (
+      <span 
+        style={{
+          padding: 'var(--spacing-1) var(--spacing-2)',
+          fontSize: 'var(--font-size-xs)',
+          fontWeight: 'var(--font-weight-medium)',
+          borderRadius: 'var(--border-radius)',
+          backgroundColor: statusInfo.color,
+          color: 'var(--white)',
+          display: 'inline-block'
+        }}
+      >
+        {statusInfo.text}
+      </span>
+    );
   };
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
@@ -67,6 +77,14 @@ const OrderDetailsPage: React.FC = () => {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const parseOrderItems = (itemsString: string) => {
+    try {
+      return JSON.parse(itemsString || '[]');
+    } catch {
+      return [];
+    }
   };
 
 
@@ -82,202 +100,490 @@ const OrderDetailsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="account-page-header text-center">
-        <Spinner animation="border" variant="primary" />
-        <div className="mt-3">Loading order details...</div>
+      <div style={{
+        textAlign: 'center',
+        padding: 'var(--spacing-12) var(--spacing-4)'
+      }}>
+        <div style={{
+          display: 'inline-block',
+          width: '40px',
+          height: '40px',
+          border: '4px solid var(--border-color)',
+          borderTop: '4px solid var(--primary-color)',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }}></div>
+        <p style={{
+          marginTop: 'var(--spacing-3)',
+          color: 'var(--text-color-medium)',
+          fontSize: 'var(--font-size-base)'
+        }}>Loading order details...</p>
       </div>
     );
   }
 
   if (!order) {
     return (
-      <Alert variant="warning">
-        Order not found. <a href="/account/orders">Return to orders</a>
-      </Alert>
+      <div className="acc-card" style={{
+        backgroundColor: 'var(--warning-bg)',
+        borderColor: 'var(--warning-border)',
+        color: 'var(--warning-color)'
+      }}>
+        <div className="acc-card-body">
+          <i className="bi bi-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+          Order not found. 
+          <button 
+            onClick={() => navigate('/account/orders')}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--primary-color)',
+              textDecoration: 'underline',
+              cursor: 'pointer',
+              marginLeft: '4px'
+            }}
+          >
+            Return to orders
+          </button>
+        </div>
+      </div>
     );
   }
 
+  const orderItems = parseOrderItems(order.items);
+
   return (
-    <>
+    <div className="acc-order-details-container">
       {/* Page Header */}
-      <div className="account-page-header">
-        <h1 className="account-page-title">Order Details</h1>
-        <p className="account-page-subtitle">
-          Invoice #{order.id} - {formatDate(order.created_at)}
-        </p>
+      <div className="acc-page-header">
+        <div>
+          <h1 className="acc-page-title">Order Details</h1>
+          <p className="acc-page-subtitle">
+            Invoice #{order.id} - {formatDate(order.created_at)}
+          </p>
+        </div>
+        <button 
+          className="acc-btn acc-btn-outline"
+          onClick={() => navigate('/account/orders')}
+        >
+          <i className="bi bi-arrow-left" style={{ marginRight: '8px' }}></i>
+          Back to Orders
+        </button>
       </div>
-        {/* Order Header */}
-        <div className="order-header-section">
-          <Row>
-            <Col>
-              <div className="order-header-card">
-                <div className="order-amount-display">
-                  {formatPrice(order.order_total)}
-                </div>
-                <div className="order-status-info">
-                  <div className="status-row">
-                    <span className="status-label">PAYMENT STATUS:</span>
-                    <Badge bg={order.isPaid() ? 'success' : 'danger'} className="ms-2">
-                      {order.isPaid() ? 'Paid' : 'Not Paid'}
-                    </Badge>
+
+      {/* Order Summary Card */}
+      <div className="acc-card" style={{ marginBottom: 'var(--spacing-6)' }}>
+        <div className="acc-card-body">
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr auto',
+            gap: 'var(--spacing-6)',
+            alignItems: 'center'
+          }}>
+            {/* Order Amount */}
+            <div>
+              <div style={{
+                fontSize: '2.5rem',
+                fontWeight: 'var(--font-weight-bold)',
+                color: 'var(--text-color)',
+                marginBottom: 'var(--spacing-2)'
+              }}>
+                {formatPrice(parseFloat(order.payable_amount || order.order_total || '0'))}
+              </div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--spacing-3)',
+                marginBottom: 'var(--spacing-2)'
+              }}>
+                <span style={{
+                  fontSize: 'var(--font-size-sm)',
+                  fontWeight: 'var(--font-weight-medium)',
+                  color: 'var(--text-color-medium)'
+                }}>
+                  PAYMENT STATUS:
+                </span>
+                <span style={{
+                  padding: 'var(--spacing-1) var(--spacing-2)',
+                  fontSize: 'var(--font-size-xs)',
+                  fontWeight: 'var(--font-weight-medium)',
+                  borderRadius: 'var(--border-radius)',
+                  backgroundColor: order.isPaid() ? 'var(--success-color)' : 'var(--danger-color)',
+                  color: 'var(--white)'
+                }}>
+                  {order.isPaid() ? 'Paid' : 'Not Paid'}
+                </span>
+              </div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--spacing-3)'
+              }}>
+                <span style={{
+                  fontSize: 'var(--font-size-sm)',
+                  fontWeight: 'var(--font-weight-medium)',
+                  color: 'var(--text-color-medium)'
+                }}>
+                  ORDER STATUS:
+                </span>
+                {getOrderStatusBadge(order.order_state)}
+              </div>
+            </div>
+
+            {/* Pay Button */}
+            {!order.isPaid() && (
+              <div>
+                <button 
+                  className="acc-btn acc-btn-primary acc-btn-lg"
+                  onClick={handlePayOrder}
+                  style={{
+                    padding: 'var(--spacing-3) var(--spacing-6)',
+                    fontSize: 'var(--font-size-lg)'
+                  }}
+                >
+                  <i className="bi bi-credit-card" style={{ marginRight: '8px' }}></i>
+                  PAY ORDER
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Order Details */}
+      <div style={{ display: 'grid', gap: 'var(--spacing-4)' }}>
+        
+        {/* Order Items */}
+        {orderItems && orderItems.length > 0 && (
+          <div className="acc-card">
+            <div className="acc-card-header">
+              <h3 className="acc-card-title">
+                <i className="bi bi-bag-check"></i>
+                Order Items ({orderItems.length})
+              </h3>
+            </div>
+            <div className="acc-card-body">
+              <div style={{ display: 'grid', gap: 'var(--spacing-3)' }}>
+                {orderItems.map((item: any, index: number) => (
+                  <div key={index} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: 'var(--spacing-3)',
+                    backgroundColor: 'var(--background-light)',
+                    borderRadius: 'var(--border-radius)',
+                    gap: 'var(--spacing-3)'
+                  }}>
+                    <div style={{
+                      width: '60px',
+                      height: '60px',
+                      backgroundColor: 'var(--white)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: 'var(--border-radius)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0
+                    }}>
+                      <i className="bi bi-box" style={{ 
+                        color: 'var(--text-color-medium)',
+                        fontSize: '1.5rem' 
+                      }}></i>
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <h6 style={{
+                        fontSize: 'var(--font-size-base)',
+                        fontWeight: 'var(--font-weight-medium)',
+                        margin: 0,
+                        marginBottom: 'var(--spacing-1)'
+                      }}>
+                        {item.product_name || item.name || 'Product'}
+                      </h6>
+                      <p style={{
+                        fontSize: 'var(--font-size-sm)',
+                        color: 'var(--text-color-medium)',
+                        margin: 0
+                      }}>
+                        Quantity: {item.quantity || 1} × {formatPrice(parseFloat(item.price || '0'))}
+                      </p>
+                    </div>
+                    <div style={{
+                      fontSize: 'var(--font-size-lg)',
+                      fontWeight: 'var(--font-weight-bold)',
+                      color: 'var(--text-color)'
+                    }}>
+                      {formatPrice(parseFloat(item.quantity || '1') * parseFloat(item.price || '0'))}
+                    </div>
                   </div>
+                ))}
+              </div>
+              
+              {/* Order Summary */}
+              <div style={{
+                marginTop: 'var(--spacing-4)',
+                paddingTop: 'var(--spacing-4)',
+                borderTop: '1px solid var(--border-color)'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginBottom: 'var(--spacing-2)'
+                }}>
+                  <span>Order Items Total:</span>
+                  <span>{formatPrice(parseFloat(order.order_total || '0'))}</span>
                 </div>
-                <div className="order-invoice-info">
-                  <Row className="align-items-center">
-                    <Col>
-                      <div className="invoice-details">
-                        <h3 className="invoice-number">INVOICE-{order.id}</h3>
-                        <div className="status-row">
-                          <span className="status-label">ORDER STATUS:</span>
-                          {getOrderStatusBadge(order.order_state)}
-                        </div>
-                      </div>
-                    </Col>
-                    <Col xs="auto">
-                      <Button variant="light" size="sm" className="invoice-btn">
-                        <i className="bi bi-file-earmark-text"></i>
-                      </Button>
-                    </Col>
-                  </Row>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginBottom: 'var(--spacing-2)'
+                }}>
+                  <span>Delivery Cost:</span>
+                  <span>{formatPrice(parseFloat(order.delivery_amount || '0'))}</span>
+                </div>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  paddingTop: 'var(--spacing-2)',
+                  borderTop: '1px solid var(--border-color)',
+                  fontSize: 'var(--font-size-lg)',
+                  fontWeight: 'var(--font-weight-bold)'
+                }}>
+                  <span>Total:</span>
+                  <span>{formatPrice(parseFloat(order.payable_amount || order.order_total || '0'))}</span>
                 </div>
               </div>
-            </Col>
-          </Row>
+            </div>
+          </div>
+        )}
+
+        {/* Delivery Information */}
+        <div className="acc-card">
+          <div className="acc-card-header">
+            <h3 className="acc-card-title">
+              <i className="bi bi-geo-alt"></i>
+              Delivery Information
+            </h3>
+          </div>
+          <div className="acc-card-body">
+            <div style={{ display: 'grid', gap: 'var(--spacing-3)' }}>
+              <div>
+                <h6 style={{
+                  fontSize: 'var(--font-size-sm)',
+                  fontWeight: 'var(--font-weight-medium)',
+                  color: 'var(--text-color)',
+                  marginBottom: 'var(--spacing-1)'
+                }}>
+                  Delivery Address:
+                </h6>
+                <p style={{
+                  color: 'var(--text-color-medium)',
+                  margin: 0,
+                  lineHeight: '1.5'
+                }}>
+                  {order.delivery_address_text || order.customer_address || 'Not specified'}
+                  {order.delivery_address_details && (
+                    <><br />{order.delivery_address_details}</>
+                  )}
+                </p>
+              </div>
+              <div>
+                <h6 style={{
+                  fontSize: 'var(--font-size-sm)',
+                  fontWeight: 'var(--font-weight-medium)',
+                  color: 'var(--text-color)',
+                  marginBottom: 'var(--spacing-1)'
+                }}>
+                  Delivery Method:
+                </h6>
+                <p style={{
+                  color: 'var(--text-color-medium)',
+                  margin: 0
+                }}>
+                  {order.delivery_method || 'Standard Delivery'}
+                </p>
+              </div>
+              <div>
+                <h6 style={{
+                  fontSize: 'var(--font-size-sm)',
+                  fontWeight: 'var(--font-weight-medium)',
+                  color: 'var(--text-color)',
+                  marginBottom: 'var(--spacing-1)'
+                }}>
+                  Delivery Cost:
+                </h6>
+                <p style={{
+                  color: 'var(--text-color-medium)',
+                  margin: 0,
+                  fontWeight: 'var(--font-weight-medium)'
+                }}>
+                  {formatPrice(parseFloat(order.delivery_amount || '0'))}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Order Details */}
-        <Row>
-          <Col>
-            <Card className="order-details-card">
-              <Card.Body>
-                {/* Invoice Date */}
-                <div className="detail-section">
-                  <div className="detail-icon">
-                    <i className="bi bi-calendar-event"></i>
-                  </div>
-                  <div className="detail-content">
-                    <h6 className="detail-title">Invoice Date</h6>
-                    <p className="detail-value">{formatDate(order.created_at)}</p>
-                  </div>
+        {/* Contact Information */}
+        <div className="acc-card">
+          <div className="acc-card-header">
+            <h3 className="acc-card-title">
+              <i className="bi bi-person-lines-fill"></i>
+              Contact Information
+            </h3>
+          </div>
+          <div className="acc-card-body">
+            <div style={{ display: 'grid', gap: 'var(--spacing-3)' }}>
+              <div>
+                <h6 style={{
+                  fontSize: 'var(--font-size-sm)',
+                  fontWeight: 'var(--font-weight-medium)',
+                  color: 'var(--text-color)',
+                  marginBottom: 'var(--spacing-1)'
+                }}>
+                  Customer Name:
+                </h6>
+                <p style={{
+                  color: 'var(--text-color-medium)',
+                  margin: 0
+                }}>
+                  {order.customer_name || 'Not specified'}
+                </p>
+              </div>
+              <div>
+                <h6 style={{
+                  fontSize: 'var(--font-size-sm)',
+                  fontWeight: 'var(--font-weight-medium)',
+                  color: 'var(--text-color)',
+                  marginBottom: 'var(--spacing-1)'
+                }}>
+                  Email:
+                </h6>
+                <p style={{
+                  color: 'var(--text-color-medium)',
+                  margin: 0
+                }}>
+                  {order.mail || 'Not specified'}
+                </p>
+              </div>
+              <div>
+                <h6 style={{
+                  fontSize: 'var(--font-size-sm)',
+                  fontWeight: 'var(--font-weight-medium)',
+                  color: 'var(--text-color)',
+                  marginBottom: 'var(--spacing-1)'
+                }}>
+                  Phone:
+                </h6>
+                <p style={{
+                  color: 'var(--text-color-medium)',
+                  margin: 0
+                }}>
+                  {order.customer_phone_number_1 || 'Not specified'}
+                  {order.customer_phone_number_2 && (
+                    <><br />Alt: {order.customer_phone_number_2}</>
+                  )}
+                </p>
+              </div>
+              {order.order_details && (
+                <div>
+                  <h6 style={{
+                    fontSize: 'var(--font-size-sm)',
+                    fontWeight: 'var(--font-weight-medium)',
+                    color: 'var(--text-color)',
+                    marginBottom: 'var(--spacing-1)'
+                  }}>
+                    Order Notes:
+                  </h6>
+                  <p style={{
+                    color: 'var(--text-color-medium)',
+                    margin: 0,
+                    padding: 'var(--spacing-3)',
+                    backgroundColor: 'var(--background-light)',
+                    borderRadius: 'var(--border-radius)',
+                    lineHeight: '1.5'
+                  }}>
+                    {order.order_details}
+                  </p>
                 </div>
-
-                <hr />
-
-                {/* Order Summary Accordion */}
-                <Accordion defaultActiveKey="0" className="order-accordion">
-                  <Accordion.Item eventKey="0">
-                    <Accordion.Header>
-                      <div className="accordion-header-content">
-                        <i className="bi bi-bag-check me-3"></i>
-                        <span>Order Summary</span>
-                      </div>
-                    </Accordion.Header>
-                    <Accordion.Body>
-                      <div className="order-summary-details">
-                        <div className="summary-row">
-                          <span>Order Items Total</span>
-                          <span className="amount">{formatPrice(order.order_total)}</span>
-                        </div>
-                        <div className="summary-row">
-                          <span>Delivery Cost</span>
-                          <span className="amount">{formatPrice(order.delivery_amount || '0')}</span>
-                        </div>
-                        <hr />
-                        <div className="summary-row total-row">
-                          <span><strong>Total</strong></span>
-                          <span className="amount total-amount">
-                            <strong>
-                              {formatPrice(order.payable_amount || order.order_total)}
-                            </strong>
-                          </span>
-                        </div>
-                      </div>
-                    </Accordion.Body>
-                  </Accordion.Item>
-
-                  {/* Delivery Information */}
-                  <Accordion.Item eventKey="1">
-                    <Accordion.Header>
-                      <div className="accordion-header-content">
-                        <i className="bi bi-geo-alt me-3"></i>
-                        <span>Delivery Information</span>
-                      </div>
-                    </Accordion.Header>
-                    <Accordion.Body>
-                      <div className="delivery-info">
-                        <div className="delivery-details">
-                          <div className="address-info">
-                            <strong>Delivery Address:</strong>
-                            <div>{order.delivery_address_text}</div>
-                            <div>{order.delivery_address_details}</div>
-                          </div>
-                          <div className="delivery-cost mt-2">
-                            <strong>Delivery Cost:</strong> {formatPrice(order.delivery_amount || '0')}
-                          </div>
-                        </div>
-                      </div>
-                    </Accordion.Body>
-                  </Accordion.Item>
-
-                  {/* Contact Information */}
-                  <Accordion.Item eventKey="2">
-                    <Accordion.Header>
-                      <div className="accordion-header-content">
-                        <i className="bi bi-person-lines-fill me-3"></i>
-                        <span>Contact Information</span>
-                      </div>
-                    </Accordion.Header>
-                    <Accordion.Body>
-                      <div className="contact-info">
-                        <div><strong>Name:</strong> {order.customer_name}</div>
-                        <div><strong>Email:</strong> {order.mail}</div>
-                        <div><strong>Phone:</strong> {order.customer_phone_number_1}</div>
-                        {order.customer_phone_number_2 && (
-                          <div><strong>Alternate Phone:</strong> {order.customer_phone_number_2}</div>
-                        )}
-                        {order.order_details && (
-                          <div className="mt-2">
-                            <strong>Order Notes:</strong>
-                            <p className="mt-1">{order.order_details}</p>
-                          </div>
-                        )}
-                      </div>
-                    </Accordion.Body>
-                  </Accordion.Item>
-                </Accordion>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-
-        {/* Action Buttons */}
-        <Row className="mt-4">
-          <Col>
-            <div className="order-actions">
-              <Button 
-                variant="outline-secondary"
-                onClick={() => navigate('/account/orders')}
-                className="me-3"
-              >
-                <i className="bi bi-arrow-left me-2"></i>
-                Back to Orders
-              </Button>
-              
-              {!order.isPaid() && (
-                <Button 
-                  variant="primary"
-                  onClick={handlePayOrder}
-                  size="lg"
-                  className="pay-order-btn"
-                >
-                  <i className="bi bi-credit-card me-2"></i>
-                  PAY ORDER
-                </Button>
               )}
             </div>
-          </Col>
-        </Row>
-    </>
+          </div>
+        </div>
+
+        {/* Invoice Information */}
+        <div className="acc-card">
+          <div className="acc-card-header">
+            <h3 className="acc-card-title">
+              <i className="bi bi-file-earmark-text"></i>
+              Invoice Information
+            </h3>
+          </div>
+          <div className="acc-card-body">
+            <div style={{ display: 'grid', gap: 'var(--spacing-3)' }}>
+              <div>
+                <h6 style={{
+                  fontSize: 'var(--font-size-sm)',
+                  fontWeight: 'var(--font-weight-medium)',
+                  color: 'var(--text-color)',
+                  marginBottom: 'var(--spacing-1)'
+                }}>
+                  Invoice Number:
+                </h6>
+                <p style={{
+                  color: 'var(--text-color-medium)',
+                  margin: 0,
+                  fontFamily: 'monospace',
+                  fontSize: 'var(--font-size-lg)'
+                }}>
+                  INVOICE-{order.id}
+                </p>
+              </div>
+              <div>
+                <h6 style={{
+                  fontSize: 'var(--font-size-sm)',
+                  fontWeight: 'var(--font-weight-medium)',
+                  color: 'var(--text-color)',
+                  marginBottom: 'var(--spacing-1)'
+                }}>
+                  Invoice Date:
+                </h6>
+                <p style={{
+                  color: 'var(--text-color-medium)',
+                  margin: 0
+                }}>
+                  {formatDate(order.created_at)}
+                </p>
+              </div>
+              {order.date_updated && order.date_updated !== order.created_at && (
+                <div>
+                  <h6 style={{
+                    fontSize: 'var(--font-size-sm)',
+                    fontWeight: 'var(--font-weight-medium)',
+                    color: 'var(--text-color)',
+                    marginBottom: 'var(--spacing-1)'
+                  }}>
+                    Last Updated:
+                  </h6>
+                  <p style={{
+                    color: 'var(--text-color-medium)',
+                    margin: 0
+                  }}>
+                    {formatDate(order.date_updated)}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Spinner animation styles */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+    </div>
   );
 };
 

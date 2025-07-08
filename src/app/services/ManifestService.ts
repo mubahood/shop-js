@@ -3,9 +3,9 @@
 import { ApiService } from './ApiService';
 import BannerModel from '../models/BannerModel';
 import CategoryModel from '../models/CategoryModel';
-import VendorModel from '../models/VendorModel';
 import ProductModel from '../models/ProductModel';
 import ToastService from './ToastService';
+import VendorModel from '../models/VendorModel';
 
 /**
  * Manifest interface matching the Flutter app's structure
@@ -13,7 +13,6 @@ import ToastService from './ToastService';
 export interface HomepageManifest {
   banners: BannerModel[];
   categories: CategoryModel[];
-  vendors: VendorModel[];
   topProducts: ProductModel[];
   featuredCategories: CategoryModel[];
   isLoading: boolean;
@@ -59,7 +58,6 @@ export class ManifestService {
       const manifest: HomepageManifest = {
         banners: [],
         categories: [],
-        vendors: [],
         topProducts: [],
         featuredCategories: [],
         isLoading: true,
@@ -94,13 +92,6 @@ export class ManifestService {
         console.warn('Failed to load categories:', categoriesData.reason);
       }
 
-      // Process vendors
-      if (vendorsData.status === 'fulfilled') {
-        manifest.vendors = vendorsData.value;
-      } else {
-        console.warn('Failed to load vendors:', vendorsData.reason);
-      }
-
       // Process top products
       if (topProductsData.status === 'fulfilled') {
         manifest.topProducts = topProductsData.value;
@@ -123,7 +114,6 @@ export class ManifestService {
       return {
         banners: [],
         categories: [],
-        vendors: [],
         topProducts: [],
         featuredCategories: [],
         isLoading: false,

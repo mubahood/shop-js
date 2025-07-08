@@ -1,9 +1,7 @@
 // export const BASE_URL = "https://skills-ug-api.8technologies.net";
-// export const BASE_URL = "https://blit.blitxpress.com";
-// export const BASE_URL = "http://localhost:8888/blitxpress";
-export const BASE_URL = "http://localhost:8000";
+export const BASE_URL = "https://blit.blitxpress.com";
+// export const BASE_URL = "http://localhost:8888/blitxpress"; 
 export const API_URL = BASE_URL + "/api";
-// export const API_URL = "https://blit.blitxpress.com/api";
 export const TIMEOUT = 5000;
 export const MAX_RETRIES = 3;
 export const DATE_FORMAT = "YYYY-MM-DD";

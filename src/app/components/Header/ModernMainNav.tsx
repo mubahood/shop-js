@@ -5,7 +5,8 @@ import { RootState, AppDispatch } from "../../store/store";
 import { selectIsAuthenticated } from "../../store/slices/authSlice";
 import { loadWishlistFromAPI } from "../../store/slices/wishlistSlice";
 import { useCart } from "../../hooks/useCart";
-import { useAppCounts } from "../../hooks/useManifest";
+import { useAppCounts, useMegaMenuCategories } from "../../hooks/useManifest";
+import { useManifest } from "../../hooks/useManifest";
 import LiveSearchBox from "../search/LiveSearchBox";
 import "./ModernMainNav.css";
 
@@ -16,25 +17,45 @@ const ModernMainNav: React.FC = () => {
   // Use manifest counts instead of individual state selectors
   const { cartCount } = useCart();
   const appCounts = useAppCounts();
+  const { reloadManifest } = useManifest();
+  const megaMenuCategories = useMegaMenuCategories();
   const wishlistCount = appCounts.wishlist_count;
+  
+  // Debug: Log mega menu categories
+  useEffect(() => {
+    console.log('🔍 Mega Menu Categories Debug:', {
+      count: megaMenuCategories.length,
+      categories: megaMenuCategories.map(cat => ({
+        id: cat.id,
+        name: cat.category,
+        subcategoriesCount: cat.subcategories?.length || 0,
+        subcategories: cat.subcategories?.map(sub => sub.category) || []
+      }))
+    });
+  }, [megaMenuCategories]);
   
   // Auth selectors
   const isAuthenticated = useSelector(selectIsAuthenticated);
   
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [isMegaMenuOpen, setMegaMenuOpen] = useState(false);
+  const [mobileSearchQuery, setMobileSearchQuery] = useState('');
   const categoryRef = useRef<HTMLDivElement>(null);
   const megaMenuRef = useRef<HTMLDivElement>(null);
 
   const toggleMenu = () => setMenuOpen(!isMenuOpen);
   const hasNotifications = false; // This would come from notifications state
 
-  // Load wishlist when user is authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      dispatch(loadWishlistFromAPI());
+  // Handle mobile search
+  const handleMobileSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (mobileSearchQuery.trim()) {
+      navigate(`/shop?search=${encodeURIComponent(mobileSearchQuery.trim())}`);
+      setMobileSearchQuery('');
     }
-  }, [isAuthenticated, dispatch]);
+  };
+
+  // Note: Wishlist is loaded via manifest, no need for separate API call
 
   // Enhanced mega menu hover handling
   useEffect(() => {
@@ -101,7 +122,7 @@ const ModernMainNav: React.FC = () => {
 
               {/* Action Icons */}
               <div className="mobile-action-icons">
-                <Link to="/shop" className="mobile-action-link">
+                <Link to="/products" className="mobile-action-link">
                   <div className="mobile-action-icon-wrapper">
                     <i className="bi bi-shop"></i>
                   </div>
@@ -136,12 +157,33 @@ const ModernMainNav: React.FC = () => {
         {/* Bottom Row: Live Search */}
         <div className="mobile-nav-bottom">
           <div className="container-fluid">
-            <LiveSearchBox 
-              placeholder="Search for products, brands, categories..."
-              className="mobile-search-box"
-              size="sm"
-              showRecentSearches={true}
-            />
+            <div className="mobile-search-wrapper">
+              <form className="mobile-search-form" role="search" onSubmit={handleMobileSearch}>
+                <div className="mobile-search-input-group">
+                  <input
+                    type="search"
+                    className="mobile-search-input"
+                    placeholder="Search for products, brands, categories..."
+                    value={mobileSearchQuery}
+                    onChange={(e) => setMobileSearchQuery(e.target.value)}
+                    aria-label="Search"
+                  />
+                  <button className="mobile-search-btn" type="submit" aria-label="Search">
+                    <i className="bi bi-search"></i>
+                  </button>
+                </div>
+              </form>
+            </div>
+            
+            {/* Fallback: Try LiveSearchBox as well */}
+            <div style={{ display: 'none' }}>
+              <LiveSearchBox 
+                placeholder="Search for products, brands, categories..."
+                className="mobile-search-box"
+                size="sm"
+                showRecentSearches={true}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -177,112 +219,47 @@ const ModernMainNav: React.FC = () => {
               onMouseEnter={() => setMegaMenuOpen(true)}
             >
               <div className="mega-menu-content">
+           
                 <div className="row g-4">
-                  <div className="col-md-4">
-                    <div className="mega-menu-section">
-                      <h5 className="mega-menu-heading">
-                        <i className="bi bi-cpu category-section-icon"></i>
-                        Consumer Electronics
-                      </h5>
-                      <div className="mega-menu-links">
-                        <a href="/category/mobile-phones" className="mega-menu-link">
-                          <i className="bi bi-phone link-icon"></i> 
-                          <span>Mobile Phones</span>
-                          <span className="item-count">2.5k+</span>
-                        </a>
-                        <a href="/category/laptops" className="mega-menu-link">
-                          <i className="bi bi-laptop link-icon"></i> 
-                          <span>Laptops & PCs</span>
-                          <span className="item-count">1.8k+</span>
-                        </a>
-                        <a href="/category/tablets" className="mega-menu-link">
-                          <i className="bi bi-tablet-landscape link-icon"></i> 
-                          <span>Tablets</span>
-                          <span className="item-count">890+</span>
-                        </a>
-                        <a href="/category/wearables" className="mega-menu-link">
-                          <i className="bi bi-smartwatch link-icon"></i> 
-                          <span>Wearable Devices</span>
-                          <span className="item-count">650+</span>
-                        </a>
-                        <a href="/category/gaming" className="mega-menu-link">
-                          <i className="bi bi-controller link-icon"></i> 
-                          <span>Gaming Consoles</span>
-                          <span className="item-count">420+</span>
-                        </a>
+                  {megaMenuCategories.length > 0 ? (
+                    megaMenuCategories.map((mainCategory, index) => (
+                      <div key={mainCategory.id} className="col-md-4">
+                        <div className="mega-menu-section">
+                          <h5 className="mega-menu-heading">
+                            <i className={`${mainCategory.icon || 'bi-grid-3x3-gap'} category-section-icon`}></i>
+                            {mainCategory.category}
+                          </h5>
+                          <div className="mega-menu-links">
+                            {mainCategory.subcategories && mainCategory.subcategories.length > 0 ? (
+                              mainCategory.subcategories.map((subCategory) => (
+                                <Link 
+                                  key={subCategory.id}
+                                  to={`/products?category=${subCategory.id}`} 
+                                  className="mega-menu-link"
+                                  onClick={() => setMegaMenuOpen(false)}
+                                >
+                                  <i className={`${subCategory.icon || 'bi-circle'} link-icon`}></i> 
+                                  <span>{subCategory.category}</span>
+                                  <span className="item-count">{subCategory.category_text || 0}+</span>
+                                </Link>
+                              ))
+                            ) : (
+                              <div className="mega-menu-link text-muted">
+                                <i className="bi-info-circle link-icon"></i> 
+                                <span>No subcategories found for {mainCategory.category}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="col-12">
+                      <div className="mega-menu-section">
+                        <p className="text-muted">Loading categories...</p>
                       </div>
                     </div>
-                  </div>
-                  <div className="col-md-4">
-                    <div className="mega-menu-section">
-                      <h5 className="mega-menu-heading">
-                        <i className="bi bi-bag-heart category-section-icon"></i>
-                        Apparel & Fashion
-                      </h5>
-                      <div className="mega-menu-links">
-                        <a href="/category/mens-clothing" className="mega-menu-link">
-                          <i className="bi bi-person-fill link-icon"></i> 
-                          <span>Men's Clothing</span>
-                          <span className="item-count">3.2k+</span>
-                        </a>
-                        <a href="/category/womens-clothing" className="mega-menu-link">
-                          <i className="bi bi-person-dress link-icon"></i> 
-                          <span>Women's Clothing</span>
-                          <span className="item-count">4.1k+</span>
-                        </a>
-                        <a href="/category/bags-shoes" className="mega-menu-link">
-                          <i className="bi bi-handbag link-icon"></i> 
-                          <span>Bags & Shoes</span>
-                          <span className="item-count">2.7k+</span>
-                        </a>
-                        <a href="/category/watches-jewelry" className="mega-menu-link">
-                          <i className="bi bi-gem link-icon"></i> 
-                          <span>Watches & Jewelry</span>
-                          <span className="item-count">1.3k+</span>
-                        </a>
-                        <a href="/category/accessories" className="mega-menu-link">
-                          <i className="bi bi-sunglasses link-icon"></i> 
-                          <span>Accessories</span>
-                          <span className="item-count">950+</span>
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-4">
-                    <div className="mega-menu-section">
-                      <h5 className="mega-menu-heading">
-                        <i className="bi bi-house-door category-section-icon"></i>
-                        Home & Garden
-                      </h5>
-                      <div className="mega-menu-links">
-                        <a href="/category/lighting" className="mega-menu-link">
-                          <i className="bi bi-lightbulb link-icon"></i> 
-                          <span>Lights & Lighting</span>
-                          <span className="item-count">1.1k+</span>
-                        </a>
-                        <a href="/category/tools" className="mega-menu-link">
-                          <i className="bi bi-tools link-icon"></i> 
-                          <span>Tools & Hardware</span>
-                          <span className="item-count">1.9k+</span>
-                        </a>
-                        <a href="/category/garden" className="mega-menu-link">
-                          <i className="bi bi-flower1 link-icon"></i> 
-                          <span>Garden Supplies</span>
-                          <span className="item-count">780+</span>
-                        </a>
-                        <a href="/category/furniture" className="mega-menu-link">
-                          <i className="bi bi-chair link-icon"></i> 
-                          <span>Furniture</span>
-                          <span className="item-count">1.5k+</span>
-                        </a>
-                        <a href="/category/appliances" className="mega-menu-link">
-                          <i className="bi bi-refrigerator link-icon"></i> 
-                          <span>Home Appliances</span>
-                          <span className="item-count">990+</span>
-                        </a>
-                      </div>
-                    </div>
-                  </div>
+                  )}
                 </div>
                 
                 {/* Featured Categories Banner */}
@@ -308,8 +285,8 @@ const ModernMainNav: React.FC = () => {
                             <i className="bi bi-truck"></i>
                           </div>
                           <div className="featured-text">
-                            <h6>Free Shipping</h6>
-                            <p>On orders above UGX 50,000</p>
+                            <h6>Free Delivery</h6>
+                            <p>Fast delivery to your location</p>
                           </div>
                         </div>
                       </div>
@@ -330,7 +307,7 @@ const ModernMainNav: React.FC = () => {
 
           {/* Enhanced Action Icons */}
           <div className="action-icons">
-            <Link to="/shop" className="action-link">
+            <Link to="/products" className="action-link">
               <div className="action-icon-wrapper">
                 <i className="bi bi-shop action-icon"></i>
               </div>
@@ -348,7 +325,7 @@ const ModernMainNav: React.FC = () => {
                     Account
                   </div>
                 </Link>
-                <Link to="/wishlist" className="action-link">
+                <Link to="account/wishlist" className="action-link">
                   <div className="action-icon-wrapper">
                     <i className="bi bi-heart action-icon"></i>
                     {wishlistCount > 0 && (
@@ -471,7 +448,7 @@ const ModernMainNav: React.FC = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/wishlist" onClick={toggleMenu}>
+                  <Link to="/account/wishlist"  onClick={toggleMenu}>
                     <i className="bi bi-heart"></i>
                     <span>Wishlist</span>
                     {wishlistCount > 0 && (
@@ -504,7 +481,7 @@ const ModernMainNav: React.FC = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/wishlist" onClick={toggleMenu}>
+                  <Link to="/account/wishlist"  onClick={toggleMenu}>
                     <i className="bi bi-heart"></i>
                     <span>Wishlist</span>
                     {wishlistCount > 0 && (
@@ -521,7 +498,7 @@ const ModernMainNav: React.FC = () => {
             <h6 className="mobile-nav-heading">Quick Links</h6>
             <ul className="nav-links">
               <li>
-                <Link to="/shop" onClick={toggleMenu}>
+                <Link to="/products" onClick={toggleMenu}>
                   <i className="bi bi-shop text-primary"></i>
                   <span>Shop All Products</span>
                 </Link>

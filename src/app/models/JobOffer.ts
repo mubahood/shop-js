@@ -119,7 +119,6 @@ export class JobOffer {
 
       return paginatedData as PaginatedResponse<JobOffer>;
     } catch (error) {
-      console.error("Error fetching my job offers:", error);
       throw error;
     }
   }
@@ -156,7 +155,6 @@ export class JobOffer {
 
       return paginatedData as PaginatedResponse<JobOffer>;
     } catch (error) {
-      console.error("Error fetching company job offers:", error);
       throw error;
     }
   }
@@ -173,7 +171,6 @@ export class JobOffer {
       }
       return JobOffer.fromJson(response.data);
     } catch (error) {
-      console.error("Error fetching job offer by ID:", error);
       throw error;
     }
   }
@@ -190,7 +187,6 @@ export class JobOffer {
       }
       return JobOffer.fromJson(response.data);
     } catch (error) {
-      console.error("Error creating job offer:", error);
       throw error;
     }
   }
@@ -213,7 +209,6 @@ export class JobOffer {
       }
       return JobOffer.fromJson(response.data);
     } catch (error) {
-      console.error("Error updating job offer:", error);
       throw error;
     }
   }
@@ -230,7 +225,6 @@ export class JobOffer {
       }
       return true;
     } catch (error) {
-      console.error("Error deleting job offer:", error);
       throw error;
     }
   }

@@ -6,31 +6,27 @@ import Utils from "../services/Utils";
  * Debug utility to check authentication status
  */
 export function debugAuthStatus() {
-  console.log('=== Authentication Debug ===');
-  
   const token = Utils.loadFromDatabase(DB_TOKEN);
   const user = Utils.loadFromDatabase(DB_LOGGED_IN_PROFILE);
   
-  console.log('Token:', token ? `${token.substring(0, 10)}...` : 'NOT FOUND');
-  console.log('User:', user ? { 
-    id: user.id, 
-    name: user.name || user.username || 'No name',
-    email: user.email || 'No email' 
-  } : 'NOT FOUND');
+  console.log('Auth Debug:', {
+    hasToken: !!token,
+    tokenLength: token ? token.length : 0,
+    user: user ? {
+      id: user.id, 
+      name: user.name || user.username || 'No name',
+      email: user.email || 'No email' 
+    } : 'NOT FOUND'
+  });
   
   if (!token) {
-    console.log('❌ No authentication token found');
-    console.log('User needs to login first');
     return false;
   }
   
   if (!user || !user.id) {
-    console.log('❌ No user profile found');
-    console.log('User profile data is missing');
     return false;
   }
   
-  console.log('✅ Authentication data looks good');
   return true;
 }
 

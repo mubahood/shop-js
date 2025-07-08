@@ -136,7 +136,6 @@ export class JobModel {
       paginatedData.data = paginatedData.data.map((item: any) => JobModel.fromJson(item));
       return paginatedData as PaginatedResponse<JobModel>;
     } catch (error) {
-      console.error("Error fetching jobs:", error);
       throw error;
     }
   }
@@ -190,7 +189,6 @@ export class JobModel {
       paginatedData.data = paginatedData.data.map((item: any) => JobModel.fromJson(item));
       return paginatedData as PaginatedResponse<JobModel>;
     } catch (error) {
-      console.error("Error fetching jobs:", error);
       throw error;
     }
   }
@@ -206,7 +204,6 @@ export class JobModel {
       });
 
       const response = await http_get(`/my-jobs?${queryParams.toString()}`);
-      console.log(response);
       if (response.code !== 1) {
         throw new Error(response.message || "Failed to fetch user jobs.");
       }
@@ -214,7 +211,6 @@ export class JobModel {
       paginatedData.data = paginatedData.data.map((item: any) => JobModel.fromJson(item));
       return paginatedData as PaginatedResponse<JobModel>;
     } catch (error) {
-      console.error("Error fetching my-jobs:", error);
       throw error;
     }
   }
@@ -227,7 +223,6 @@ export class JobModel {
       }
       return JobModel.fromJson(response.data);
     } catch (error) {
-      console.error("Error fetching job by ID:", error);
       throw error;
     }
   }
@@ -240,7 +235,6 @@ export class JobModel {
       }
       return JobModel.fromJson(response.data);
     } catch (error) {
-      console.error("Error creating job:", error);
       throw error;
     }
   }
@@ -253,7 +247,6 @@ export class JobModel {
       }
       return JobModel.fromJson(response.data);
     } catch (error) {
-      console.error("Error updating job:", error);
       throw error;
     }
   }
@@ -266,7 +259,6 @@ export class JobModel {
       }
       return true;
     } catch (error) {
-      console.error("Error deleting job:", error);
       throw error;
     }
   }

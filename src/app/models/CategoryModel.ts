@@ -110,7 +110,6 @@ export class CategoryModel {
       }
       return response.map((item: any) => CategoryModel.fromJson(item));
     } catch (error) {
-      console.error("Error fetching categories:", error);
       throw error;
     }
   }
@@ -121,7 +120,6 @@ export class CategoryModel {
       const response = await http_get(`/categories/${id}`);
       return CategoryModel.fromJson(response);
     } catch (error) {
-      console.error("Error fetching category by ID:", error);
       throw error;
     }
   }
@@ -132,7 +130,6 @@ export class CategoryModel {
       const response = await http_post("/categories", categoryData);
       return CategoryModel.fromJson(response);
     } catch (error) {
-      console.error("Error creating category:", error);
       throw error;
     }
   }
@@ -146,7 +143,6 @@ export class CategoryModel {
       const response = await http_post(`/categories/${id}?_method=PUT`, categoryData);
       return CategoryModel.fromJson(response);
     } catch (error) {
-      console.error("Error updating category:", error);
       throw error;
     }
   }
@@ -157,7 +153,6 @@ export class CategoryModel {
       await http_post(`/categories/${id}?_method=DELETE`, {});
       return true;
     } catch (error) {
-      console.error("Error deleting category:", error);
       throw error;
     }
   }

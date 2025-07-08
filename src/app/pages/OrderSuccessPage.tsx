@@ -37,7 +37,7 @@ const OrderSuccessPage: React.FC = () => {
             <Link to="/account/orders" className="btn btn-primary">
               View Order Details
             </Link>
-            <Link to="/shop" className="btn btn-outline-primary">
+            <Link to="/products" className="btn btn-outline-primary">
               Continue Shopping
             </Link>
           </div>

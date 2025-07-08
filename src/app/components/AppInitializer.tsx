@@ -1,10 +1,8 @@
 // src/app/components/AppInitializer.tsx
 import { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch } from '../store/store';
-import { selectIsAuthenticated } from '../store/slices/authSlice';
-import { loadWishlistFromAPI } from '../store/slices/wishlistSlice';
-import { loadManifest, updateCartCount } from '../store/slices/manifestSlice';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../store/store';
+import { updateCartCount } from '../store/slices/manifestSlice';
 import { useCart } from '../hooks/useCart';
 
 /**
@@ -16,36 +14,18 @@ import { useCart } from '../hooks/useCart';
  */
 const AppInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const isAuthenticated = useSelector(selectIsAuthenticated);
   const { cartCount } = useCart();
 
-  // Load manifest on app start
-  useEffect(() => {
-    dispatch(loadManifest());
-  }, [dispatch]);
+  // Manifest loading is handled by useManifest hook in components that need it
+  // No need to load here to avoid duplicate requests
 
-  // Reload manifest when authentication status changes
-  useEffect(() => {
-    // Small delay to ensure auth state is settled
-    const timer = setTimeout(() => {
-      dispatch(loadManifest());
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, [isAuthenticated, dispatch]);
+  // User-specific data is automatically included in manifest when user is authenticated
+  // No need for separate auth-triggered reloads
 
   // Update cart count in manifest when cart changes
   useEffect(() => {
     dispatch(updateCartCount(cartCount));
   }, [cartCount, dispatch]);
-
-  useEffect(() => {
-    // Load user-specific data when authenticated
-    if (isAuthenticated) {
-      // Load wishlist from API
-      dispatch(loadWishlistFromAPI());
-    }
-  }, [isAuthenticated, dispatch]);
 
   return <>{children}</>;
 };

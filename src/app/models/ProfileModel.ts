@@ -216,7 +216,6 @@ export class ProfileModel {
         }
       }
     } catch (error) {
-      console.error('Error parsing ProfileModel data:', error);
       return new ProfileModel();
     }
     return model;

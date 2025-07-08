@@ -187,7 +187,7 @@ const SearchResultsPage: React.FC = () => {
                 <li>• Browsing our categories</li>
               </ul>
             </div>
-            <Link to="/shop" className="btn btn-primary mt-3">
+            <Link to="/products" className="btn btn-primary mt-3">
               Browse All Products
             </Link>
           </div>

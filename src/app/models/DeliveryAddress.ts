@@ -58,7 +58,6 @@ export class DeliveryAddress {
       if (!Array.isArray(arr)) return data;
       arr.forEach((m: any) => data.push(DeliveryAddress.fromJson(m)));
     } catch (e) {
-      console.error("Failed to parse local data:", e);
     }
     return data;
   }
@@ -95,7 +94,6 @@ export class DeliveryAddress {
         Utils.saveToDatabase(DeliveryAddress.tableName, JSON.stringify(items));
       }
     } catch (error) {
-      console.error("Error fetching online items:", error);
     }
     return data;
   }

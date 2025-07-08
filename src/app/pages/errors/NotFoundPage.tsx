@@ -65,7 +65,7 @@ const NotFoundPage: React.FC = () => {
                   <Home size={20} className="me-2" />
                   Home Page
                 </Link>
-                <Link to="/shop" className="btn btn-outline-secondary btn-lg d-flex align-items-center justify-content-center">
+                <Link to="/products" className="btn btn-outline-secondary btn-lg d-flex align-items-center justify-content-center">
                   <ShoppingBag size={20} className="me-2" />
                   Shop Now
                 </Link>

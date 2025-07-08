@@ -193,8 +193,6 @@ import Utils from '../utils/imageUtils';
 
 // Get full image URL for any asset
 const imageUrl = Utils.img('product/image.jpg');
-// Returns: "http://localhost:8888/blitxpress/storage/product/image.jpg"
-
 // Get full image URL with fallback
 const url = Utils.getImageUrl(imagePath, fallbackUrl);
 ```

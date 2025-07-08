@@ -16,7 +16,6 @@ import { ProductModel } from "../../models/ProductModel";
 import { useDispatch } from "react-redux";
 import { useCart } from "../../hooks/useCart";
 import { showNotification } from "../../store/slices/notificationSlice";
-import "./ProductDetailPage.css";
 import ProductCard2 from "../../components/shared/ProductCard2";
 
 interface RouteParams {

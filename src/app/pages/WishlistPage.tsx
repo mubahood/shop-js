@@ -2,17 +2,12 @@
 import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Card, Button, Badge, Spinner, Alert } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { Heart, ShoppingCart, Trash2, Eye, Package } from "lucide-react";
-import { 
-  selectWishlistItems, 
-  selectWishlistLoading,
-  selectWishlistError,
-  loadWishlistFromAPI,
-  removeFromWishlistAPI
-} from "../store/slices/wishlistSlice";
+import { removeFromWishlistAPI } from "../store/slices/wishlistSlice";
 import { addToCart } from "../store/slices/cartSlice";
 import { AppDispatch } from "../store/store";
+import { useManifest } from "../hooks/useManifest";
 import ApiService from "../services/ApiService";
 import ToastService from "../services/ToastService";
 import { ProductModel } from "../models/ProductModel";
@@ -31,22 +26,21 @@ interface WishlistItem {
 
 const WishlistPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const wishlistItems = useSelector(selectWishlistItems);
-  const isLoading = useSelector(selectWishlistLoading);
-  const error = useSelector(selectWishlistError);
+  const { manifest, isLoading } = useManifest();
+  const wishlistItems = manifest?.wishlist || [];
+  const error = null; // No error since we're using manifest data
   const [isRemoving, setIsRemoving] = useState<number | null>(null);
 
+  // No need to load wishlist separately - it's included in manifest
   useEffect(() => {
-    // Load wishlist from API when component mounts
-    dispatch(loadWishlistFromAPI());
-  }, [dispatch]);
+    // The wishlist data comes from manifest
+  }, []);
 
   const handleRemoveFromWishlist = async (productId: number) => {
     try {
       setIsRemoving(productId);
       await dispatch(removeFromWishlistAPI(productId)).unwrap();
-      // Reload wishlist after removal
-      dispatch(loadWishlistFromAPI());
+      // Manifest will be updated automatically by the removeFromWishlistAPI action
     } catch (error) {
       console.error('Error removing from wishlist:', error);
       ToastService.error('Failed to remove from wishlist');
@@ -86,8 +80,7 @@ const WishlistPage: React.FC = () => {
         for (const item of wishlistItems) {
           await ApiService.removeFromWishlist(item.product_id);
         }
-        // Reload wishlist
-        dispatch(loadWishlistFromAPI());
+        // Manifest will be updated automatically
         ToastService.success('Wishlist cleared');
       } catch (error) {
         console.error('Error clearing wishlist:', error);
@@ -119,7 +112,7 @@ const WishlistPage: React.FC = () => {
             <Alert variant="danger">
               <h5>Error Loading Wishlist</h5>
               <p>{error}</p>
-              <Button onClick={() => dispatch(loadWishlistFromAPI())} variant="outline-danger">
+              <Button onClick={() => window.location.reload()} variant="outline-danger">
                 Try Again
               </Button>
             </Alert>
@@ -164,7 +157,7 @@ const WishlistPage: React.FC = () => {
                 <p className="text-muted mb-4">
                   Browse our products and save your favorites for later!
                 </p>
-                <Link to="/shop">
+                <Link to="/products">
                   <Button variant="primary" size="lg">
                     <Package size={20} className="me-2" />
                     Start Shopping

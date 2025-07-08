@@ -197,7 +197,7 @@ const AccountOrders: React.FC = () => {
                     : `No orders with status "${filterStatus}".`
                   }
                 </p>
-                <Link to="/shop" className="btn btn-primary">
+                <Link to="/products" className="btn btn-primary">
                   Start Shopping
                 </Link>
               </Card.Body>

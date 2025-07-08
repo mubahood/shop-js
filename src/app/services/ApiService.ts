@@ -424,75 +424,14 @@ export class ApiService {
   static async getManifest(): Promise<any> {
     try {
       const response = await http_get("manifest");
-      const rawData = response?.data;
       
-      if (!rawData) {
+      if (!response?.data) {
         throw new Error("No manifest data received");
       }
 
-      // Transform the old manifest structure to match the new Redux slice structure
-      const transformedManifest = {
-        app_info: {
-          name: "BlitXpress",
-          version: "1.0.0",
-          api_version: "v1",
-          maintenance_mode: false
-        },
-        categories: rawData.CATEGORIES || [],
-        delivery_locations: [], // Would need to be added to backend manifest
-        settings: {
-          currency: "UGX",
-          currency_symbol: "UGX",
-          tax_rate: 0,
-          delivery_fee_varies: true,
-          min_order_amount: 0
-        },
-        features: {
-          wishlist_enabled: true,
-          reviews_enabled: true,
-          chat_enabled: false,
-          promotions_enabled: true
-        },
-        counts: {
-          total_products: rawData.SECTION_1_PRODUCTS ? Object.keys(rawData.SECTION_1_PRODUCTS).length + Object.keys(rawData.SECTION_2_PRODUCTS || {}).length : 0,
-          total_categories: rawData.CATEGORIES ? rawData.CATEGORIES.length : 0,
-          total_orders: 0,
-          total_users: 0,
-          total_vendors: 0,
-          active_vendors: 0,
-          total_delivery_locations: 0,
-          active_promotions: 0,
-          wishlist_count: 0,
-          cart_count: 0,
-          notifications_count: 0,
-          unread_messages_count: 0,
-          pending_orders: 0,
-          completed_orders: 0,
-          cancelled_orders: 0,
-          processing_orders: 0,
-          recent_orders_this_week: 0,
-          orders_today: 0,
-          orders_this_month: 0,
-          new_users_this_week: 0,
-          new_users_today: 0,
-          products_out_of_stock: 0,
-          low_stock_products: 0,
-          featured_products_count: rawData.TOP_4_PRODUCTS ? rawData.TOP_4_PRODUCTS.length : 0,
-          total_revenue: 0,
-          revenue_this_month: 0,
-          average_order_value: 0
-        },
-        user: null, // Would be set when user is authenticated
-        is_authenticated: false,
-        featured_products: rawData.TOP_4_PRODUCTS || [],
-        recent_products: [], // Could extract from SECTION_1_PRODUCTS or SECTION_2_PRODUCTS
-        recent_orders: [],
-        vendors: rawData.VENDORS || [], // Include vendors from backend manifest
-        recent_search_suggestions: rawData.recent_search_suggestions || [] // Add search suggestions
-      };
-
-      return transformedManifest;
-    } catch (error) {
+      // The backend now returns the correctly structured manifest
+      return response.data;
+    } catch (error: any) {
       console.error("Failed to load manifest:", error);
       throw error;
     }
@@ -645,6 +584,65 @@ export class ApiService {
     } catch (error) {
       console.warn("Failed to load reviews:", error);
       return { data: [], total: 0 };
+    }
+  }
+
+  // ===== USER PROFILE =====
+
+  /**
+   * Update user profile
+   */
+  static async updateProfile(profileData: {
+    first_name: string;
+    last_name: string;
+    email?: string;
+    phone_number_1: string;
+    date_of_birth?: string;
+    gender?: string;
+    bio?: string;
+    address?: string;
+  }): Promise<any> {
+    try {
+      // Create FormData to handle potential file uploads
+      const formData = new FormData();
+      
+      // Add profile fields
+      formData.append('first_name', profileData.first_name);
+      formData.append('last_name', profileData.last_name);
+      formData.append('phone_number_1', profileData.phone_number_1);
+      
+      if (profileData.email) {
+        formData.append('email', profileData.email);
+      }
+      
+      if (profileData.date_of_birth) {
+        formData.append('date_of_birth', profileData.date_of_birth);
+      }
+      
+      if (profileData.gender) {
+        formData.append('gender', profileData.gender);
+      }
+      
+      if (profileData.bio) {
+        formData.append('bio', profileData.bio);
+      }
+      
+      if (profileData.address) {
+        formData.append('address', profileData.address);
+      }
+
+      const response = await http_post("update-profile", formData);
+      
+      if (response?.code === 1) {
+        ToastService.success(response.message || "Profile updated successfully!");
+        return response.data;
+      } else {
+        throw new Error(response?.message || "Failed to update profile");
+      }
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || "Failed to update profile";
+      ToastService.error(errorMessage);
+      throw error;
     }
   }
 }

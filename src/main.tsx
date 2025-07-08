@@ -21,24 +21,20 @@ import { store } from "./app/store/store";
 if (import.meta.env.DEV) {
   import('./app/utils/debugAuth').then(({ debugAuthStatus }) => {
     (window as any).debugAuth = debugAuthStatus;
-    console.log('🔧 Debug utility loaded. Use debugAuth() in console to check authentication status.');
   });
   
   import('./app/utils/testLogin').then(({ testLogin }) => {
     (window as any).testLogin = testLogin;
-    console.log('🧪 Test utility loaded. Use testLogin("email", "password") to test login.');
   });
   
   import('./app/utils/authDebugger').then(({ debugLogin, manualAuth }) => {
     (window as any).debugLogin = debugLogin;
     (window as any).manualAuth = manualAuth;
-    console.log('🔍 Auth debugger loaded. Use debugLogin() or manualAuth() to debug authentication.');
   });
   
   import('./app/utils/quickLoginTest').then(({ quickLogin, loginInstructions }) => {
     (window as any).quickLogin = quickLogin;
     (window as any).loginInstructions = loginInstructions;
-    console.log('⚡ Quick test loaded. Use loginInstructions() for help or quickLogin() for sample test.');
   });
 }
 
@@ -69,7 +65,8 @@ root.render(
         >
           <App />
         </BrowserRouter>
-        <ReactQueryDevtools initialIsOpen={false} />
+        {/* Only show React Query DevTools in development */}
+        {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
       </QueryClientProvider>
     </Provider>
   </React.StrictMode>

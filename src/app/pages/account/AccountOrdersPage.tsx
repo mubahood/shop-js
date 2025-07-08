@@ -1,13 +1,11 @@
 // src/app/pages/account/AccountOrdersPage.tsx
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Card, Badge, Spinner, Alert, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { OrderModel } from '../../models/OrderModel';
 import { formatPrice } from '../../utils';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import ToastService from '../../services/ToastService';
-import './AccountOrdersPage.css';
 
 const AccountOrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<OrderModel[]>([]);
@@ -34,23 +32,35 @@ const AccountOrdersPage: React.FC = () => {
   };
 
   const getOrderStatusBadge = (status: string) => {
-    switch (status) {
-      case '0':
-        return <Badge bg="danger">Pending</Badge>;
-      case '1':
-        return <Badge bg="warning">Processing</Badge>;
-      case '2':
-        return <Badge bg="success">Completed</Badge>;
-      case '3':
-        return <Badge bg="secondary">Canceled</Badge>;
-      case '4':
-        return <Badge bg="danger">Failed</Badge>;
-      default:
-        return <Badge bg="secondary">{status}</Badge>;
-    }
+    const statusMap: { [key: string]: { text: string; color: string } } = {
+      '0': { text: 'Pending', color: 'var(--danger-color)' },
+      '1': { text: 'Processing', color: 'var(--warning-color)' },
+      '2': { text: 'Completed', color: 'var(--success-color)' },
+      '3': { text: 'Canceled', color: 'var(--text-color-medium)' },
+      '4': { text: 'Failed', color: 'var(--danger-color)' }
+    };
+    
+    const statusInfo = statusMap[status] || { text: status, color: 'var(--text-color-medium)' };
+    
+    return (
+      <span 
+        style={{
+          padding: 'var(--spacing-1) var(--spacing-2)',
+          fontSize: 'var(--font-size-xs)',
+          fontWeight: 'var(--font-weight-medium)',
+          borderRadius: 'var(--border-radius)',
+          backgroundColor: statusInfo.color,
+          color: 'var(--white)',
+          display: 'inline-block'
+        }}
+      >
+        {statusInfo.text}
+      </span>
+    );
   };
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -60,136 +70,262 @@ const AccountOrdersPage: React.FC = () => {
     });
   };
 
+  const parseOrderItems = (itemsString: string) => {
+    try {
+      return JSON.parse(itemsString || '[]');
+    } catch {
+      return [];
+    }
+  };
+
   if (!user || !user.id) {
     return (
-      <Alert variant="warning">
-        Please log in to view your orders.
-      </Alert>
+      <div className="acc-card" style={{
+        backgroundColor: 'var(--warning-bg)',
+        borderColor: 'var(--warning-border)',
+        color: 'var(--warning-color)'
+      }}>
+        <div className="acc-card-body">
+          <i className="bi bi-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+          Please log in to view your orders.
+        </div>
+      </div>
     );
   }
 
   return (
-    <>
+    <div className="acc-orders-container">
       {/* Page Header */}
-      <div className="account-page-header">
-        <h1 className="account-page-title">My Orders</h1>
-        <p className="account-page-subtitle">Track and manage your orders</p>
+      <div className="acc-page-header">
+        <div>
+          <h1 className="acc-page-title">My Orders</h1>
+          <p className="acc-page-subtitle">Track and manage your orders</p>
+        </div>
+        <button className="acc-btn acc-btn-outline" onClick={loadOrders}>
+          <i className="bi bi-arrow-clockwise" style={{ marginRight: '8px' }}></i>
+          Refresh
+        </button>
       </div>
 
       {isLoading ? (
-        <div className="text-center py-5">
-          <Spinner animation="border" variant="primary" />
-          <div className="mt-3">Loading your orders...</div>
+        <div style={{
+          textAlign: 'center',
+          padding: 'var(--spacing-12) var(--spacing-4)'
+        }}>
+          <div style={{
+            display: 'inline-block',
+            width: '40px',
+            height: '40px',
+            border: '4px solid var(--border-color)',
+            borderTop: '4px solid var(--primary-color)',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }}></div>
+          <p style={{
+            marginTop: 'var(--spacing-3)',
+            color: 'var(--text-color-medium)',
+            fontSize: 'var(--font-size-base)'
+          }}>Loading orders...</p>
         </div>
-      ) : orders.length === 0 ? (
-        <div className="empty-orders text-center py-5">
-                <div className="empty-orders-icon mb-3">
-                  <i className="bi bi-bag-x" style={{ fontSize: '4rem', color: '#6c757d' }}></i>
+      ) : (
+        <>
+          {orders.length === 0 ? (
+            <div className="acc-card">
+              <div className="acc-card-body">
+                <div style={{
+                  textAlign: 'center',
+                  padding: 'var(--spacing-12) var(--spacing-4)'
+                }}>
+                  <i className="bi bi-bag-x" style={{
+                    fontSize: '4rem',
+                    color: 'var(--text-color-medium)',
+                    marginBottom: 'var(--spacing-4)',
+                    display: 'block'
+                  }}></i>
+                  <h3 style={{
+                    fontSize: 'var(--font-size-xl)',
+                    fontWeight: 'var(--font-weight-semibold)',
+                    color: 'var(--text-color)',
+                    marginBottom: 'var(--spacing-2)'
+                  }}>No Orders Yet</h3>
+                  <p style={{
+                    color: 'var(--text-color-medium)',
+                    marginBottom: 'var(--spacing-4)',
+                    fontSize: 'var(--font-size-base)',
+                    maxWidth: '400px',
+                    margin: '0 auto var(--spacing-4)'
+                  }}>
+                    You haven't placed any orders yet. Start shopping to see your order history here.
+                  </p>
+                  <Link to="/products" className="acc-btn acc-btn-primary">
+                    Start Shopping
+                  </Link>
                 </div>
-                <h4>No Orders Found</h4>
-                <p className="text-muted mb-4">You haven't placed any orders yet.</p>
-                <Button 
-                  variant="primary" 
-                  onClick={loadOrders}
-                  className="me-3"
-                >
-                  <i className="bi bi-arrow-clockwise me-2"></i>
-                  Reload
-                </Button>
-                <Link to="/products" className="btn btn-outline-primary">
-                  <i className="bi bi-shop me-2"></i>
-                  Start Shopping
-                </Link>
               </div>
-            ) : (
-              <div className="orders-list">
-                {orders.map((order) => (
-                  <Card key={order.id} className="order-card mb-3">
-                    <Card.Body>
-                      <Row className="align-items-center">
-                        <Col md={8}>
-                          <div className="order-info">
-                            <div className="order-header d-flex align-items-center mb-2">
-                              <h5 className="order-date mb-0">
-                                {formatDate(order.created_at)}
-                              </h5>
-                              <div className="ms-3">
-                                {getOrderStatusBadge(order.order_state)}
-                              </div>
-                            </div>
-                            <div className="order-details">
-                              <div className="order-id text-muted">
-                                <i className="bi bi-receipt me-1"></i>
-                                Order #{order.id}
-                              </div>
-                              {order.delivery_method && (
-                                <div className="delivery-method text-muted">
-                                  <i className="bi bi-truck me-1"></i>
-                                  Delivery
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gap: 'var(--spacing-4)' }}>
+              {orders.map((order) => {
+                const orderItems = parseOrderItems(order.items);
+                return (
+                  <div key={order.id} className="acc-card">
+                    <div className="acc-card-header">
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                        <div>
+                          <h4 style={{
+                            fontSize: 'var(--font-size-base)',
+                            fontWeight: 'var(--font-weight-semibold)',
+                            margin: 0,
+                            marginBottom: 'var(--spacing-1)'
+                          }}>
+                            Order #{order.id}
+                          </h4>
+                          <p style={{
+                            fontSize: 'var(--font-size-sm)',
+                            color: 'var(--text-color-medium)',
+                            margin: 0
+                          }}>
+                            Placed on {formatDate(order.created_at)}
+                          </p>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          {getOrderStatusBadge(order.order_state)}
+                          <div style={{
+                            fontSize: 'var(--font-size-lg)',
+                            fontWeight: 'var(--font-weight-bold)',
+                            color: 'var(--text-color)',
+                            marginTop: 'var(--spacing-1)'
+                          }}>
+                            {formatPrice(parseFloat(order.payable_amount || order.order_total || '0'))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="acc-card-body">
+                      {/* Order Items */}
+                      {orderItems && orderItems.length > 0 && (
+                        <div style={{ marginBottom: 'var(--spacing-4)' }}>
+                          <h6 style={{
+                            fontSize: 'var(--font-size-sm)',
+                            fontWeight: 'var(--font-weight-medium)',
+                            color: 'var(--text-color)',
+                            marginBottom: 'var(--spacing-2)'
+                          }}>
+                            Items ({orderItems.length})
+                          </h6>
+                          <div style={{ display: 'grid', gap: 'var(--spacing-2)' }}>
+                            {orderItems.slice(0, 3).map((item: any, index: number) => (
+                              <div key={index} style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                padding: 'var(--spacing-2)',
+                                backgroundColor: 'var(--background-light)',
+                                borderRadius: 'var(--border-radius)',
+                                gap: 'var(--spacing-3)'
+                              }}>
+                                <div style={{
+                                  width: '50px',
+                                  height: '50px',
+                                  backgroundColor: 'var(--white)',
+                                  border: '1px solid var(--border-color)',
+                                  borderRadius: 'var(--border-radius)',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  flexShrink: 0
+                                }}>
+                                  <i className="bi bi-box" style={{ color: 'var(--text-color-medium)' }}></i>
                                 </div>
-                              )}
-                            </div>
+                                <div style={{ flex: 1 }}>
+                                  <h6 style={{
+                                    fontSize: 'var(--font-size-sm)',
+                                    fontWeight: 'var(--font-weight-medium)',
+                                    margin: 0,
+                                    marginBottom: 'var(--spacing-1)'
+                                  }}>
+                                    {item.product_name || item.name || 'Product'}
+                                  </h6>
+                                  <p style={{
+                                    fontSize: 'var(--font-size-xs)',
+                                    color: 'var(--text-color-medium)',
+                                    margin: 0
+                                  }}>
+                                    Qty: {item.quantity || 1} × {formatPrice(parseFloat(item.price || '0'))}
+                                  </p>
+                                </div>
+                                <div style={{
+                                  fontSize: 'var(--font-size-sm)',
+                                  fontWeight: 'var(--font-weight-medium)',
+                                  color: 'var(--text-color)'
+                                }}>
+                                  {formatPrice(parseFloat(item.quantity || '1') * parseFloat(item.price || '0'))}
+                                </div>
+                              </div>
+                            ))}
+                            {orderItems.length > 3 && (
+                              <div style={{
+                                textAlign: 'center',
+                                padding: 'var(--spacing-2)',
+                                color: 'var(--text-color-medium)',
+                                fontSize: 'var(--font-size-sm)'
+                              }}>
+                                +{orderItems.length - 3} more items
+                              </div>
+                            )}
                           </div>
-                        </Col>
-                        <Col md={4} className="text-md-end">
-                          <div className="order-amount">
-                            <div className="amount-value">
-                              {formatPrice(order.order_total)}
-                            </div>
-                            <div className="payment-status">
-                              {order.isPaid() ? (
-                                <Badge bg="success">
-                                  <i className="bi bi-check-circle me-1"></i>
-                                  Paid
-                                </Badge>
-                              ) : (
-                                <Badge bg="warning">
-                                  <i className="bi bi-clock me-1"></i>
-                                  Pending Payment
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                        </Col>
-                      </Row>
-                      
-                      <hr className="my-3" />
-                      
-                      <div className="order-actions d-flex justify-content-between align-items-center">
+                        </div>
+                      )}
+
+                      {/* Order Actions */}
+                      <div style={{
+                        display: 'flex',
+                        gap: 'var(--spacing-2)',
+                        paddingTop: 'var(--spacing-3)',
+                        borderTop: '1px solid var(--border-color)'
+                      }}>
                         <Link 
                           to={`/account/orders/${order.id}`}
-                          className="btn btn-outline-primary btn-sm"
+                          className="acc-btn acc-btn-outline acc-btn-sm"
                         >
-                          <i className="bi bi-eye me-1"></i>
                           View Details
                         </Link>
-                        
-                        {!order.isPaid() && order.getPaymentLink() && (
-                          <Link 
-                            to={`/payment/${order.id}`}
-                            className="btn btn-primary btn-sm"
-                          >
-                            <i className="bi bi-credit-card me-1"></i>
-                            Pay Now
-                          </Link>
+                        {order.order_state === '2' && (
+                          <button className="acc-btn acc-btn-outline acc-btn-sm">
+                            Reorder
+                          </button>
+                        )}
+                        {(order.order_state === '0' || order.order_state === '1') && (
+                          <button className="acc-btn acc-btn-outline acc-btn-sm">
+                            Track Order
+                          </button>
                         )}
                       </div>
-                    </Card.Body>
-                  </Card>
-                ))}
-                
-                <div className="text-center mt-4">
-                  <Button 
-                    variant="outline-secondary" 
-                    onClick={loadOrders}
-                  >
-                    <i className="bi bi-arrow-clockwise me-2"></i>
-                    Refresh Orders
-                  </Button>
-                </div>
-              </div>
-            )}
-    </>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Load More Button */}
+      {orders.length > 0 && (
+        <div style={{ textAlign: 'center', marginTop: 'var(--spacing-6)' }}>
+          <button className="acc-btn acc-btn-outline">
+            Load More Orders
+          </button>
+        </div>
+      )}
+
+      {/* Spinner animation styles */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+    </div>
   );
 };
 

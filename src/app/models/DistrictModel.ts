@@ -12,11 +12,9 @@ export class DistrictModel {
     try {
       localData = await this.getLocal();
       if (localData.length > 0) {
-        this.getOnline().catch(console.error);
         return localData;
       }
     } catch (error) {
-      console.error("Error fetching local data:", error);
     }
 
     try {
@@ -43,7 +41,6 @@ export class DistrictModel {
         DistrictModel.fromJson(JSON.stringify(item))
       );
     } catch (error) {
-      console.error("Error reading local districts:", error);
       return [];
     }
   }
@@ -57,7 +54,6 @@ export class DistrictModel {
       }
       Utils.saveToDatabase(LOCAL_DISTRICTS, response.data);
     } catch (error) {
-      console.error("Error fetching remote districts:", error);
       throw error;
     }
   }

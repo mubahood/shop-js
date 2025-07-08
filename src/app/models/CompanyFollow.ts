@@ -108,7 +108,6 @@ export class CompanyFollow {
 
       return paginatedData as PaginatedResponse<CompanyFollow>;
     } catch (error) {
-      console.error("Error fetching my-company-follows:", error);
       throw error;
     }
   }
@@ -145,7 +144,6 @@ export class CompanyFollow {
 
       return paginatedData as PaginatedResponse<CompanyFollow>;
     } catch (error) {
-      console.error("Error fetching company-followers:", error);
       throw error;
     }
   }
@@ -163,7 +161,6 @@ export class CompanyFollow {
       }
       return CompanyFollow.fromJson(response.data);
     } catch (error) {
-      console.error("Error creating company follow:", error);
       throw error;
     }
   }
@@ -182,7 +179,6 @@ export class CompanyFollow {
       }
       return true;
     } catch (error) {
-      console.error("Error removing company follow:", error);
       throw error;
     }
   }

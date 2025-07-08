@@ -1,6 +1,5 @@
 // src/app/pages/account/AccountSettings.tsx
 import React, { useState } from "react";
-import { Row, Col, Card, Form, Button, Alert, Nav } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { Settings, Shield, Bell, CreditCard, Eye, EyeOff, Save } from "lucide-react";
 
@@ -57,16 +56,21 @@ const AccountSettings: React.FC = () => {
     }));
   };
 
-  const handlePasswordUpdate = (e: React.FormEvent) => {
+  const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (securitySettings.newPassword !== securitySettings.confirmPassword) {
-      alert("New passwords don't match!");
+      alert('Passwords do not match');
       return;
     }
     // In a real app, this would make an API call
     setShowSuccess(true);
-    setSecuritySettings(prev => ({ ...prev, currentPassword: '', newPassword: '', confirmPassword: '' }));
     setTimeout(() => setShowSuccess(false), 3000);
+    setSecuritySettings(prev => ({
+      ...prev,
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    }));
   };
 
   const handleSettingsSave = () => {
@@ -76,367 +80,458 @@ const AccountSettings: React.FC = () => {
   };
 
   return (
-    <>
+    <div className="acc-settings-container">
       {/* Page Header */}
-      <div className="account-page-header">
-        <h1 className="account-page-title">Account Settings</h1>
-        <p className="account-page-subtitle">Manage your account preferences and security</p>
-        <Button variant="success" onClick={handleSettingsSave}>
-          <Save size={16} className="me-2" />
-          Save All Changes
-        </Button>
+      <div className="acc-page-header">
+        <div>
+          <h1 className="acc-page-title">Account Settings</h1>
+          <p className="acc-page-subtitle">
+            Manage your account preferences and security
+          </p>
+        </div>
       </div>
 
       {/* Success Alert */}
       {showSuccess && (
-        <Row className="mb-4">
-          <Col>
-            <Alert variant="success" className="d-flex align-items-center">
-              <Save size={16} className="me-2" />
-              Settings updated successfully!
-            </Alert>
-          </Col>
-        </Row>
+        <div className="acc-card" style={{
+          backgroundColor: 'var(--success-bg)',
+          borderColor: 'var(--success-border)',
+          color: 'var(--success-color)',
+          marginBottom: 'var(--spacing-4)'
+        }}>
+          <div className="acc-card-body" style={{ padding: 'var(--spacing-4)' }}>
+            <Save size={16} style={{ marginRight: '8px' }} />
+            Settings updated successfully!
+          </div>
+        </div>
       )}
 
-      <Row>
-        {/* Security Settings */}
-        <Col lg={6} className="mb-4">
-          <Card className="border-0 shadow-sm h-100">
-            <Card.Header className="bg-white border-bottom-0 py-3">
-              <h3 className="h5 mb-0 d-flex align-items-center">
-                <Shield size={20} className="me-2 text-primary" />
-                Security & Password
-              </h3>
-            </Card.Header>
-            <Card.Body className="p-4">
-              <Form onSubmit={handlePasswordUpdate}>
-                <div className="mb-4">
-                  <h6>Change Password</h6>
-                  <Row>
-                    <Col className="mb-3">
-                      <Form.Group>
-                        <Form.Label>Current Password</Form.Label>
-                        <div className="position-relative">
-                          <Form.Control
-                            type={showCurrentPassword ? "text" : "password"}
-                            name="currentPassword"
-                            value={securitySettings.currentPassword}
-                            onChange={handleSecurityChange}
-                          />
-                          <Button
-                            variant="link"
-                            className="position-absolute top-50 end-0 translate-middle-y border-0 text-muted"
-                            onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                          >
-                            {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                          </Button>
-                        </div>
-                      </Form.Group>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col md={6} className="mb-3">
-                      <Form.Group>
-                        <Form.Label>New Password</Form.Label>
-                        <div className="position-relative">
-                          <Form.Control
-                            type={showPassword ? "text" : "password"}
-                            name="newPassword"
-                            value={securitySettings.newPassword}
-                            onChange={handleSecurityChange}
-                          />
-                          <Button
-                            variant="link"
-                            className="position-absolute top-50 end-0 translate-middle-y border-0 text-muted"
-                            onClick={() => setShowPassword(!showPassword)}
-                          >
-                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                          </Button>
-                        </div>
-                      </Form.Group>
-                    </Col>
-                    <Col md={6} className="mb-3">
-                      <Form.Group>
-                        <Form.Label>Confirm New Password</Form.Label>
-                        <Form.Control
-                          type={showPassword ? "text" : "password"}
-                          name="confirmPassword"
-                          value={securitySettings.confirmPassword}
-                          onChange={handleSecurityChange}
-                        />
-                      </Form.Group>
-                    </Col>
-                  </Row>
-                  <Button type="submit" variant="outline-primary" size="sm">
-                    Update Password
-                  </Button>
-                </div>
-
-                <div className="border-top pt-3">
-                  <h6>Two-Factor Authentication</h6>
-                  <Form.Check
-                    type="switch"
-                    label="Enable two-factor authentication"
-                    name="twoFactorEnabled"
-                    checked={securitySettings.twoFactorEnabled}
-                    onChange={handleSecurityChange}
-                    className="mb-2"
-                  />
-                  <small className="text-muted">
-                    Add an extra layer of security to your account
-                  </small>
-                </div>
-              </Form>
-            </Card.Body>
-          </Card>
-        </Col>
-
-        {/* Notification Settings */}
-        <Col lg={6} className="mb-4">
-          <Card className="border-0 shadow-sm h-100">
-            <Card.Header className="bg-white border-bottom-0 py-3">
-              <h3 className="h5 mb-0 d-flex align-items-center">
-                <Bell size={20} className="me-2 text-primary" />
-                Notifications
-              </h3>
-            </Card.Header>
-            <Card.Body className="p-4">
-              <div className="mb-4">
-                <h6>Email Notifications</h6>
-                <Form.Check
-                  type="switch"
-                  label="Enable email notifications"
-                  name="emailNotifications"
-                  checked={notificationSettings.emailNotifications}
-                  onChange={handleNotificationChange}
-                  className="mb-2"
+      {/* Security Settings */}
+      <div className="acc-card">
+        <div className="acc-card-header">
+          <h3 className="acc-card-title">
+            <Shield size={20} />
+            Security Settings
+          </h3>
+        </div>
+        <div className="acc-card-body">
+          <form onSubmit={handlePasswordSubmit}>
+            <h5 style={{
+              fontSize: 'var(--font-size-base)',
+              fontWeight: 'var(--font-weight-medium)',
+              color: 'var(--text-color)',
+              marginBottom: 'var(--spacing-3)'
+            }}>
+              Change Password
+            </h5>
+            
+            <div className="acc-form-group">
+              <label className="acc-form-label">Current Password</label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showCurrentPassword ? "text" : "password"}
+                  name="currentPassword"
+                  value={securitySettings.currentPassword}
+                  onChange={handleSecurityChange}
+                  className="acc-form-control"
+                  style={{ paddingRight: '40px' }}
                 />
-                <Form.Check
-                  type="switch"
-                  label="Order updates"
-                  name="orderUpdates"
-                  checked={notificationSettings.orderUpdates}
-                  onChange={handleNotificationChange}
-                  className="mb-2"
-                  disabled={!notificationSettings.emailNotifications}
-                />
-                <Form.Check
-                  type="switch"
-                  label="Promotions and offers"
-                  name="promotions"
-                  checked={notificationSettings.promotions}
-                  onChange={handleNotificationChange}
-                  className="mb-2"
-                  disabled={!notificationSettings.emailNotifications}
-                />
-                <Form.Check
-                  type="switch"
-                  label="Newsletter"
-                  name="newsletter"
-                  checked={notificationSettings.newsletter}
-                  onChange={handleNotificationChange}
-                  className="mb-2"
-                  disabled={!notificationSettings.emailNotifications}
-                />
-              </div>
-
-              <div className="border-top pt-3 mb-4">
-                <h6>SMS Notifications</h6>
-                <Form.Check
-                  type="switch"
-                  label="Enable SMS notifications"
-                  name="smsNotifications"
-                  checked={notificationSettings.smsNotifications}
-                  onChange={handleNotificationChange}
-                  className="mb-2"
-                />
-                <small className="text-muted">
-                  Receive important order updates via SMS
-                </small>
-              </div>
-
-              <div className="border-top pt-3">
-                <h6>Security Alerts</h6>
-                <Form.Check
-                  type="switch"
-                  label="Security alerts"
-                  name="securityAlerts"
-                  checked={notificationSettings.securityAlerts}
-                  onChange={handleNotificationChange}
-                  className="mb-2"
-                />
-                <small className="text-muted">
-                  Get notified about login attempts and security changes
-                </small>
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-
-      <Row>
-        {/* Privacy Settings */}
-        <Col lg={6} className="mb-4">
-          <Card className="border-0 shadow-sm">
-            <Card.Header className="bg-white border-bottom-0 py-3">
-              <h3 className="h5 mb-0 d-flex align-items-center">
-                <Settings size={20} className="me-2 text-primary" />
-                Privacy Settings
-              </h3>
-            </Card.Header>
-            <Card.Body className="p-4">
-              <div className="mb-4">
-                <h6>Profile Visibility</h6>
-                <Form.Select
-                  name="profileVisibility"
-                  value={privacySettings.profileVisibility}
-                  onChange={handlePrivacyChange}
-                  className="mb-2"
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--text-color-medium)'
+                  }}
                 >
-                  <option value="public">Public</option>
-                  <option value="private">Private</option>
-                  <option value="friends">Friends Only</option>
-                </Form.Select>
-                <small className="text-muted">
-                  Control who can see your profile information
-                </small>
+                  {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
+            </div>
 
-              <div className="mb-4">
-                <h6>Data & Analytics</h6>
-                <Form.Check
-                  type="switch"
-                  label="Share data for analytics"
-                  name="analytics"
-                  checked={privacySettings.analytics}
-                  onChange={handlePrivacyChange}
-                  className="mb-2"
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-3)' }}>
+              <div className="acc-form-group">
+                <label className="acc-form-label">New Password</label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="newPassword"
+                    value={securitySettings.newPassword}
+                    onChange={handleSecurityChange}
+                    className="acc-form-control"
+                    style={{ paddingRight: '40px' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{
+                      position: 'absolute',
+                      right: '10px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      color: 'var(--text-color-medium)'
+                    }}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+              <div className="acc-form-group">
+                <label className="acc-form-label">Confirm New Password</label>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  value={securitySettings.confirmPassword}
+                  onChange={handleSecurityChange}
+                  className="acc-form-control"
                 />
-                <Form.Check
-                  type="switch"
-                  label="Enable personalization"
-                  name="personalization"
-                  checked={privacySettings.personalization}
-                  onChange={handlePrivacyChange}
-                  className="mb-2"
+              </div>
+            </div>
+
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              paddingTop: 'var(--spacing-3)',
+              borderTop: '1px solid var(--border-color)',
+              marginTop: 'var(--spacing-4)'
+            }}>
+              <label style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--spacing-2)',
+                cursor: 'pointer',
+                fontSize: 'var(--font-size-sm)',
+                fontWeight: 'var(--font-weight-medium)'
+              }}>
+                <input
+                  type="checkbox"
+                  name="twoFactorEnabled"
+                  checked={securitySettings.twoFactorEnabled}
+                  onChange={handleSecurityChange}
                 />
-                <Form.Check
-                  type="switch"
-                  label="Allow data sharing with partners"
-                  name="dataSharing"
-                  checked={privacySettings.dataSharing}
-                  onChange={handlePrivacyChange}
-                  className="mb-2"
-                />
+                Enable Two-Factor Authentication
+              </label>
+              <button type="submit" className="acc-btn acc-btn-primary">
+                Update Password
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {/* Notification Settings */}
+      <div className="acc-card">
+        <div className="acc-card-header">
+          <h3 className="acc-card-title">
+            <Bell size={20} />
+            Notification Preferences
+          </h3>
+        </div>
+        <div className="acc-card-body">
+          <div style={{ display: 'grid', gap: 'var(--spacing-4)' }}>
+            <div>
+              <h5 style={{
+                fontSize: 'var(--font-size-base)',
+                fontWeight: 'var(--font-weight-medium)',
+                color: 'var(--text-color)',
+                marginBottom: 'var(--spacing-3)'
+              }}>
+                Communication Preferences
+              </h5>
+              <div style={{ display: 'grid', gap: 'var(--spacing-2)' }}>
+                <label style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--spacing-2)',
+                  cursor: 'pointer',
+                  fontSize: 'var(--font-size-sm)'
+                }}>
+                  <input
+                    type="checkbox"
+                    name="emailNotifications"
+                    checked={notificationSettings.emailNotifications}
+                    onChange={handleNotificationChange}
+                  />
+                  Email notifications
+                </label>
+                <label style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--spacing-2)',
+                  cursor: 'pointer',
+                  fontSize: 'var(--font-size-sm)'
+                }}>
+                  <input
+                    type="checkbox"
+                    name="smsNotifications"
+                    checked={notificationSettings.smsNotifications}
+                    onChange={handleNotificationChange}
+                  />
+                  SMS notifications
+                </label>
               </div>
-            </Card.Body>
-          </Card>
-        </Col>
+            </div>
 
-        {/* Payment Methods */}
-        <Col lg={6} className="mb-4">
-          <Card className="border-0 shadow-sm">
-            <Card.Header className="bg-white border-bottom-0 py-3">
-              <h3 className="h5 mb-0 d-flex align-items-center">
-                <CreditCard size={20} className="me-2 text-primary" />
-                Payment Methods
-              </h3>
-            </Card.Header>
-            <Card.Body className="p-4">
-              <div className="d-flex align-items-center justify-content-between mb-3 p-3 border rounded">
-                <div className="d-flex align-items-center">
-                  <div className="me-3">
-                    <CreditCard size={24} className="text-primary" />
-                  </div>
-                  <div>
-                    <div className="fw-semibold">•••• •••• •••• 4242</div>
-                    <small className="text-muted">Expires 12/26</small>
-                  </div>
-                </div>
-                <div>
-                  <Button variant="outline-primary" size="sm" className="me-2">
-                    Edit
-                  </Button>
-                  <Button variant="outline-danger" size="sm">
-                    Remove
-                  </Button>
-                </div>
+            <div>
+              <h5 style={{
+                fontSize: 'var(--font-size-base)',
+                fontWeight: 'var(--font-weight-medium)',
+                color: 'var(--text-color)',
+                marginBottom: 'var(--spacing-3)'
+              }}>
+                Content Preferences
+              </h5>
+              <div style={{ display: 'grid', gap: 'var(--spacing-2)' }}>
+                <label style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--spacing-2)',
+                  cursor: 'pointer',
+                  fontSize: 'var(--font-size-sm)'
+                }}>
+                  <input
+                    type="checkbox"
+                    name="orderUpdates"
+                    checked={notificationSettings.orderUpdates}
+                    onChange={handleNotificationChange}
+                  />
+                  Order updates and shipping notifications
+                </label>
+                <label style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--spacing-2)',
+                  cursor: 'pointer',
+                  fontSize: 'var(--font-size-sm)'
+                }}>
+                  <input
+                    type="checkbox"
+                    name="promotions"
+                    checked={notificationSettings.promotions}
+                    onChange={handleNotificationChange}
+                  />
+                  Promotions and special offers
+                </label>
+                <label style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--spacing-2)',
+                  cursor: 'pointer',
+                  fontSize: 'var(--font-size-sm)'
+                }}>
+                  <input
+                    type="checkbox"
+                    name="newsletter"
+                    checked={notificationSettings.newsletter}
+                    onChange={handleNotificationChange}
+                  />
+                  Weekly newsletter
+                </label>
+                <label style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--spacing-2)',
+                  cursor: 'pointer',
+                  fontSize: 'var(--font-size-sm)'
+                }}>
+                  <input
+                    type="checkbox"
+                    name="securityAlerts"
+                    checked={notificationSettings.securityAlerts}
+                    onChange={handleNotificationChange}
+                  />
+                  Security alerts (recommended)
+                </label>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-              <div className="d-flex align-items-center justify-content-between mb-3 p-3 border rounded">
-                <div className="d-flex align-items-center">
-                  <div className="me-3">
-                    <CreditCard size={24} className="text-success" />
-                  </div>
-                  <div>
-                    <div className="fw-semibold">PayPal Account</div>
-                    <small className="text-muted">john.doe@example.com</small>
-                  </div>
-                </div>
-                <div>
-                  <Button variant="outline-primary" size="sm" className="me-2">
-                    Edit
-                  </Button>
-                  <Button variant="outline-danger" size="sm">
-                    Remove
-                  </Button>
-                </div>
+      {/* Privacy Settings */}
+      <div className="acc-card">
+        <div className="acc-card-header">
+          <h3 className="acc-card-title">
+            <Settings size={20} />
+            Privacy & Data
+          </h3>
+        </div>
+        <div className="acc-card-body">
+          <div style={{ display: 'grid', gap: 'var(--spacing-4)' }}>
+            <div className="acc-form-group">
+              <label className="acc-form-label">Profile Visibility</label>
+              <select
+                name="profileVisibility"
+                value={privacySettings.profileVisibility}
+                onChange={handlePrivacyChange}
+                className="acc-form-control"
+              >
+                <option value="public">Public</option>
+                <option value="private">Private</option>
+                <option value="friends">Friends Only</option>
+              </select>
+            </div>
+
+            <div>
+              <h5 style={{
+                fontSize: 'var(--font-size-base)',
+                fontWeight: 'var(--font-weight-medium)',
+                color: 'var(--text-color)',
+                marginBottom: 'var(--spacing-3)'
+              }}>
+                Data Usage Preferences
+              </h5>
+              <div style={{ display: 'grid', gap: 'var(--spacing-2)' }}>
+                <label style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--spacing-2)',
+                  cursor: 'pointer',
+                  fontSize: 'var(--font-size-sm)'
+                }}>
+                  <input
+                    type="checkbox"
+                    name="dataSharing"
+                    checked={privacySettings.dataSharing}
+                    onChange={handlePrivacyChange}
+                  />
+                  Allow data sharing with partners
+                </label>
+                <label style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--spacing-2)',
+                  cursor: 'pointer',
+                  fontSize: 'var(--font-size-sm)'
+                }}>
+                  <input
+                    type="checkbox"
+                    name="analytics"
+                    checked={privacySettings.analytics}
+                    onChange={handlePrivacyChange}
+                  />
+                  Help improve our service with analytics
+                </label>
+                <label style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--spacing-2)',
+                  cursor: 'pointer',
+                  fontSize: 'var(--font-size-sm)'
+                }}>
+                  <input
+                    type="checkbox"
+                    name="personalization"
+                    checked={privacySettings.personalization}
+                    onChange={handlePrivacyChange}
+                  />
+                  Enable personalized recommendations
+                </label>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-              <Button variant="outline-primary" className="w-100">
-                <CreditCard size={16} className="me-2" />
-                Add New Payment Method
-              </Button>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
+      {/* Account Actions */}
+      <div className="acc-card">
+        <div className="acc-card-header">
+          <h3 className="acc-card-title">
+            <CreditCard size={20} />
+            Account Actions
+          </h3>
+        </div>
+        <div className="acc-card-body">
+          <div style={{ display: 'grid', gap: 'var(--spacing-4)' }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: 'var(--spacing-3)',
+              border: '1px solid var(--border-color)',
+              borderRadius: 'var(--border-radius)',
+              background: 'var(--background-light)'
+            }}>
+              <div>
+                <h5 style={{
+                  margin: 0,
+                  fontSize: 'var(--font-size-base)',
+                  fontWeight: 'var(--font-weight-medium)'
+                }}>
+                  Download Your Data
+                </h5>
+                <p style={{
+                  margin: 0,
+                  fontSize: 'var(--font-size-sm)',
+                  color: 'var(--text-color-medium)'
+                }}>
+                  Get a copy of all your account data
+                </p>
+              </div>
+              <button className="acc-btn acc-btn-outline acc-btn-sm">
+                Download
+              </button>
+            </div>
 
-      {/* Danger Zone */}
-      <Row>
-        <Col>
-          <Card className="border-danger">
-            <Card.Header className="bg-danger bg-opacity-10 border-danger">
-              <h3 className="h5 mb-0 text-danger">Danger Zone</h3>
-            </Card.Header>
-            <Card.Body className="p-4">
-              <div className="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 className="text-danger mb-1">Delete Account</h6>
-                  <p className="text-muted mb-0">
-                    Permanently delete your account and all associated data. This action cannot be undone.
-                  </p>
-                </div>
-                <Button variant="outline-danger">
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: 'var(--spacing-3)',
+              border: '1px solid var(--danger-border)',
+              borderRadius: 'var(--border-radius)',
+              background: 'var(--background-light)'
+            }}>
+              <div>
+                <h5 style={{
+                  margin: 0,
+                  fontSize: 'var(--font-size-base)',
+                  fontWeight: 'var(--font-weight-medium)',
+                  color: 'var(--danger-color)'
+                }}>
                   Delete Account
-                </Button>
+                </h5>
+                <p style={{
+                  margin: 0,
+                  fontSize: 'var(--font-size-sm)',
+                  color: 'var(--text-color-medium)'
+                }}>
+                  Permanently delete your account and all data
+                </p>
               </div>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
+              <button className="acc-btn acc-btn-outline acc-btn-sm" style={{
+                color: 'var(--danger-color)',
+                borderColor: 'var(--danger-color)'
+              }}>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      {/* Navigation Tabs for Mobile */}
-      <Row className="d-lg-none mt-4">
-        <Col>
-          <Nav variant="pills" className="justify-content-center">
-            <Nav.Item>
-              <Nav.Link as={Link} to="/account">Dashboard</Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link as={Link} to="/account/orders">Orders</Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link as={Link} to="/account/profile">Profile</Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link as={Link} to="/account/settings" active>Settings</Nav.Link>
-            </Nav.Item>
-          </Nav>
-        </Col>
-      </Row>
-    </>
+      {/* Save All Settings */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'flex-end',
+        marginTop: 'var(--spacing-6)'
+      }}>
+        <button className="acc-btn acc-btn-primary acc-btn-lg" onClick={handleSettingsSave}>
+          <Save size={16} style={{ marginRight: '8px' }} />
+          Save All Settings
+        </button>
+      </div>
+    </div>
   );
 };
 
