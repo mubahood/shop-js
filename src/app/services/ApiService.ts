@@ -596,46 +596,55 @@ export class ApiService {
     first_name: string;
     last_name: string;
     email?: string;
-    phone_number_1: string;
-    date_of_birth?: string;
-    gender?: string;
-    bio?: string;
+    phone_number: string;
+    dob?: string;
+    sex?: string;
+    intro?: string;
     address?: string;
   }): Promise<any> {
     try {
-      // Create FormData to handle potential file uploads
-      const formData = new FormData();
-      
-      // Add profile fields
-      formData.append('first_name', profileData.first_name);
-      formData.append('last_name', profileData.last_name);
-      formData.append('phone_number_1', profileData.phone_number_1);
-      
+      // Prepare the data object, mapping frontend fields to backend expected fields
+      const requestData: any = {
+        first_name: profileData.first_name,
+        last_name: profileData.last_name,
+        phone_number_1: profileData.phone_number, // Backend still expects phone_number_1
+      };
+
       if (profileData.email) {
-        formData.append('email', profileData.email);
+        requestData.email = profileData.email;
       }
       
-      if (profileData.date_of_birth) {
-        formData.append('date_of_birth', profileData.date_of_birth);
+      if (profileData.dob) {
+        requestData.date_of_birth = profileData.dob; // Backend expects date_of_birth
       }
       
-      if (profileData.gender) {
-        formData.append('gender', profileData.gender);
+      if (profileData.sex) {
+        requestData.gender = profileData.sex; // Backend expects 'gender'
       }
       
-      if (profileData.bio) {
-        formData.append('bio', profileData.bio);
+      if (profileData.intro) {
+        requestData.bio = profileData.intro; // Backend expects 'bio'
       }
       
       if (profileData.address) {
-        formData.append('address', profileData.address);
+        requestData.address = profileData.address;
       }
 
-      const response = await http_post("update-profile", formData);
+      console.log('Sending to backend:', requestData); // Debug log
+
+      const response = await http_post("update-profile", requestData);
       
       if (response?.code === 1) {
         ToastService.success(response.message || "Profile updated successfully!");
-        return response.data;
+        
+        // Transform the response data to match frontend field names
+        const transformedData = response.data ? {
+          ...response.data,
+          phone_number_1: response.data.phone_number || response.data.phone_number_1,
+          date_of_birth: response.data.dob || response.data.date_of_birth
+        } : response.data;
+        
+        return transformedData;
       } else {
         throw new Error(response?.message || "Failed to update profile");
       }

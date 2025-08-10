@@ -8,13 +8,13 @@ import ToastService from '../../services/ToastService';
 import ApiService from '../../services/ApiService';
 
 interface UserProfile {
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   email: string;
-  phone: string;
-  dateOfBirth: string;
-  gender: string;
-  bio: string;
+  phone_number: string;
+  dob: string;
+  sex: string;
+  intro: string;
 }
 
 const AccountProfile: React.FC = () => {
@@ -25,27 +25,29 @@ const AccountProfile: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [profile, setProfile] = useState<UserProfile>({
-    firstName: '',
-    lastName: '',
+    first_name: '',
+    last_name: '',
     email: '',
-    phone: '',
-    dateOfBirth: '',
-    gender: '',
-    bio: ''
+    phone_number: '',
+    dob: '',
+    sex: '',
+    intro: ''
   });
 
   // Initialize profile data from user state
   useEffect(() => {
     if (user) {
+      console.log('User object:', user); // Debug logging
       const newProfile = {
-        firstName: user.first_name || '',
-        lastName: user.last_name || '',
+        first_name: user.first_name || '',
+        last_name: user.last_name || '',
         email: user.email || '',
-        phone: user.phone_number_1 || '',
-        dateOfBirth: user.date_of_birth || '',
-        gender: user.sex || '',
-        bio: user.intro || ''
+        phone_number: user.phone_number_1 || '',
+        dob: user.date_of_birth || '',
+        sex: user.sex || '',
+        intro: user.intro || ''
       };
+      console.log('Initialized profile:', newProfile); // Debug logging
       setProfile(newProfile);
     }
   }, [user]);
@@ -69,17 +71,17 @@ const AccountProfile: React.FC = () => {
 
   const validateField = (fieldName: string, value: string): string | null => {
     switch (fieldName) {
-      case 'firstName':
+      case 'first_name':
         if (!value.trim() || value.trim().length < 2) {
           return 'First name is required and must be at least 2 characters';
         }
         break;
-      case 'lastName':
+      case 'last_name':
         if (!value.trim() || value.trim().length < 2) {
           return 'Last name is required and must be at least 2 characters';
         }
         break;
-      case 'phone':
+      case 'phone_number':
         if (!value.trim() || value.trim().length < 5) {
           return 'Phone number is required and must be at least 5 characters';
         }
@@ -92,7 +94,7 @@ const AccountProfile: React.FC = () => {
           }
         }
         break;
-      case 'bio':
+      case 'intro':
         if (value && value.length > 500) {
           return 'Bio cannot exceed 500 characters';
         }
@@ -112,20 +114,20 @@ const AccountProfile: React.FC = () => {
     // Validate all fields
     const errors: Record<string, string> = {};
     
-    const firstNameError = validateField('firstName', profile.firstName);
-    if (firstNameError) errors.firstName = firstNameError;
+    const firstNameError = validateField('first_name', profile.first_name);
+    if (firstNameError) errors.first_name = firstNameError;
     
-    const lastNameError = validateField('lastName', profile.lastName);
-    if (lastNameError) errors.lastName = lastNameError;
+    const lastNameError = validateField('last_name', profile.last_name);
+    if (lastNameError) errors.last_name = lastNameError;
     
-    const phoneError = validateField('phone', profile.phone);
-    if (phoneError) errors.phone = phoneError;
+    const phoneError = validateField('phone_number', profile.phone_number);
+    if (phoneError) errors.phone_number = phoneError;
     
     const emailError = validateField('email', profile.email);
     if (emailError) errors.email = emailError;
     
-    const bioError = validateField('bio', profile.bio);
-    if (bioError) errors.bio = bioError;
+    const bioError = validateField('intro', profile.intro);
+    if (bioError) errors.intro = bioError;
 
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
@@ -137,16 +139,38 @@ const AccountProfile: React.FC = () => {
     setIsSaving(true);
     
     try {
-      // Prepare data for API
+      // Prepare data for API - ensure no empty strings are sent
       const profileData = {
-        first_name: profile.firstName.trim(),
-        last_name: profile.lastName.trim(),
-        phone_number_1: profile.phone.trim(),
+        first_name: profile.first_name.trim(),
+        last_name: profile.last_name.trim(),
+        phone_number: profile.phone_number.trim(),
         email: profile.email.trim() || undefined,
-        date_of_birth: profile.dateOfBirth || undefined,
-        gender: profile.gender || undefined,
-        bio: profile.bio.trim() || undefined,
+        dob: profile.dob || undefined,
+        sex: profile.sex || undefined,
+        intro: profile.intro.trim() || undefined,
       };
+
+      // Validate that required fields are not empty before sending
+      if (!profileData.first_name || profileData.first_name.length < 2) {
+        setValidationErrors(prev => ({ ...prev, first_name: 'First name is required and must be at least 2 characters' }));
+        ToastService.error('Please check the form data');
+        return;
+      }
+
+      if (!profileData.last_name || profileData.last_name.length < 2) {
+        setValidationErrors(prev => ({ ...prev, last_name: 'Last name is required and must be at least 2 characters' }));
+        ToastService.error('Please check the form data');
+        return;
+      }
+
+      if (!profileData.phone_number || profileData.phone_number.length < 5) {
+        setValidationErrors(prev => ({ ...prev, phone_number: 'Phone number is required and must be at least 5 characters' }));
+        ToastService.error('Please check the form data');
+        return;
+      }
+
+      // Debug logging
+      console.log('Sending profile data:', profileData);
 
       // Call the API
       const updatedUser = await ApiService.updateProfile(profileData);
@@ -171,13 +195,13 @@ const AccountProfile: React.FC = () => {
     // Reset form to original user data
     if (user) {
       setProfile({
-        firstName: user.first_name || '',
-        lastName: user.last_name || '',
+        first_name: user.first_name || '',
+        last_name: user.last_name || '',
         email: user.email || '',
-        phone: user.phone_number_1 || '',
-        dateOfBirth: user.date_of_birth || '',
-        gender: user.sex || '',
-        bio: user.intro || ''
+        phone_number: user.phone_number_1 || '',
+        dob: user.date_of_birth || '',
+        sex: user.sex || '',
+        intro: user.intro || ''
       });
     }
     setValidationErrors({});
@@ -263,16 +287,16 @@ const AccountProfile: React.FC = () => {
                 <label className="acc-form-label">First Name</label>
                 <input
                   type="text"
-                  name="firstName"
-                  className={`acc-form-control ${validationErrors.firstName ? 'error' : ''}`}
-                  value={profile.firstName}
+                  name="first_name"
+                  className={`acc-form-control ${validationErrors.first_name ? 'error' : ''}`}
+                  value={profile.first_name}
                   onChange={handleInputChange}
                   disabled={!isEditing}
                   placeholder="Enter your first name"
                 />
-                {validationErrors.firstName && (
+                {validationErrors.first_name && (
                   <div style={{ color: 'var(--danger-color)', fontSize: 'var(--font-size-xs)', marginTop: 'var(--spacing-1)' }}>
-                    {validationErrors.firstName}
+                    {validationErrors.first_name}
                   </div>
                 )}
               </div>
@@ -280,16 +304,16 @@ const AccountProfile: React.FC = () => {
                 <label className="acc-form-label">Last Name</label>
                 <input
                   type="text"
-                  name="lastName"
-                  className={`acc-form-control ${validationErrors.lastName ? 'error' : ''}`}
-                  value={profile.lastName}
+                  name="last_name"
+                  className={`acc-form-control ${validationErrors.last_name ? 'error' : ''}`}
+                  value={profile.last_name}
                   onChange={handleInputChange}
                   disabled={!isEditing}
                   placeholder="Enter your last name"
                 />
-                {validationErrors.lastName && (
+                {validationErrors.last_name && (
                   <div style={{ color: 'var(--danger-color)', fontSize: 'var(--font-size-xs)', marginTop: 'var(--spacing-1)' }}>
-                    {validationErrors.lastName}
+                    {validationErrors.last_name}
                   </div>
                 )}
               </div>
@@ -325,16 +349,16 @@ const AccountProfile: React.FC = () => {
               </label>
               <input
                 type="tel"
-                name="phone"
-                className={`acc-form-control ${validationErrors.phone ? 'error' : ''}`}
-                value={profile.phone}
+                name="phone_number"
+                className={`acc-form-control ${validationErrors.phone_number ? 'error' : ''}`}
+                value={profile.phone_number}
                 onChange={handleInputChange}
                 disabled={!isEditing}
                 placeholder="Enter your phone number"
               />
-              {validationErrors.phone && (
+              {validationErrors.phone_number && (
                 <div style={{ color: 'var(--danger-color)', fontSize: 'var(--font-size-xs)', marginTop: 'var(--spacing-1)' }}>
-                  {validationErrors.phone}
+                  {validationErrors.phone_number}
                 </div>
               )}
             </div>
@@ -353,9 +377,9 @@ const AccountProfile: React.FC = () => {
                 </label>
                 <input
                   type="date"
-                  name="dateOfBirth"
+                  name="dob"
                   className="acc-form-control"
-                  value={profile.dateOfBirth}
+                  value={profile.dob}
                   onChange={handleInputChange}
                   disabled={!isEditing}
                 />
@@ -363,9 +387,9 @@ const AccountProfile: React.FC = () => {
               <div className="acc-form-group">
                 <label className="acc-form-label">Gender</label>
                 <select
-                  name="gender"
+                  name="sex"
                   className="acc-form-control"
-                  value={profile.gender}
+                  value={profile.sex}
                   onChange={handleInputChange}
                   disabled={!isEditing}
                 >
@@ -382,26 +406,26 @@ const AccountProfile: React.FC = () => {
             <div className="acc-form-group">
               <label className="acc-form-label">About Me</label>
               <textarea
-                name="bio"
-                className={`acc-form-control ${validationErrors.bio ? 'error' : ''}`}
+                name="intro"
+                className={`acc-form-control ${validationErrors.intro ? 'error' : ''}`}
                 rows={4}
-                value={profile.bio}
+                value={profile.intro}
                 onChange={handleInputChange}
                 disabled={!isEditing}
                 placeholder="Tell us a bit about yourself..."
                 style={{ resize: 'vertical', minHeight: '100px' }}
               />
-              {validationErrors.bio && (
+              {validationErrors.intro && (
                 <div style={{ color: 'var(--danger-color)', fontSize: 'var(--font-size-xs)', marginTop: 'var(--spacing-1)' }}>
-                  {validationErrors.bio}
+                  {validationErrors.intro}
                 </div>
               )}
               <div style={{ 
                 fontSize: 'var(--font-size-xs)', 
-                color: profile.bio.length > 500 ? 'var(--danger-color)' : 'var(--text-color-medium)', 
+                color: profile.intro.length > 500 ? 'var(--danger-color)' : 'var(--text-color-medium)', 
                 marginTop: 'var(--spacing-1)' 
               }}>
-                {profile.bio.length}/500 characters
+                {profile.intro.length}/500 characters
               </div>
             </div>
 

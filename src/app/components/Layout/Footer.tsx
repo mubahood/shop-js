@@ -1,7 +1,7 @@
 // src/app/components/Layout/Footer.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { COMPANY_INFO, SOCIAL_MEDIA, APP_LINKS } from '../../constants';
+import { COMPANY_INFO, SOCIAL_MEDIA, APP_LINKS, APP_NAME } from '../../constants';
 
 const Footer: React.FC = () => {
   return (
@@ -12,7 +12,7 @@ const Footer: React.FC = () => {
           <div className="footer-columns">
             {/* Company Information */}
             <div className="footer-column">
-              <h3 className="footer-title">BlitXpress</h3>
+              <h3 className="footer-title text-accent">{APP_NAME}</h3>
               <p className="footer-description">
                 Uganda's leading e-commerce platform connecting buyers and sellers nationwide. 
                 Shop with confidence and convenience.
@@ -75,49 +75,39 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        {/* Social Media & Apps Section */}
+        {/* Social Media & Apps Section - Redesigned */}
         <div className="footer-secondary">
           <div className="footer-social-apps">
             {/* Social Media */}
             <div className="footer-social">
-              <h4 className="footer-heading">Follow Us</h4>
-              <div className="social-links">
-                <a href={SOCIAL_MEDIA.FACEBOOK} target="_blank" rel="noopener noreferrer" className="social-link">
+              <h5 className="footer-heading-small">Follow Us</h5>
+              <div className="social-links-compact">
+                <a href={SOCIAL_MEDIA.FACEBOOK} target="_blank" rel="noopener noreferrer" className="social-link-compact">
                   <i className="bi bi-facebook"></i>
-                  <span>Facebook</span>
                 </a>
-                <a href={SOCIAL_MEDIA.INSTAGRAM} target="_blank" rel="noopener noreferrer" className="social-link">
+                <a href={SOCIAL_MEDIA.INSTAGRAM} target="_blank" rel="noopener noreferrer" className="social-link-compact">
                   <i className="bi bi-instagram"></i>
-                  <span>Instagram</span>
                 </a>
-                <a href={SOCIAL_MEDIA.TWITTER} target="_blank" rel="noopener noreferrer" className="social-link">
+                <a href={SOCIAL_MEDIA.TWITTER} target="_blank" rel="noopener noreferrer" className="social-link-compact">
                   <i className="bi bi-twitter-x"></i>
-                  <span>X (Twitter)</span>
                 </a>
-                <a href={SOCIAL_MEDIA.TIKTOK} target="_blank" rel="noopener noreferrer" className="social-link">
+                <a href={SOCIAL_MEDIA.TIKTOK} target="_blank" rel="noopener noreferrer" className="social-link-compact">
                   <i className="bi bi-tiktok"></i>
-                  <span>TikTok</span>
                 </a>
               </div>
             </div>
 
             {/* Mobile Apps */}
             <div className="footer-apps">
-              <h4 className="footer-heading">Download Our Apps</h4>
-              <div className="app-links">
-                <a href={APP_LINKS.IOS} target="_blank" rel="noopener noreferrer" className="app-link">
+              <h5 className="footer-heading-small">Download Our Apps</h5>
+              <div className="app-links-compact">
+                <a href={APP_LINKS.IOS} target="_blank" rel="noopener noreferrer" className="app-link-compact">
                   <i className="bi bi-apple"></i>
-                  <div className="app-info">
-                    <span className="app-store">App Store</span>
-                    <span className="app-name">Download for iOS</span>
-                  </div>
+                  <span>iOS App</span>
                 </a>
-                <a href={APP_LINKS.ANDROID} target="_blank" rel="noopener noreferrer" className="app-link">
+                <a href={APP_LINKS.ANDROID} target="_blank" rel="noopener noreferrer" className="app-link-compact">
                   <i className="bi bi-google-play"></i>
-                  <div className="app-info">
-                    <span className="app-store">Google Play</span>
-                    <span className="app-name">Download for Android</span>
-                  </div>
+                  <span>Android App</span>
                 </a>
               </div>
             </div>
