@@ -16,6 +16,7 @@ const deliveryAddressPageStyles = `
   .delivery-address-page {
     min-height: 100vh;
     background: var(--background-body);
+    position: relative;
   }
 
   .delivery-form-wrapper {
@@ -29,6 +30,12 @@ const deliveryAddressPageStyles = `
     justify-content: center;
     padding: 0;
     border: none;
+    transition: all 0.3s ease;
+  }
+
+  .delivery-form-wrapper.loading {
+    pointer-events: none;
+    opacity: 0.7;
   }
 
   .delivery-header {
@@ -59,6 +66,7 @@ const deliveryAddressPageStyles = `
     flex-direction: column;
     gap: 16px;
     justify-content: center;
+    position: relative;
   }
 
   .form-group-modern {
@@ -85,24 +93,36 @@ const deliveryAddressPageStyles = `
     padding: 10px 14px !important;
     box-shadow: none !important;
     font-weight: 400 !important;
-    transition: border-color 0.2s;
+    transition: all 0.2s ease;
   }
 
   .form-control-modern:focus {
     border-color: var(--primary-color) !important;
     background: var(--background-light) !important;
     outline: none !important;
-    box-shadow: none !important;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1) !important;
+    transform: translateY(-1px);
+  }
+
+  .form-control-modern:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 
   .error-message {
     color: var(--danger-color);
-    font-size: 0.95rem;
-    margin-top: 2px;
+    font-size: 0.9rem;
+    margin-top: 4px;
     font-weight: 500;
     background: none;
     border: none;
     padding: 0;
+    animation: fadeInError 0.3s ease;
+  }
+
+  @keyframes fadeInError {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   .delivery-actions {
@@ -122,12 +142,22 @@ const deliveryAddressPageStyles = `
     border-radius: var(--border-radius);
     min-width: 120px;
     font-weight: 500;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
   }
 
-  .btn-back:hover {
+  .btn-back:hover:not(:disabled) {
     background: var(--primary-color);
     color: var(--white);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
+  }
+
+  .btn-back:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
   }
 
   .btn-continue {
@@ -137,18 +167,115 @@ const deliveryAddressPageStyles = `
     background: var(--primary-color);
     color: var(--white);
     border: none;
-    min-width: 140px;
-    transition: all 0.2s;
+    min-width: 180px;
+    min-height: 42px;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .btn-continue:hover:not(:disabled) {
     background: var(--primary-color-dark);
     color: var(--white);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
   }
 
   .btn-continue:disabled {
     opacity: 0.7;
     cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .btn-continue.loading {
+    pointer-events: none;
+  }
+
+  .loading-spinner {
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+  }
+
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeInOverlay 0.3s ease;
+  }
+
+  @keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .loading-content {
+    background: white;
+    padding: 32px;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    min-width: 280px;
+    animation: slideInUp 0.3s ease;
+  }
+
+  @keyframes slideInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .loading-spinner-large {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 16px;
+    color: var(--primary-color);
+  }
+
+  .loading-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-color-dark);
+    margin-bottom: 8px;
+  }
+
+  .loading-subtext {
+    font-size: 0.95rem;
+    color: var(--text-color-medium);
+    margin: 0;
+  }
+
+  .region-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: var(--background-light);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+  }
+
+  .region-loading-spinner {
+    width: 20px;
+    height: 20px;
+    margin-right: 12px;
+    color: var(--primary-color);
+  }
+
+  .region-loading-text {
+    font-size: 0.95rem;
+    color: var(--text-color-medium);
+    font-weight: 500;
   }
 
   @media (max-width: 575.98px) {
@@ -156,7 +283,19 @@ const deliveryAddressPageStyles = `
       padding: 16px !important;
     }
     .delivery-title {
-      font-size: 1.1rem;
+      font-size: 1.3rem;
+    }
+    .delivery-actions {
+      flex-direction: column;
+    }
+    .btn-back, .btn-continue {
+      width: 100%;
+      min-width: auto;
+    }
+    .loading-content {
+      margin: 20px;
+      min-width: auto;
+      width: calc(100% - 40px);
     }
   }
 `;
@@ -180,6 +319,7 @@ const DeliveryAddressPage: React.FC = () => {
   const [deliveryAddresses, setDeliveryAddresses] = useState<DeliveryAddressModel[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -287,7 +427,11 @@ const DeliveryAddressPage: React.FC = () => {
     }
 
     try {
+      setIsSubmitting(true);
       setIsLoading(true);
+      
+      // Small delay to show the loading state
+      await new Promise(resolve => setTimeout(resolve, 800));
       
       // Navigate to checkout with updated order
       navigate('/checkout', { state: { order } });
@@ -295,6 +439,7 @@ const DeliveryAddressPage: React.FC = () => {
       console.error('Error proceeding to checkout:', error);
       ToastService.error('Failed to proceed to checkout');
     } finally {
+      setIsSubmitting(false);
       setIsLoading(false);
     }
   };
@@ -313,9 +458,21 @@ const DeliveryAddressPage: React.FC = () => {
     <>
       <style dangerouslySetInnerHTML={{ __html: deliveryAddressPageStyles }} />
       <DynamicBreadcrumb showBackground={true} showIcons={true} />
+      
+      {/* Loading Overlay */}
+      {isSubmitting && (
+        <div className="loading-overlay">
+          <div className="loading-content">
+            <Spinner className="loading-spinner-large" animation="border" />
+            <div className="loading-text">Processing Your Information</div>
+            <div className="loading-subtext">Preparing your checkout...</div>
+          </div>
+        </div>
+      )}
+
       <div className="delivery-address-page">
         <Container className="d-flex flex-column justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
-          <div className="delivery-form-wrapper w-100" style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div className={`delivery-form-wrapper w-100 ${isSubmitting ? 'loading' : ''}`} style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             <div className="delivery-header">
               <h2 className="delivery-title">Delivery Information</h2>
               <p className="delivery-subtitle">Please provide your delivery details</p>
@@ -325,15 +482,16 @@ const DeliveryAddressPage: React.FC = () => {
               <div className="form-group-modern">
                 <label className="form-label-modern">Delivery Region *</label>
                 {isLoadingAddresses ? (
-                  <div className="text-center py-3">
-                    <Spinner animation="border" size="sm" />
-                    <span className="ms-2">Loading regions...</span>
+                  <div className="region-loading">
+                    <Spinner className="region-loading-spinner" animation="border" size="sm" />
+                    <span className="region-loading-text">Loading delivery regions...</span>
                   </div>
                 ) : (
                   <Form.Select
                     value={order.delivery_address_id}
                     onChange={(e) => handleDeliveryAddressChange(e.target.value)}
                     isInvalid={!!errors.delivery_address_id}
+                    disabled={isSubmitting}
                     className="form-control-modern"
                   >
                     <option value="">Select a delivery region</option>
@@ -358,6 +516,7 @@ const DeliveryAddressPage: React.FC = () => {
                   onChange={(e) => handleInputChange('delivery_address_details', e.target.value)}
                   placeholder="Enter your street address"
                   isInvalid={!!errors.delivery_address_details}
+                  disabled={isSubmitting}
                   className="form-control-modern"
                 />
                 {errors.delivery_address_details && (
@@ -374,6 +533,7 @@ const DeliveryAddressPage: React.FC = () => {
                   onChange={(e) => handleInputChange('customer_name', e.target.value)}
                   placeholder="Enter your full name"
                   isInvalid={!!errors.customer_name}
+                  disabled={isSubmitting}
                   className="form-control-modern"
                 />
                 {errors.customer_name && (
@@ -390,6 +550,7 @@ const DeliveryAddressPage: React.FC = () => {
                   onChange={(e) => handleInputChange('mail', e.target.value)}
                   placeholder="Enter your email address"
                   isInvalid={!!errors.mail}
+                  disabled={isSubmitting}
                   className="form-control-modern"
                 />
                 {errors.mail && (
@@ -406,6 +567,7 @@ const DeliveryAddressPage: React.FC = () => {
                   onChange={(e) => handleInputChange('customer_phone_number_1', e.target.value)}
                   placeholder="Enter your phone number"
                   isInvalid={!!errors.customer_phone_number_1}
+                  disabled={isSubmitting}
                   className="form-control-modern"
                 />
                 {errors.customer_phone_number_1 && (
@@ -421,6 +583,7 @@ const DeliveryAddressPage: React.FC = () => {
                   value={order.customer_phone_number_2}
                   onChange={(e) => handleInputChange('customer_phone_number_2', e.target.value)}
                   placeholder="Enter alternate phone number (optional)"
+                  disabled={isSubmitting}
                   className="form-control-modern"
                 />
               </div>
@@ -434,6 +597,7 @@ const DeliveryAddressPage: React.FC = () => {
                   value={order.order_details}
                   onChange={(e) => handleInputChange('order_details', e.target.value)}
                   placeholder="Any special instructions for delivery (optional)"
+                  disabled={isSubmitting}
                   className="form-control-modern"
                 />
               </div>
@@ -443,18 +607,19 @@ const DeliveryAddressPage: React.FC = () => {
                 <Button
                   variant="outline-secondary"
                   onClick={() => navigate('/cart')}
+                  disabled={isSubmitting}
                   className="btn-back"
                 >
                   Back to Cart
                 </Button>
                 <Button
                   type="submit"
-                  disabled={isLoading}
-                  className="btn-continue"
+                  disabled={isLoading || isSubmitting}
+                  className={`btn-continue ${isSubmitting ? 'loading' : ''}`}
                 >
-                  {isLoading ? (
+                  {isSubmitting ? (
                     <>
-                      <Spinner size="sm" className="me-2" />
+                      <Spinner size="sm" className="loading-spinner" animation="border" />
                       Processing...
                     </>
                   ) : (
