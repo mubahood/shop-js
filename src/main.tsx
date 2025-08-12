@@ -6,6 +6,23 @@ import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
+// Force light mode - disable dark mode permanently
+document.documentElement.setAttribute('data-bs-theme', 'light');
+document.documentElement.style.colorScheme = 'light';
+
+// Prevent any theme changes
+const preventDarkMode = () => {
+  document.documentElement.setAttribute('data-bs-theme', 'light');
+  document.documentElement.style.colorScheme = 'light';
+};
+
+// Monitor for any theme changes and override them
+const observer = new MutationObserver(preventDarkMode);
+observer.observe(document.documentElement, {
+  attributes: true,
+  attributeFilter: ['data-bs-theme', 'data-theme', 'class']
+});
+
 // Styles - Bootstrap and Icons
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";

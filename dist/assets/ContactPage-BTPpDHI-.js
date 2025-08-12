@@ -1,0 +1,1 @@
+import{j as s}from"./index-BUlTi-RG.js";import{C as t}from"./Container-D2fZxHT4.js";const r=()=>s.jsx(t,{children:s.jsxs("div",{className:"py-5",children:[s.jsx("h1",{children:"Contact Us"}),s.jsx("p",{children:"Contact page coming soon..."})]})});export{r as default};

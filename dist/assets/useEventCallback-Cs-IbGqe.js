@@ -1,1 +1,0 @@
-import{r as e}from"./index-Ck1B39s_.js";function u(t){const r=e.useRef(t);return e.useEffect(()=>{r.current=t},[t]),r}function s(t){const r=u(t);return e.useCallback(function(...n){return r.current&&r.current(...n)},[r])}export{s as a,u};

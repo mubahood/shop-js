@@ -1,0 +1,1 @@
+import{E as r,j as e}from"./index-BUlTi-RG.js";import{C as a}from"./Container-D2fZxHT4.js";const n=()=>{const{categoryId:s}=r();return e.jsx(a,{children:e.jsxs("div",{className:"py-5",children:[e.jsxs("h1",{children:["Category: ",s]}),e.jsx("p",{children:"Category page implementation coming soon..."})]})})};export{n as default};

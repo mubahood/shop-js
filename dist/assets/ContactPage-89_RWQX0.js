@@ -1,1 +1,0 @@
-import{j as s}from"./index-Ck1B39s_.js";import{C as t}from"./Container-CYOb-KOn.js";const r=()=>s.jsx(t,{children:s.jsxs("div",{className:"py-5",children:[s.jsx("h1",{children:"Contact Us"}),s.jsx("p",{children:"Contact page coming soon..."})]})});export{r as default};

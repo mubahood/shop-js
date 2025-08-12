@@ -47,6 +47,9 @@ export const realProductsApi = createApi({
       sort_by?: string;
       sort_order?: string;
       limit?: number;
+      home_section_1?: string; // Filter for Flash Sales section
+      home_section_2?: string; // Filter for Super Buyer section
+      home_section_3?: string; // Filter for Top Products section
     }>({
       query: (params = {}) => {
         const { page = 1, in_stock, ...otherParams } = params;

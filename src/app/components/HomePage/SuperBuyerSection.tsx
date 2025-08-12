@@ -302,8 +302,9 @@ const SuperBuyerSection: React.FC = () => {
   const [superBuyerCards, setSuperBuyerCards] = useState<SuperBuyerCardData[]>([]);
   const [isDataReady, setIsDataReady] = useState(false);
   
-  // Fetch latest 6 products using the real products API
+  // Fetch products for SuperBuyer section (home_section_2 = "Yes")
   const { data: productsResponse, isLoading, error } = useGetProductsQuery({
+    home_section_2: 'Yes',
     page: 1,
     limit: 6,
     sort_by: 'created_at',

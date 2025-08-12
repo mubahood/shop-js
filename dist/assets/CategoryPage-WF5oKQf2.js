@@ -1,1 +1,0 @@
-import{E as r,j as e}from"./index-Ck1B39s_.js";import{C as a}from"./Container-CYOb-KOn.js";const n=()=>{const{categoryId:s}=r();return e.jsx(a,{children:e.jsxs("div",{className:"py-5",children:[e.jsxs("h1",{children:["Category: ",s]}),e.jsx("p",{children:"Category page implementation coming soon..."})]})})};export{n as default};

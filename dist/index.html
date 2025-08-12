@@ -68,23 +68,17 @@
       padding: 0;
     }
   </style>
-  <script type="module" crossorigin src="/assets/index-Ck1B39s_.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-B7D2ht-Y.css">
+  <script type="module" crossorigin src="/assets/index-BUlTi-RG.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-D0zhQWGA.css">
 </head>
 
 <body id="kt_body" class="page-loading">
   <noscript>You need to enable JavaScript to run this app.</noscript>
 
-  <!-- Theme Mode Setup -->
+  <!-- Theme Mode Setup - DISABLED DARK MODE -->
   <script>
-    let themeMode = 'system';
-    if (localStorage.getItem('kt_theme_mode_value')) {
-      themeMode = localStorage.getItem('kt_theme_mode_value');
-    }
-    if (themeMode === 'system') {
-      themeMode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    }
-    document.documentElement.setAttribute('data-bs-theme', themeMode);
+    // Force light mode always - dark mode disabled
+    document.documentElement.setAttribute('data-bs-theme', 'light');
   </script>
 
   <!-- App Root -->

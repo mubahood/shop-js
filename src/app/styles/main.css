@@ -6,6 +6,7 @@
 
 /* 1. Theme Variables and Base Styles */
 @import "../components/css/blitxpress-theme.css";
+@import "../components/css/wishlist-utilities.css";
 
 /* 2. Layout Components */
 @import "../components/Header/Header.css";
@@ -17,6 +18,23 @@
 /* Inline styles moved to respective components */
 
 /* 6. Global Utility Classes and Overrides */
+
+/* FORCE LIGHT MODE - Disable all dark mode */
+html[data-bs-theme="dark"],
+html[data-theme="dark"],
+[data-bs-theme="dark"],
+[data-theme="dark"] {
+  color-scheme: light !important;
+}
+
+/* Override any dark mode media queries */
+@media (prefers-color-scheme: dark) {
+  html,
+  body,
+  * {
+    color-scheme: light !important;
+  }
+}
 
 /* Container improvements */
 .container {

@@ -32,6 +32,16 @@
   --white: #ffffff;
   --black: #000000;
 
+  /* --- Background Colors --- */
+  --bg-light: #f8f9fa;
+  --bg-white: #ffffff;
+  --bg-muted: #f6f8fa;
+
+  /* --- Shadow System --- */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+
   /* --- Success/Error Colors --- */
   --success-color: #198754;
   --warning-color: #fd7e14;

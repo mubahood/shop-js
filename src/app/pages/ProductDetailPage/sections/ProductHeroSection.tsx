@@ -19,7 +19,7 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useGetProductByIdQuery } from '../../../services/productsApi';
-import { addItem } from '../../../store/slices/cartSlice';
+import { addToCart } from '../../../store/slices/cartSlice';
 import { showNotification } from '../../../store/slices/notificationSlice';
 
 const ProductHeroSection: React.FC = () => {
@@ -82,9 +82,9 @@ const ProductHeroSection: React.FC = () => {
     const v = parseInt(e.target.value, 10) || 1;
     setQty(Math.min(Math.max(1, v), remain));
   };
-  const addToCart = () => {
+  const addToCartHandler = () => {
     if (outOfStock) return dispatch(showNotification({ message: 'Out of stock', type: 'error' }));
-    dispatch(addItem({ product: p, quantity: qty, selectedVariants: variants }));
+    dispatch(addToCart({ product: p, quantity: qty, variant: variants }));
     dispatch(showNotification({ message: `${qty}× ${p.name} added`, type: 'success' }));
     setQty(1);
   };
@@ -249,7 +249,7 @@ const ProductHeroSection: React.FC = () => {
                 </div>
               </Form.Group>
 
-              <Button className="w-100 mb-2" onClick={addToCart} disabled={outOfStock}>
+              <Button className="w-100 mb-2" onClick={addToCartHandler} disabled={outOfStock}>
                 <i className="bi bi-cart-plus me-2" /> Add to Cart
               </Button>
               <Button variant="warning" className="w-100 mb-3" onClick={buyNow} disabled={outOfStock}>

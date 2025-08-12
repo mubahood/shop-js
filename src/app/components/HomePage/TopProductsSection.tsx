@@ -76,25 +76,17 @@ const topProductsSectionStyles = `
 `;
 
 const TopProductsSection: React.FC = () => {
-  // Fetch latest 24 products from pages 1 and 2 with 12 limit each (as requested)
-  const { data: page1Response, isLoading: isLoading1 } = useGetProductsQuery({
+  // Fetch products for Top Products section (home_section_3 = "Yes")
+  const { data: productsResponse, isLoading } = useGetProductsQuery({
+    home_section_3: 'Yes',
     page: 1,
-    limit: 12,
-    sort_by: 'created_at',
-    sort_order: 'desc'
-  });
-  
-  const { data: page2Response, isLoading: isLoading2 } = useGetProductsQuery({
-    page: 2,
-    limit: 12,
+    limit: 24,
     sort_by: 'created_at',
     sort_order: 'desc'
   });
 
-  const isLoading = isLoading1 || isLoading2;
-  const page1Products = page1Response?.data || [];
-  const page2Products = page2Response?.data || [];
-  const products = [...page1Products, ...page2Products].slice(0, 40); // Ensure exactly 24 products
+  const products = productsResponse?.data || [];
+  
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: topProductsSectionStyles }} />

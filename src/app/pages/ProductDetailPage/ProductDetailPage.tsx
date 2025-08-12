@@ -1,6 +1,6 @@
 // src/app/pages/ProductDetailPage/ProductDetailPage.tsx
 import React, { useEffect, useState, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   Container,
   Row,
@@ -26,6 +26,7 @@ import DynamicBreadcrumb from "../../components/shared/DynamicBreadcrumb";
 import ShimmerImage from "../../components/ShimmerImage";
 import ReviewList from "../../components/reviews/ReviewList";
 import ReviewForm from "../../components/reviews/ReviewForm";
+import Utils from "../../services/Utils";
 
 // All CSS inline - no external dependencies
 const inlineStyles = `
@@ -760,14 +761,26 @@ const inlineStyles = `
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     box-shadow: var(--shadow-sm);
-    padding: var(--spacing-2xl);
+    padding: 1.5rem;
+    margin-top: 2rem;
   }
 
   .related-products h3 {
     color: var(--text-color-dark);
-    font-weight: 700;
-    margin-bottom: var(--spacing-xl);
-    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .related-products h3::before {
+    content: "";
+    width: 3px;
+    height: 20px;
+    background: var(--primary-color);
+    border-radius: 2px;
   }
 
   .related-products-slider {
@@ -777,13 +790,13 @@ const inlineStyles = `
 
   .related-products-container {
     display: flex;
-    gap: var(--spacing-lg);
+    gap: 1rem;
     transition: transform 0.3s ease;
     overflow-x: auto;
     scroll-behavior: smooth;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    padding-bottom: var(--spacing-sm);
+    padding-bottom: 0.5rem;
   }
 
   .related-products-container::-webkit-scrollbar {
@@ -791,13 +804,252 @@ const inlineStyles = `
   }
 
   .related-product-item {
-    flex: 0 0 260px;
-    min-width: 260px;
+    flex: 0 0 200px;
+    min-width: 200px;
+  }
+
+  .related-product-card {
+    background: var(--white);
+    border: 1px solid var(--border-color-light);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .related-product-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary-color);
+  }
+
+  .related-product-image {
+    position: relative;
+    width: 100%;
+    height: 150px;
+    overflow: hidden;
+    background: var(--bg-light);
+  }
+
+  .related-product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .related-product-card:hover .related-product-image img {
+    transform: scale(1.05);
+  }
+
+  .related-product-content {
+    padding: 0.75rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .related-product-title {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-color-dark);
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-decoration: none;
+    flex: 1;
+  }
+
+  .related-product-title:hover {
+    color: var(--primary-color);
+  }
+
+  .related-product-price {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .related-product-price-current {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--primary-color);
+  }
+
+  .related-product-price-original {
+    font-size: 0.8rem;
+    color: var(--text-color-muted);
+    text-decoration: line-through;
+  }
+
+  .related-product-discount {
+    background: var(--accent-color);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 0.15rem 0.4rem;
+    border-radius: 8px;
+  }
+
+  .related-product-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .related-product-btn {
+    flex: 1;
+    padding: 0.4rem 0.5rem;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+  }
+
+  .related-product-btn-primary {
+    background: var(--primary-color);
+    color: white;
+  }
+
+  .related-product-btn-primary:hover {
+    background: var(--primary-color-dark);
+    transform: translateY(-1px);
+  }
+
+  .related-product-btn-outline {
+    background: transparent;
+    color: var(--text-color-dark);
+    border: 1px solid var(--border-color);
+  }
+
+  .related-product-btn-outline:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background: var(--primary-color-light);
   }
 
   .slider-button {
     position: absolute;
     top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: var(--white);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    color: var(--text-color-dark);
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .slider-button:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .slider-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: translateY(-50%);
+  }
+
+  .slider-button.prev {
+    left: -16px;
+  }
+
+  .slider-button.next {
+    right: -16px;
+  }
+
+  /* Mobile responsive adjustments */
+  @media (max-width: 768px) {
+    .related-products {
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+
+    .related-product-item {
+      flex: 0 0 180px;
+      min-width: 180px;
+    }
+
+    .related-product-image {
+      height: 120px;
+    }
+
+    .related-product-content {
+      padding: 0.5rem;
+    }
+
+    .related-product-title {
+      font-size: 0.8rem;
+    }
+
+    .related-product-price-current {
+      font-size: 0.85rem;
+    }
+
+    .related-product-btn {
+      padding: 0.3rem 0.4rem;
+      font-size: 0.75rem;
+    }
+
+    .slider-button {
+      width: 28px;
+      height: 28px;
+      font-size: 14px;
+    }
+
+    .slider-button.prev {
+      left: -14px;
+    }
+
+    .slider-button.next {
+      right: -14px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .related-product-item {
+      flex: 0 0 160px;
+      min-width: 160px;
+    }
+
+    .related-product-image {
+      height: 100px;
+    }
+
+    .related-product-actions {
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .related-product-btn {
+      padding: 0.35rem;
+      font-size: 0.7rem;
+    }
+  }
     transform: translateY(-50%);
     width: 36px;
     height: 36px;
@@ -2668,6 +2920,7 @@ const ProductDetailPage: React.FC = () => {
         <Container className="mt-4">
           <div className="related-products">
             <h3>Related Products</h3>
+            
             <div className="related-products-slider">
               <button
                 className="slider-button prev"
@@ -2677,13 +2930,81 @@ const ProductDetailPage: React.FC = () => {
               >
                 ‹
               </button>
+              
               <div className="related-products-container">
                 {relatedProducts.map((relatedProduct) => (
                   <div key={relatedProduct.id} className="related-product-item">
-                    <ProductCard product={relatedProduct} />
+                    <div className="related-product-card">
+                      <div className="related-product-image">
+                        <img
+                          src={Utils.img(relatedProduct.feature_photo)}
+                          alt={relatedProduct.name}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = Utils.img('default.png');
+                          }}
+                        />
+                      </div>
+                      
+                      <div className="related-product-content">
+                        <Link
+                          to={`/product/${relatedProduct.id}`}
+                          className="related-product-title"
+                        >
+                          {relatedProduct.name}
+                        </Link>
+                        
+                        <div className="related-product-price">
+                          <span className="related-product-price-current">
+                            £{relatedProduct.price_2 || relatedProduct.price_1}
+                          </span>
+                          {relatedProduct.price_2 && parseFloat(relatedProduct.price_2) < parseFloat(relatedProduct.price_1) && (
+                            <>
+                              <span className="related-product-price-original">
+                                £{relatedProduct.price_1}
+                              </span>
+                              <span className="related-product-discount">
+                                -{Math.round(((parseFloat(relatedProduct.price_1) - parseFloat(relatedProduct.price_2)) / parseFloat(relatedProduct.price_1)) * 100)}%
+                              </span>
+                            </>
+                          )}
+                        </div>
+                        
+                        <div className="related-product-actions">
+                          <button
+                            className="related-product-btn related-product-btn-primary"
+                            onClick={async () => {
+                              try {
+                                const success = await addToCartHook(relatedProduct, 1);
+                                if (success) {
+                                  dispatch(showNotification({
+                                    message: `${relatedProduct.name} added to cart!`,
+                                    type: 'success'
+                                  }));
+                                }
+                              } catch (error) {
+                                dispatch(showNotification({
+                                  message: 'Failed to add item to cart',
+                                  type: 'error'
+                                }));
+                              }
+                            }}
+                          >
+                            + Cart
+                          </button>
+                          <Link
+                            to={`/product/${relatedProduct.id}`}
+                            className="related-product-btn related-product-btn-outline"
+                          >
+                            View
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
+              
               <button
                 className="slider-button next"
                 onClick={handleSliderNext}
