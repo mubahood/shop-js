@@ -15,6 +15,7 @@ const checkoutPageStyles = `
   .checkout-page {
     min-height: 100vh;
     background: var(--background-body);
+    position: relative;
   }
 
   .checkout-card {
@@ -28,6 +29,12 @@ const checkoutPageStyles = `
     justify-content: center;
     padding: 0;
     border: none;
+    transition: all 0.3s ease;
+  }
+
+  .checkout-card.loading {
+    pointer-events: none;
+    opacity: 0.7;
   }
 
   .checkout-header {
@@ -58,6 +65,7 @@ const checkoutPageStyles = `
     flex-direction: column;
     gap: 16px;
     justify-content: center;
+    position: relative;
   }
 
   .summary-item {
@@ -68,6 +76,12 @@ const checkoutPageStyles = `
     padding: 0;
     background: none;
     border: none;
+    animation: fadeInSlide 0.4s ease;
+  }
+
+  @keyframes fadeInSlide {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   .summary-item-content {
@@ -97,14 +111,30 @@ const checkoutPageStyles = `
 
   .summary-divider, .summary-divider-bold {
     border: none;
-    height: 0;
-    margin: 0;
+    height: 1px;
+    background: var(--border-color);
+    margin: 8px 0;
+    opacity: 0.5;
+  }
+
+  .summary-divider-bold {
+    height: 2px;
+    background: var(--primary-color);
+    opacity: 0.3;
+    margin: 16px 0;
   }
 
   .summary-total {
-    background: none;
-    border-radius: 0;
-    padding: 0;
+    background: var(--background-light);
+    border-radius: var(--border-radius);
+    padding: 16px;
+    border: 2px solid var(--primary-color);
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 5px rgba(13, 110, 253, 0.2); }
+    50% { box-shadow: 0 0 15px rgba(13, 110, 253, 0.4); }
   }
 
   .summary-total-title {
@@ -126,6 +156,13 @@ const checkoutPageStyles = `
     margin-top: 12px;
     margin-bottom: 0;
     text-align: center;
+    animation: shake 0.5s ease-in-out;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
   }
 
   .checkout-actions {
@@ -144,14 +181,24 @@ const checkoutPageStyles = `
     background: var(--white);
     border: 1px solid var(--primary-color);
     border-radius: var(--border-radius);
-    min-width: 120px;
+    min-width: 160px;
     font-weight: 500;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
   }
 
-  .btn-back-checkout:hover {
+  .btn-back-checkout:hover:not(:disabled) {
     background: var(--primary-color);
     color: var(--white);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
+  }
+
+  .btn-back-checkout:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
   }
 
   .btn-submit-order {
@@ -161,18 +208,92 @@ const checkoutPageStyles = `
     background: var(--primary-color);
     color: var(--white);
     border: none;
-    min-width: 140px;
-    transition: all 0.2s;
+    min-width: 180px;
+    min-height: 42px;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .btn-submit-order:hover:not(:disabled) {
     background: var(--primary-color-dark);
     color: var(--white);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
   }
 
   .btn-submit-order:disabled {
     opacity: 0.7;
     cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .btn-submit-order.loading {
+    pointer-events: none;
+  }
+
+  .loading-spinner {
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+  }
+
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(6px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeInOverlay 0.3s ease;
+  }
+
+  @keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .loading-content {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    min-width: 320px;
+    animation: slideInUp 0.3s ease;
+  }
+
+  @keyframes slideInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .loading-spinner-large {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+  }
+
+  .loading-text {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-color-dark);
+    margin-bottom: 8px;
+  }
+
+  .loading-subtext {
+    font-size: 1rem;
+    color: var(--text-color-medium);
+    margin: 0;
   }
 
   .modal-order-summary {
@@ -181,6 +302,35 @@ const checkoutPageStyles = `
     margin-top: 12px;
     margin-bottom: 12px;
     text-align: center;
+    background: var(--background-light);
+    padding: 12px;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+  }
+
+  .modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  .modal-header {
+    border-bottom: 1px solid var(--border-color);
+    padding: 20px 24px;
+  }
+
+  .modal-body {
+    padding: 24px;
+  }
+
+  .modal-footer {
+    border-top: 1px solid var(--border-color);
+    padding: 20px 24px;
+  }
+
+  .modal-title {
+    font-weight: 600;
+    color: var(--text-color-dark);
   }
 
   @media (max-width: 575.98px) {
@@ -188,10 +338,22 @@ const checkoutPageStyles = `
       padding: 16px !important;
     }
     .checkout-title {
-      font-size: 1.1rem;
+      font-size: 1.3rem;
     }
     .summary-total-title, .summary-total-amount {
-      font-size: 1rem;
+      font-size: 1.1rem;
+    }
+    .checkout-actions {
+      flex-direction: column;
+    }
+    .btn-back-checkout, .btn-submit-order {
+      width: 100%;
+      min-width: auto;
+    }
+    .loading-content {
+      margin: 20px;
+      min-width: auto;
+      width: calc(100% - 40px);
     }
   }
 `;
@@ -221,6 +383,7 @@ const CheckoutPage: React.FC = () => {
     return new OrderModel();
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
@@ -251,8 +414,12 @@ const CheckoutPage: React.FC = () => {
 
   const submitOrder = async () => {
     try {
+      setIsSubmitting(true);
       setIsLoading(true);
       setErrorMessage('');
+
+      // Small delay to show the loading state
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       // Validate order data
       if (!order || typeof order !== 'object') {
@@ -332,6 +499,7 @@ const CheckoutPage: React.FC = () => {
       setErrorMessage(error.message || 'Failed to submit order');
       ToastService.error('Failed to submit order: ' + (error.message || 'Unknown error'));
     } finally {
+      setIsSubmitting(false);
       setIsLoading(false);
       setShowConfirmModal(false);
     }
@@ -356,6 +524,19 @@ const CheckoutPage: React.FC = () => {
       <style dangerouslySetInnerHTML={{ __html: checkoutPageStyles }} />
       <DynamicBreadcrumb showBackground={true} showIcons={true} />
       <div className="checkout-page">
+        {/* Loading Overlay */}
+        {isSubmitting && (
+          <div className="loading-overlay">
+            <div className="loading-content">
+              <Spinner animation="border" variant="primary" className="loading-spinner" />
+              <div className="loading-text">
+                <h4>Submitting Your Order</h4>
+                <p>Please wait while we process your order...</p>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <Container className="d-flex flex-column justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
           <div className="checkout-card w-100" style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             <div className="checkout-header">
@@ -416,19 +597,19 @@ const CheckoutPage: React.FC = () => {
                 variant="outline-secondary"
                 onClick={() => navigate('/delivery-address', { state: { order } })}
                 className="btn-back-checkout"
-                disabled={isLoading}
+                disabled={isSubmitting || isLoading}
               >
                 Back to Delivery Info
               </Button>
               <Button
                 onClick={handleSubmitClick}
-                disabled={isLoading}
+                disabled={isSubmitting || isLoading}
                 className="btn-submit-order"
               >
-                {isLoading ? (
+                {isSubmitting || isLoading ? (
                   <>
                     <Spinner size="sm" className="me-2" />
-                    Submitting Order...
+                    {isSubmitting ? 'Submitting Order...' : 'Loading...'}
                   </>
                 ) : (
                   'Submit Order'
@@ -451,19 +632,19 @@ const CheckoutPage: React.FC = () => {
               <Button 
                 variant="outline-secondary" 
                 onClick={() => setShowConfirmModal(false)}
-                disabled={isLoading}
+                disabled={isSubmitting || isLoading}
               >
                 Cancel
               </Button>
               <Button 
                 variant="primary" 
                 onClick={submitOrder}
-                disabled={isLoading}
+                disabled={isSubmitting || isLoading}
               >
-                {isLoading ? (
+                {isSubmitting || isLoading ? (
                   <>
                     <Spinner size="sm" className="me-2" />
-                    Submitting...
+                    {isSubmitting ? 'Submitting...' : 'Loading...'}
                   </>
                 ) : (
                   'Confirm Order'

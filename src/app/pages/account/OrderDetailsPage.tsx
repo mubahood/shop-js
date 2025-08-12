@@ -1,6 +1,7 @@
 // src/app/pages/account/OrderDetailsPage.tsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Modal, Button } from 'react-bootstrap';
 import { OrderModel } from '../../models/OrderModel';
 import { formatPrice } from '../../utils';
 import ToastService from '../../services/ToastService';
@@ -10,6 +11,9 @@ const OrderDetailsPage: React.FC = () => {
   const navigate = useNavigate();
   const [order, setOrder] = useState<OrderModel | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  
+  const contactNumber = "+256 701 070684";
 
   useEffect(() => {
     if (orderId) {
@@ -87,14 +91,50 @@ const OrderDetailsPage: React.FC = () => {
     }
   };
 
+  const getOrderNotes = (orderDetails: string) => {
+    if (!orderDetails) return '';
+    
+    // If it's already a simple string (not JSON), return it
+    if (!orderDetails.trim().startsWith('{') && !orderDetails.trim().startsWith('[')) {
+      return orderDetails.trim();
+    }
+    
+    try {
+      // Try to parse as JSON
+      const parsed = JSON.parse(orderDetails);
+      
+      // If it's an object, extract the order_details field
+      if (typeof parsed === 'object' && parsed !== null) {
+        return parsed.order_details || '';
+      }
+      
+      // If it's not an object, return the original string
+      return orderDetails.trim();
+    } catch {
+      // If parsing fails, return the original string
+      return orderDetails.trim();
+    }
+  };
+
 
 
   const handlePayOrder = () => {
-    if (order && order.getPaymentLink()) {
-      // Navigate to payment page (like WebViewExample in Dart)
-      navigate(`/payment/${order.id}`);
-    } else {
-      ToastService.info('Payment link not available');
+    setShowPaymentModal(true);
+  };
+
+  const handleCallToPay = () => {
+    const phoneNumber = contactNumber.replace(/\s+/g, ''); // Remove spaces
+    const telUrl = `tel:${phoneNumber}`;
+    
+    try {
+      window.open(telUrl, '_self');
+    } catch (error) {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(contactNumber).then(() => {
+        ToastService.success('Phone number copied to clipboard!');
+      }).catch(() => {
+        ToastService.info(`Please call: ${contactNumber}`);
+      });
     }
   };
 
@@ -483,28 +523,32 @@ const OrderDetailsPage: React.FC = () => {
                   )}
                 </p>
               </div>
-              {order.order_details && (
-                <div>
-                  <h6 style={{
-                    fontSize: 'var(--font-size-sm)',
-                    fontWeight: 'var(--font-weight-medium)',
-                    color: 'var(--text-color)',
-                    marginBottom: 'var(--spacing-1)'
-                  }}>
-                    Order Notes:
-                  </h6>
-                  <p style={{
-                    color: 'var(--text-color-medium)',
-                    margin: 0,
-                    padding: 'var(--spacing-3)',
-                    backgroundColor: 'var(--background-light)',
-                    borderRadius: 'var(--border-radius)',
-                    lineHeight: '1.5'
-                  }}>
-                    {order.order_details}
-                  </p>
-                </div>
-              )}
+              {(() => {
+                const notes = getOrderNotes(order.order_details || '');
+                return notes && notes.trim() ? (
+                  <div>
+                    <h6 style={{
+                      fontSize: 'var(--font-size-sm)',
+                      fontWeight: 'var(--font-weight-medium)',
+                      color: 'var(--text-color)',
+                      marginBottom: 'var(--spacing-1)'
+                    }}>
+                      Order Notes:
+                    </h6>
+                    <p style={{
+                      color: 'var(--text-color-medium)',
+                      margin: 0,
+                      padding: 'var(--spacing-3)',
+                      backgroundColor: 'var(--background-light)',
+                      borderRadius: 'var(--border-radius)',
+                      lineHeight: '1.5',
+                      whiteSpace: 'pre-wrap'
+                    }}>
+                      {notes}
+                    </p>
+                  </div>
+                ) : null;
+              })()}
             </div>
           </div>
         </div>
@@ -575,6 +619,139 @@ const OrderDetailsPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Payment Instructions Modal */}
+      <Modal 
+        show={showPaymentModal} 
+        onHide={() => setShowPaymentModal(false)} 
+        centered
+        size="lg"
+      >
+        <Modal.Header closeButton style={{ 
+          backgroundColor: 'var(--primary-color)', 
+          color: 'white',
+          borderBottom: 'none'
+        }}>
+          <Modal.Title style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
+            Payment Instructions
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ 
+          background: 'linear-gradient(135deg, var(--primary-color)10, white)',
+          padding: '2rem'
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <h3 style={{
+              fontSize: '1.75rem',
+              fontWeight: 'bold',
+              color: 'var(--primary-color)',
+              marginBottom: '1.25rem'
+            }}>
+              Complete Your Order
+            </h3>
+            
+            <p style={{
+              fontSize: '1.125rem',
+              color: 'var(--text-color)',
+              lineHeight: '1.6',
+              marginBottom: '1.5rem',
+              maxWidth: '500px',
+              margin: '0 auto 1.5rem'
+            }}>
+              For a secure and smooth payment process, please contact us directly at the number below. 
+              Our team will assist you with all payment details.
+            </p>
+
+            {order && (
+              <div style={{
+                backgroundColor: 'var(--background-light)',
+                padding: '1rem',
+                borderRadius: 'var(--border-radius)',
+                marginBottom: '1.5rem',
+                border: '1px solid var(--border-color)'
+              }}>
+                <p style={{ margin: '0 0 0.5rem', fontWeight: 'var(--font-weight-medium)' }}>
+                  Order #{order.id}
+                </p>
+                <p style={{ 
+                  margin: 0, 
+                  fontSize: '1.25rem', 
+                  fontWeight: 'bold',
+                  color: 'var(--primary-color)' 
+                }}>
+                  Total: {formatPrice(parseFloat(order.payable_amount || order.order_total || '0'))}
+                </p>
+              </div>
+            )}
+            
+            <div style={{
+              fontSize: '1.5rem',
+              fontWeight: 'bold',
+              color: 'var(--primary-color)',
+              marginBottom: '1.5rem',
+              padding: '0.75rem',
+              backgroundColor: 'var(--background-light)',
+              borderRadius: 'var(--border-radius)',
+              border: '2px solid var(--primary-color)',
+              letterSpacing: '1px'
+            }}>
+              {contactNumber}
+            </div>
+            
+            <Button
+              onClick={handleCallToPay}
+              style={{
+                backgroundColor: 'var(--primary-color)',
+                borderColor: 'var(--primary-color)',
+                padding: '0.75rem 2rem',
+                fontSize: '1.125rem',
+                fontWeight: '600',
+                borderRadius: 'var(--border-radius)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+              }}
+            >
+              <i className="bi bi-telephone-fill" style={{ fontSize: '1.2rem' }}></i>
+              Call to Pay
+            </Button>
+
+            <p style={{
+              marginTop: '1rem',
+              fontSize: '0.875rem',
+              color: 'var(--text-color-medium)',
+              fontStyle: 'italic'
+            }}>
+              Our payment team is available to assist you with secure payment options
+            </p>
+          </div>
+        </Modal.Body>
+        <Modal.Footer style={{ 
+          borderTop: '1px solid var(--border-color)',
+          padding: '1rem 2rem'
+        }}>
+          <Button 
+            variant="outline-secondary" 
+            onClick={() => setShowPaymentModal(false)}
+            style={{
+              padding: '0.5rem 1.5rem',
+              borderRadius: 'var(--border-radius)'
+            }}
+          >
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       {/* Spinner animation styles */}
       <style>{`
