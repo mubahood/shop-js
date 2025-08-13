@@ -64,6 +64,18 @@ const authSlice = createSlice({
         console.error('Failed to clear auth data from localStorage:', error);
       }
     },
+    // Action to update user profile
+    updateProfile: (state, action: PayloadAction<any>) => {
+      if (state.user) {
+        state.user = { ...state.user, ...action.payload };
+        // Update localStorage with new user data
+        try {
+          localStorage.setItem('DB_LOGGED_IN_PROFILE', JSON.stringify(state.user));
+        } catch (error) {
+          console.error('Failed to update user data in localStorage:', error);
+        }
+      }
+    },
     // Action to restore auth state from localStorage (call this after app initialization)
     restoreAuthState: (state) => {
       try {
@@ -92,6 +104,7 @@ export const {
   loginSuccess,
   loginFailure,
   logout,
+  updateProfile,
   restoreAuthState,
 } = authSlice.actions;
 

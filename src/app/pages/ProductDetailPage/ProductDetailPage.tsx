@@ -2956,12 +2956,12 @@ const ProductDetailPage: React.FC = () => {
                         
                         <div className="related-product-price">
                           <span className="related-product-price-current">
-                            £{relatedProduct.price_2 || relatedProduct.price_1}
+                            UGX {relatedProduct.price_2 || relatedProduct.price_1}
                           </span>
                           {relatedProduct.price_2 && parseFloat(relatedProduct.price_2) < parseFloat(relatedProduct.price_1) && (
                             <>
                               <span className="related-product-price-original">
-                                £{relatedProduct.price_1}
+                                UGX {relatedProduct.price_1}
                               </span>
                               <span className="related-product-discount">
                                 -{Math.round(((parseFloat(relatedProduct.price_1) - parseFloat(relatedProduct.price_2)) / parseFloat(relatedProduct.price_1)) * 100)}%

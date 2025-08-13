@@ -41,5 +41,6 @@ try {
   console.log('App rendered successfully!');
 } catch (error) {
   console.error('Error during rendering:', error);
-  container.innerHTML = `<h1 style="color: red;">Error: ${error.message}</h1>`;
+  const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+  container.innerHTML = `<h1 style="color: red;">Error: ${errorMessage}</h1>`;
 }
