@@ -2,7 +2,6 @@
 import React, { useEffect } from "react";
 import { Outlet, Link } from "react-router-dom";
 import { APP_CONFIG } from "../../constants";
-import "./AuthLayout.css";
 
 const AuthLayout: React.FC = () => {
   useEffect(() => {
@@ -17,16 +16,56 @@ const AuthLayout: React.FC = () => {
     };
   }, []);
 
+  const authLayoutStyles: React.CSSProperties = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+    overflow: 'hidden',
+    zIndex: 1040,
+    backgroundColor: '#f8f9fa',
+    display: 'flex'
+  };
+
+  const brandingPanelStyles: React.CSSProperties = {
+    background: 'linear-gradient(135deg, #007bff, #0056b3)',
+    flex: 1,
+    height: '100vh',
+    overflow: 'hidden',
+    padding: '2rem',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+    color: 'white',
+    position: 'relative',
+    minHeight: '100vh'
+  };
+
+  const formPanelStyles: React.CSSProperties = {
+    backgroundColor: 'white',
+    flex: 1,
+    height: '100vh',
+    overflow: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: '2rem'
+  };
+
   return (
-    <div className="auth-layout">
+    <div style={authLayoutStyles}>
       {/* Left Side - Branding Panel */}
-      <div className="auth-branding-panel d-none d-lg-block">
-        <div className="auth-branding-content">
+      <div style={brandingPanelStyles} className="d-none d-lg-block">
+        <div>
           <Link to="/" className="text-white text-decoration-none">
             <img
               src="/media/logos/logo-white.png"
               alt={APP_CONFIG.NAME}
-              className="auth-logo"
+              style={{ maxHeight: '60px', marginBottom: '20px' }}
               onError={(e) => {
                 // Fallback if logo doesn't exist
                 e.currentTarget.style.display = 'none';
@@ -41,20 +80,20 @@ const AuthLayout: React.FC = () => {
           </p>
           
           {/* Enhanced Features */}
-          <div className="auth-features">
-            <div className="auth-feature-item">
+          <div style={{ marginTop: '30px' }}>
+            <div style={{ marginBottom: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
               <i className="bi bi-shield-check"></i>
               <span>100% Secure Shopping Experience</span>
             </div>
-            <div className="auth-feature-item">
+            <div style={{ marginBottom: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
               <i className="bi bi-truck"></i>
               <span>Fast & Free Worldwide Delivery</span>
             </div>
-            <div className="auth-feature-item">
+            <div style={{ marginBottom: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
               <i className="bi bi-headset"></i>
               <span>24/7 Premium Customer Support</span>
             </div>
-            <div className="auth-feature-item">
+            <div style={{ marginBottom: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
               <i className="bi bi-award"></i>
               <span>Best Price Guarantee</span>
             </div>
@@ -63,14 +102,15 @@ const AuthLayout: React.FC = () => {
       </div>
 
       {/* Right Side - Auth Forms Panel */}
-      <div className="auth-form-panel">
-        <div className="auth-form-container">
+      <div style={formPanelStyles}>
+        <div style={{ maxWidth: '400px', width: '100%' }}>
           {/* Mobile Logo */}
-          <div className="auth-mobile-logo d-lg-none">
+          <div className="auth-mobile-logo d-lg-none" style={{ textAlign: 'center', marginBottom: '30px' }}>
             <Link to="/">
               <img
                 src="/media/logos/logo.png"
                 alt={APP_CONFIG.NAME}
+                style={{ maxHeight: '50px' }}
                 onError={(e) => {
                   // Fallback if logo doesn't exist
                   e.currentTarget.style.display = 'none';
@@ -80,15 +120,15 @@ const AuthLayout: React.FC = () => {
           </div>
           
           {/* Auth Form Content */}
-          <div className="auth-form-content">
+          <div>
             <Outlet />
           </div>
           
           {/* Back to Home Link */}
-          <div className="auth-back-link">
-            <Link to="/">
+          <div style={{ textAlign: 'center', marginTop: '30px' }}>
+            <Link to="/" style={{ textDecoration: 'none', color: '#007bff' }}>
               <i className="bi bi-arrow-left"></i>
-              Back to Shopping
+              {' '}Back to Shopping
             </Link>
           </div>
         </div>

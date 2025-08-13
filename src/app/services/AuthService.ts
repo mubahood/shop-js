@@ -7,8 +7,10 @@
 
 import { http_post } from './Api';
 import { ProfileModel } from '../models/ProfileModel';
-import Utils from './Utils';
-import { DB_TOKEN, DB_LOGGED_IN_PROFILE } from '../../Constants';
+
+// Define constants directly to avoid circular dependencies
+const DB_TOKEN = "DB_TOKEN";
+const DB_LOGGED_IN_PROFILE = "DB_LOGGED_IN_PROFILE";
 
 export interface LoginCredentials {
   username: string;
@@ -67,9 +69,9 @@ export const loginUser = async (credentials: LoginCredentials): Promise<ProfileM
       throw new Error('No authentication token received from server');
     }
 
-    // Save user and token using Utils (following your pattern)
-    Utils.saveToDatabase(DB_LOGGED_IN_PROFILE, responseData);
-    Utils.saveToDatabase(DB_TOKEN, token);
+    // Save user and token using localStorage
+    localStorage.setItem(DB_LOGGED_IN_PROFILE, JSON.stringify(responseData));
+    localStorage.setItem(DB_TOKEN, token);
 
     console.log('✅ AuthService: Login successful, data saved');
     return userProfile;
@@ -124,9 +126,9 @@ export const registerUser = async (userData: RegisterData): Promise<ProfileModel
       throw new Error('No authentication token received from server');
     }
 
-    // Save user and token using Utils
-    Utils.saveToDatabase(DB_LOGGED_IN_PROFILE, responseData);
-    Utils.saveToDatabase(DB_TOKEN, token);
+    // Save user and token using localStorage
+    localStorage.setItem(DB_LOGGED_IN_PROFILE, JSON.stringify(responseData));
+    localStorage.setItem(DB_TOKEN, token);
 
     console.log('✅ AuthService: Registration successful');
     return userProfile;
@@ -140,16 +142,16 @@ export const registerUser = async (userData: RegisterData): Promise<ProfileModel
  * Logout user - clear local storage
  */
 export const logoutUser = (): void => {
-  Utils.removeFromDatabase(DB_LOGGED_IN_PROFILE);
-  Utils.removeFromDatabase(DB_TOKEN);
+  localStorage.removeItem(DB_LOGGED_IN_PROFILE);
+  localStorage.removeItem(DB_TOKEN);
 };
 
 /**
  * Check if user is currently logged in
  */
 export const isUserLoggedIn = (): boolean => {
-  const user = Utils.loadFromDatabase(DB_LOGGED_IN_PROFILE);
-  const token = Utils.loadFromDatabase(DB_TOKEN);
+  const user = localStorage.getItem(DB_LOGGED_IN_PROFILE);
+  const token = localStorage.getItem(DB_TOKEN);
   return !!(user && token);
 };
 
@@ -157,7 +159,7 @@ export const isUserLoggedIn = (): boolean => {
  * Get current logged in user
  */
 export const getCurrentUser = (): ProfileModel | null => {
-  const userData = Utils.loadFromDatabase(DB_LOGGED_IN_PROFILE);
+  const userData = localStorage.getItem(DB_LOGGED_IN_PROFILE);
   if (userData) {
     return ProfileModel.fromJson(userData);
   }
@@ -168,5 +170,5 @@ export const getCurrentUser = (): ProfileModel | null => {
  * Get current authentication token
  */
 export const getCurrentToken = (): string | null => {
-  return Utils.loadFromDatabase(DB_TOKEN);
+  return localStorage.getItem(DB_TOKEN);
 };

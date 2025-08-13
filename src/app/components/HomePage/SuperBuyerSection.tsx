@@ -267,9 +267,9 @@ const superBuyerStyles = `
 
   .mini-product-badge {
     font-size: 0.75rem;
-    color: var(--accent-color);
+    color: white;
     font-weight: 500;
-    background: var(--accent-color-light);
+    background: var(--accent-color);
     padding: 0.25rem 0.5rem;
     border-radius: var(--border-radius);
     white-space: nowrap;
@@ -302,9 +302,8 @@ const SuperBuyerSection: React.FC = () => {
   const [superBuyerCards, setSuperBuyerCards] = useState<SuperBuyerCardData[]>([]);
   const [isDataReady, setIsDataReady] = useState(false);
   
-  // Fetch products for SuperBuyer section (home_section_2 = "Yes")
+  // Fetch products for SuperBuyer section
   const { data: productsResponse, isLoading, error } = useGetProductsQuery({
-    home_section_2: 'Yes',
     page: 1,
     limit: 6,
     sort_by: 'created_at',

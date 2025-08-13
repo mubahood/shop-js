@@ -34,26 +34,26 @@ import "./app/styles/main.css";
 import App from "./app/App";
 import { store } from "./app/store/store";
 
-// Debug utilities for development - TEMPORARILY DISABLED
-// if (import.meta.env.DEV) {
-//   import('./app/utils/debugAuth').then(({ debugAuthStatus }) => {
-//     (window as any).debugAuth = debugAuthStatus;
-//   });
+// Debug utilities for development
+if (import.meta.env.DEV) {
+  import('./app/utils/debugAuth').then(({ debugAuthStatus }) => {
+    (window as any).debugAuth = debugAuthStatus;
+  });
   
-//   import('./app/utils/testLogin').then(({ testLogin }) => {
-//     (window as any).testLogin = testLogin;
-//   });
+  import('./app/utils/testLogin').then(({ testLogin }) => {
+    (window as any).testLogin = testLogin;
+  });
   
-//   import('./app/utils/authDebugger').then(({ debugLogin, manualAuth }) => {
-//     (window as any).debugLogin = debugLogin;
-//     (window as any).manualAuth = manualAuth;
-//   });
+  import('./app/utils/authDebugger').then(({ debugLogin, manualAuth }) => {
+    (window as any).debugLogin = debugLogin;
+    (window as any).manualAuth = manualAuth;
+  });
   
-//   import('./app/utils/quickLoginTest').then(({ quickLogin, loginInstructions }) => {
-//     (window as any).quickLogin = quickLogin;
-//     (window as any).loginInstructions = loginInstructions;
-//   });
-// }
+  import('./app/utils/quickLoginTest').then(({ quickLogin, loginInstructions }) => {
+    (window as any).quickLogin = quickLogin;
+    (window as any).loginInstructions = loginInstructions;
+  });
+}
 
 // Create Query Client
 const queryClient = new QueryClient({

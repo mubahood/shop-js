@@ -14,13 +14,71 @@ const api = axios.create({
 });
 
 // Function to handle user registration
-export async function register(email: string, password: string) {
-  return handleAuth("users/register", { username: email, password });
+export async function register(email: string, password: string, additionalData?: Record<string, any>) {
+  const registerData = { 
+    username: email, 
+    password,
+    email,
+    ...additionalData 
+  };
+  return handleAuth("users/register", registerData);
 }
 
 // Function to handle user login
 export async function login(email: string, password: string) {
   return handleAuth("users/login", { username: email, password });
+}
+
+// Function to request password reset
+export async function requestPasswordReset(email: string) {
+  try {
+    console.log('🔐 Requesting password reset for:', email);
+    
+    const resp = await http_post('users/login', {
+      username: email,
+      task: 'request_password_reset'
+    });
+    
+    console.log('🔐 Password reset request response:', resp);
+    
+    if (resp.code !== 1) {
+      console.error('❌ Password reset request failed:', resp);
+      throw new Error(resp.message || "Failed to send password reset email");
+    }
+    
+    console.log('✅ Password reset email sent successfully');
+    return resp;
+  } catch (error) {
+    console.error('❌ Password reset request error:', error);
+    throw new Error(`Password reset request failed: ${error}`);
+  }
+}
+
+// Function to reset password with code
+export async function resetPassword(email: string, code: string, newPassword: string) {
+  try {
+    console.log('🔐 Resetting password for:', email);
+    
+    const resp = await http_post('users/login', {
+      email,
+      code,
+      password: newPassword,
+      task: 'reset_password'
+    });
+    
+    console.log('🔐 Password reset response:', resp);
+    
+    if (resp.code !== 1) {
+      console.error('❌ Password reset failed:', resp);
+      throw new Error(resp.message || "Failed to reset password");
+    }
+    
+    console.log('✅ Password reset successfully');
+    return resp;
+  } catch (error) {
+    console.error('❌ Password reset error:', error);
+    throw new Error(`Password reset failed: ${error}`);
+  }
 }
 
 // Common function to handle authentication

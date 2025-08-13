@@ -49,6 +49,9 @@ const ApiIntegrationStatusPage = React.lazy(() => import("../pages/ApiIntegratio
 // Auth Pages
 const LoginPage = React.lazy(() => import("../pages/auth/LoginPage"));
 const RegisterPage = React.lazy(() => import("../pages/auth/RegisterPage"));
+const MinimalLogin = React.lazy(() => import("../pages/auth/MinimalLogin"));
+const MinimalRegister = React.lazy(() => import("../pages/auth/MinimalRegister"));
+const ForgotPassword = React.lazy(() => import("../pages/auth/ForgotPassword"));
 const ForgotPasswordPage = React.lazy(() => import("../pages/auth/ForgotPasswordPage"));
 
 // Account Pages
@@ -180,33 +183,15 @@ const AppRoutes: React.FC = () => {
           <Route path="integration-status" element={<ApiIntegrationStatusPage />} />
         </Route>
 
-        {/* Auth Layout Routes */}
-        <Route path="/auth" element={<AuthLayout />}>
-          <Route 
-            path="login" 
-            element={
-              <PublicOnlyRoute>
-                <LoginPage />
-              </PublicOnlyRoute>
-            } 
-          />
-          <Route 
-            path="register" 
-            element={
-              <PublicOnlyRoute>
-                <RegisterPage />
-              </PublicOnlyRoute>
-            } 
-          />
-          <Route 
-            path="forgot-password" 
-            element={
-              <PublicOnlyRoute>
-                <ForgotPasswordPage />
-              </PublicOnlyRoute>
-            } 
-          />
-        </Route>
+        {/* MINIMAL Auth Routes - NO LAYOUT DEPENDENCIES */}
+        <Route path="/auth/login" element={<MinimalLogin />} />
+        <Route path="/auth/register" element={<MinimalRegister />} />
+        <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+        
+        {/* Direct auth routes - redirect to minimal versions */}
+        <Route path="/login" element={<Navigate to="/auth/login" replace />} />
+        <Route path="/register" element={<Navigate to="/auth/register" replace />} />
+        <Route path="/forgot-password" element={<Navigate to="/auth/forgot-password" replace />} />
 
         {/* Error Routes */}
         <Route path="/404" element={<NotFoundPage />} />

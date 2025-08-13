@@ -16,17 +16,14 @@ import manifestReducer from './slices/manifestSlice';
 
 export const store = configureStore({
   reducer: {
-    // Add your RTK Query API reducers
-    [productsApi.reducerPath]: productsApi.reducer,
-    [realProductsApi.reducerPath]: realProductsApi.reducer,
-
-    // Add your regular Redux slices here
-    cart: cartReducer,
     auth: authReducer,
+    cart: cartReducer,
     notification: notificationReducer,
     wishlist: wishlistReducer,
-    user: userReducer,
     manifest: manifestReducer,
+    // Add the API reducers
+    [productsApi.reducerPath]: productsApi.reducer,
+    [realProductsApi.reducerPath]: realProductsApi.reducer,
   },
   // Adding the api middleware enables caching, invalidation, polling,
   // and other useful features of RTK Query.

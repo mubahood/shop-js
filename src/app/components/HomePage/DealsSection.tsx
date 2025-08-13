@@ -204,9 +204,8 @@ const DealsSection: React.FC = () => {
   // Create a ref for the deals container
   const dealsContainerRef = useRef<HTMLDivElement>(null);
 
-  // Fetch products for Flash Sales section (home_section_1 = "Yes")
+  // Fetch products for Flash Sales section
   const { data: productsResponse, isLoading, error } = useGetProductsQuery({
-    home_section_1: 'Yes',
     page: 1,
     limit: 12,
     sort_by: 'created_at',
