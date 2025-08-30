@@ -29,6 +29,12 @@ export class OrderModel {
   stripe_text: string = "";
   stripe_url: string = "";
   stripe_paid: string = "";
+  
+  // Pesapal payment fields
+  payment_gateway: string = "";
+  payment_status: string = "";
+  pesapal_status: string = "";
+  pesapal_tracking_id: string = "";
 
   delivery_method: string = "";
   delivery_address_id: string = "";
@@ -47,10 +53,35 @@ export class OrderModel {
   }
 
   /**
-   * Returns true if payment_confirmation equals "PAID" (case–insensitive).
+   * Returns true if the order is paid.
+   * Checks multiple payment confirmation states including Pesapal and Stripe.
    */
   isPaid(): boolean {
-    return this.payment_confirmation.toUpperCase() === "PAID";
+    // Check payment_confirmation for "PAID" status
+    if (this.payment_confirmation.toUpperCase() === "PAID") {
+      return true;
+    }
+    
+    // Check Pesapal payment status
+    if (this.pesapal_status && this.pesapal_status.toUpperCase() === "COMPLETED") {
+      return true;
+    }
+    
+    // Check payment_status for successful payments
+    if (this.payment_status && this.payment_status.toUpperCase() === "PAID") {
+      return true;
+    }
+    
+    // Check Stripe payment status
+    if (this.stripe_paid && this.stripe_paid.toUpperCase() === "YES") {
+      return true;
+    }
+    
+    // Check for any other positive payment indicators
+    const paymentConfirmation = this.payment_confirmation.toUpperCase();
+    return paymentConfirmation === "COMPLETED" || 
+           paymentConfirmation === "SUCCESS" ||
+           paymentConfirmation === "CONFIRMED";
   }
 
   /**
@@ -117,6 +148,13 @@ export class OrderModel {
     order.stripe_text = Utils.to_str(m["stripe_text"], "");
     order.stripe_url = Utils.to_str(m["stripe_url"], "");
     order.stripe_paid = Utils.to_str(m["stripe_paid"], "");
+    
+    // Pesapal payment fields
+    order.payment_gateway = Utils.to_str(m["payment_gateway"], "");
+    order.payment_status = Utils.to_str(m["payment_status"], "");
+    order.pesapal_status = Utils.to_str(m["pesapal_status"], "");
+    order.pesapal_tracking_id = Utils.to_str(m["pesapal_tracking_id"], "");
+    
     order.delivery_method = Utils.to_str(m["delivery_method"], "");
     order.delivery_address_id = Utils.to_str(m["delivery_address_id"], "");
     order.delivery_address_text = Utils.to_str(m["delivery_address_text"], "");
@@ -159,6 +197,10 @@ export class OrderModel {
       stripe_text: this.stripe_text,
       stripe_url: this.stripe_url,
       stripe_paid: this.stripe_paid,
+      payment_gateway: this.payment_gateway,
+      payment_status: this.payment_status,
+      pesapal_status: this.pesapal_status,
+      pesapal_tracking_id: this.pesapal_tracking_id,
       delivery_method: this.delivery_method,
       delivery_address_id: this.delivery_address_id,
       delivery_address_text: this.delivery_address_text,

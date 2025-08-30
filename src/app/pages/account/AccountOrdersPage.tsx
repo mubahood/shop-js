@@ -281,7 +281,8 @@ const AccountOrdersPage: React.FC = () => {
                         display: 'flex',
                         gap: 'var(--spacing-2)',
                         paddingTop: 'var(--spacing-3)',
-                        borderTop: '1px solid var(--border-color)'
+                        borderTop: '1px solid var(--border-color)',
+                        flexWrap: 'wrap'
                       }}>
                         <Link 
                           to={`/account/orders/${order.id}`}
@@ -289,6 +290,24 @@ const AccountOrdersPage: React.FC = () => {
                         >
                           View Details
                         </Link>
+                        
+                        {/* Payment button for unpaid orders */}
+                        {!order.isPaid() && (order.order_state === '0' || order.order_state === '1') && (
+                          <Link 
+                            to={`/payment/${order.id}`}
+                            className="acc-btn acc-btn-primary acc-btn-sm"
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 'var(--spacing-1)',
+                              textDecoration: 'none'
+                            }}
+                          >
+                            <i className="bi bi-credit-card"></i>
+                            Pay Now
+                          </Link>
+                        )}
+                        
                         {order.order_state === '2' && (
                           <button className="acc-btn acc-btn-outline acc-btn-sm">
                             Reorder

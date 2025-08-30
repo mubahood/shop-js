@@ -486,11 +486,12 @@ const CheckoutPage: React.FC = () => {
 
       ToastService.success('Order submitted successfully!', { autoClose: 4000 });
 
-      // Navigate to success page or home (like Dart: Get.offAll(() => const BoardingWelcomeScreen()))
-      navigate('/', { 
+      // Navigate to payment page for immediate payment processing
+      navigate(`/payment/${createdOrder.id}`, { 
         state: { 
           orderSuccess: true, 
           orderId: createdOrder.id,
+          order: createdOrder,
           paymentUrl: OrderModelUtils.getPaymentLink(createdOrder)
         } 
       });

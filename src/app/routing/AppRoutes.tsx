@@ -21,6 +21,7 @@ const CheckoutPage = React.lazy(() => import("../pages/CheckoutPage"));
 const DeliveryAddressPage = React.lazy(() => import("../pages/DeliveryAddressPage"));
 const OrderSuccessPage = React.lazy(() => import("../pages/OrderSuccessPage"));
 const PaymentPage = React.lazy(() => import("../pages/PaymentPage"));
+const PaymentCallbackPage = React.lazy(() => import("../pages/PaymentCallbackPage"));
 const SearchResultsPage = React.lazy(() => import("../pages/SearchResultsPage"));
 const WishlistPage = React.lazy(() => import("../pages/WishlistPage"));
 const AboutPage = React.lazy(() => import("../pages/AboutPage"));
@@ -119,6 +120,14 @@ const AppRoutes: React.FC = () => {
             element={
               <ProtectedRoute>
                 <PaymentPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="payment/callback/:orderId" 
+            element={
+              <ProtectedRoute>
+                <PaymentCallbackPage />
               </ProtectedRoute>
             } 
           />

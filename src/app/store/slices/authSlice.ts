@@ -10,12 +10,12 @@ export interface AuthState {
   error: string | null;
 }
 
-// Simple initial state - no localStorage access during initialization
+// Simple initial state - no localStorage access during initialization  
 const initialState: AuthState = {
   isAuthenticated: false,
   user: null,
   token: null,
-  isLoading: false,
+  isLoading: true, // Set to true initially to prevent premature redirects
   error: null,
 };
 
@@ -79,20 +79,52 @@ const authSlice = createSlice({
     // Action to restore auth state from localStorage (call this after app initialization)
     restoreAuthState: (state) => {
       try {
+        console.log('🔄 Attempting to restore auth state from localStorage...');
+        
         const token = localStorage.getItem('DB_TOKEN');
         const userDataStr = localStorage.getItem('DB_LOGGED_IN_PROFILE');
         
+        console.log('Auth restoration debug:', {
+          hasToken: !!token,
+          tokenLength: token ? token.length : 0,
+          hasUserData: !!userDataStr,
+          userDataLength: userDataStr ? userDataStr.length : 0
+        });
+        
         if (token && userDataStr) {
           const userData = JSON.parse(userDataStr);
+          
+          console.log('✅ Auth state restored successfully:', {
+            userId: userData.id,
+            userEmail: userData.email || userData.username,
+            userName: userData.name || userData.first_name
+          });
+          
           state.isAuthenticated = true;
           state.user = userData;
           state.token = token;
+          state.isLoading = false;
+          state.error = null;
+        } else {
+          console.log('❌ No valid auth data found in localStorage');
+          state.isAuthenticated = false;
+          state.user = null;
+          state.token = null;
+          state.isLoading = false;
+          state.error = null;
         }
       } catch (error) {
-        console.error('Failed to restore auth state:', error);
+        console.error('❌ Failed to restore auth state:', error);
         // Clear potentially corrupted data
         localStorage.removeItem('DB_TOKEN');
         localStorage.removeItem('DB_LOGGED_IN_PROFILE');
+        
+        // Reset state to initial values
+        state.isAuthenticated = false;
+        state.user = null;
+        state.token = null;
+        state.isLoading = false;
+        state.error = null;
       }
     },
   },
