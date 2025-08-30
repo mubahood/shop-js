@@ -50,7 +50,7 @@ const ModernMainNav: React.FC = () => {
   const handleMobileSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (mobileSearchQuery.trim()) {
-      navigate(`/shop?search=${encodeURIComponent(mobileSearchQuery.trim())}`);
+      navigate(`/products?search=${encodeURIComponent(mobileSearchQuery.trim())}`);
       setMobileSearchQuery('');
     }
   };
