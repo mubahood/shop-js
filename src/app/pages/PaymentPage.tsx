@@ -246,9 +246,8 @@ const PaymentPage: React.FC = () => {
                           loadOrderDetails();
                         }
                       }}
-                      autoRefresh={true}
-                      refreshInterval={15000}
                       showActions={true}
+                      className="mb-4"
                     />
                   </div>
                 )}

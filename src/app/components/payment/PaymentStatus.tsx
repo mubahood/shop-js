@@ -8,8 +8,6 @@ interface PaymentStatusProps {
   orderId: number;
   trackingId?: string;
   onStatusUpdate?: (status: string, data: any) => void;
-  autoRefresh?: boolean;
-  refreshInterval?: number;
   showActions?: boolean;
   className?: string;
 }
@@ -18,8 +16,6 @@ const PaymentStatus: React.FC<PaymentStatusProps> = ({
   orderId,
   trackingId,
   onStatusUpdate,
-  autoRefresh = false,
-  refreshInterval = 5000,
   showActions = true,
   className = ''
 }) => {
@@ -30,21 +26,9 @@ const PaymentStatus: React.FC<PaymentStatusProps> = ({
   const [lastChecked, setLastChecked] = useState<Date>(new Date());
 
   useEffect(() => {
+    // Only check payment status once on component mount
     checkPaymentStatus();
-
-    let interval: NodeJS.Timeout | null = null;
-    if (autoRefresh) {
-      interval = setInterval(() => {
-        checkPaymentStatus(false); // Don't show loading for auto-refresh
-      }, refreshInterval);
-    }
-
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    };
-  }, [orderId, autoRefresh, refreshInterval]);
+  }, [orderId]);
 
   const checkPaymentStatus = async (showLoading: boolean = true) => {
     try {
@@ -57,6 +41,24 @@ const PaymentStatus: React.FC<PaymentStatusProps> = ({
 
       if (response.success && response.data) {
         const paymentStatus = response.data.payment_status || 'UNKNOWN';
+        const isPaid = response.data.is_paid === true || response.data.order_state === 'confirmed';
+        
+        // If order is already paid, set to COMPLETED and stop further checks
+        if (isPaid) {
+          setStatus('COMPLETED');
+          setStatusData(response.data);
+          setLastChecked(new Date());
+          
+          // Notify parent component
+          onStatusUpdate?.('COMPLETED', response.data);
+          
+          // Show success message only once
+          if (showLoading) {
+            ToastService.success('Payment already completed successfully!');
+          }
+          return;
+        }
+        
         setStatus(paymentStatus);
         setStatusData(response.data);
         setLastChecked(new Date());
@@ -212,6 +214,14 @@ const PaymentStatus: React.FC<PaymentStatusProps> = ({
           </div>
         )}
 
+        {/* Manual Status Check Notice */}
+        <div className="text-center mb-3">
+          <div className="alert alert-info py-2 mb-0">
+            <i className="bi bi-info-circle me-2"></i>
+            <small>Payment status is checked manually. Click "Check Payment Status" below to refresh.</small>
+          </div>
+        </div>
+
         {/* Last Checked */}
         <div className="last-checked text-center text-muted mb-3">
           <small>
@@ -225,19 +235,20 @@ const PaymentStatus: React.FC<PaymentStatusProps> = ({
           <div className="payment-actions">
             <div className="d-grid gap-2">
               <Button
-                variant="outline-primary"
+                variant="primary"
+                size="lg"
                 onClick={() => checkPaymentStatus(true)}
                 disabled={isLoading}
               >
                 {isLoading ? (
                   <>
                     <Spinner animation="border" size="sm" className="me-2" />
-                    Checking...
+                    Checking Payment Status...
                   </>
                 ) : (
                   <>
                     <i className="bi bi-arrow-clockwise me-2"></i>
-                    Refresh Status
+                    Check Payment Status
                   </>
                 )}
               </Button>

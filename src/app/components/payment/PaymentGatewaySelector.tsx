@@ -72,6 +72,14 @@ const PaymentGatewaySelector: React.FC<PaymentGatewaySelectorProps> = ({
       return;
     }
 
+    // Check if order is already paid
+    if (order.payment_confirmation === 'PAID' || order.order_state === 'confirmed') {
+      const successMsg = 'This order has already been paid successfully!';
+      ToastService.success(successMsg);
+      setError('');
+      return;
+    }
+
     try {
       setIsProcessing(true);
       setError('');
@@ -216,25 +224,35 @@ const PaymentGatewaySelector: React.FC<PaymentGatewaySelectorProps> = ({
         </div>
 
         {/* Action Button */}
-        <Button
-          variant="primary"
-          size="lg"
-          className="w-100"
-          onClick={handleProceedToPayment}
-          disabled={!selectedGateway || isProcessing}
-        >
-          {isProcessing ? (
-            <>
-              <Spinner animation="border" size="sm" className="me-2" />
-              Processing...
-            </>
-          ) : (
-            <>
-              <i className="bi bi-arrow-right me-2"></i>
-              Proceed to Payment
-            </>
-          )}
-        </Button>
+        {order.payment_confirmation === 'PAID' || order.order_state === 'confirmed' ? (
+          <Alert variant="success" className="text-center">
+            <i className="bi bi-check-circle-fill me-2"></i>
+            <strong>Payment Completed Successfully!</strong>
+            <div className="mt-2">
+              <small>This order has already been paid for.</small>
+            </div>
+          </Alert>
+        ) : (
+          <Button
+            variant="primary"
+            size="lg"
+            className="w-100"
+            onClick={handleProceedToPayment}
+            disabled={!selectedGateway || isProcessing}
+          >
+            {isProcessing ? (
+              <>
+                <Spinner animation="border" size="sm" className="me-2" />
+                Processing...
+              </>
+            ) : (
+              <>
+                <i className="bi bi-arrow-right me-2"></i>
+                Proceed to Payment
+              </>
+            )}
+          </Button>
+        )}
 
         {/* Trust Indicators */}
         <div className="trust-indicators mt-4">

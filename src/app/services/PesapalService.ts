@@ -31,6 +31,11 @@ export interface PesapalStatusResponse {
     payment_status_description?: string;
     amount?: number;
     currency?: string;
+    is_paid?: boolean;
+    order_state?: string;
+    order_id?: number;
+    order_tracking_id?: string;
+    merchant_reference?: string;
   };
   message: string;
 }
@@ -74,7 +79,17 @@ class PesapalService {
       }
     } catch (error: any) {
       console.error('PesapalService: Initialize payment error', error);
-      const errorMessage = error.message || 'Failed to initialize payment';
+      
+      // Extract server message from response if available
+      let errorMessage = 'Failed to initialize payment';
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.message && !error.message.includes('status code')) {
+        errorMessage = error.message;
+      }
+      
       ToastService.paymentError(errorMessage);
       return {
         success: false,

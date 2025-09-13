@@ -52,8 +52,8 @@ const PaymentCallbackPage: React.FC = () => {
         }, 3000);
         break;
       case 'PENDING':
-        // Set up longer auto-refresh for pending payments
-        ToastService.info('Payment is still processing. We\'ll keep checking...', { autoClose: 4000 });
+        // Show manual check message for pending payments
+        ToastService.info('Payment is still processing. Please use the "Check Payment Status" button to refresh.', { autoClose: 6000 });
         break;
     }
   };
@@ -127,8 +127,6 @@ const PaymentCallbackPage: React.FC = () => {
                 orderId={parseInt(orderId)}
                 trackingId={trackingId}
                 onStatusUpdate={handleStatusUpdate}
-                autoRefresh={true}
-                refreshInterval={10000} // Check every 10 seconds
                 showActions={true}
                 className="mb-4"
               />
