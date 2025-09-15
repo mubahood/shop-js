@@ -27,6 +27,8 @@ import ShimmerImage from "../../components/ShimmerImage";
 import ReviewList from "../../components/reviews/ReviewList";
 import ReviewForm from "../../components/reviews/ReviewForm";
 import Utils from "../../services/Utils";
+import { SEOHead, ProductSchema } from "../../components/seo";
+import { generateProductMetaTags } from "../../utils/seo";
 
 // All CSS inline - no external dependencies
 const inlineStyles = `
@@ -2376,6 +2378,33 @@ const ProductDetailPage: React.FC = () => {
 
   return (
     <>
+      <SEOHead config={generateProductMetaTags({
+        id: product.id,
+        name: product.name,
+        description: product.description || "",
+        price_1: parseFloat(product.price_1),
+        image: product.feature_photo,
+        category: product.category_text || undefined,
+        availability: product.in_stock > 0 ? "available" : "unavailable"
+      })} />
+      <ProductSchema 
+        product={{
+          id: product.id,
+          name: product.name,
+          description: product.description || "",
+          price: parseFloat(product.price_1),
+          currency: "KES",
+          imageUrl: product.feature_photo,
+          availability: product.in_stock > 0 ? "InStock" : "OutOfStock",
+          brand: "BlitXpress",
+          sku: `PRODUCT-${product.id}`,
+          category: product.category_text || undefined,
+          rating: product.average_rating > 0 ? {
+            average: product.average_rating,
+            count: product.review_count || 0
+          } : undefined
+        }}
+      />
       <style dangerouslySetInnerHTML={{ __html: inlineStyles }} />
       <DynamicBreadcrumb />
       <Container className="my-0">

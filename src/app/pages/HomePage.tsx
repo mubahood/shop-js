@@ -8,6 +8,8 @@ import SuperBuyerSection from "../components/HomePage/SuperBuyerSection";
 import TopProductsSection from "../components/HomePage/TopProductsSection";
 import ToastService from "../services/ToastService";
 import { useLazyLoad } from "../hooks/useIntersectionObserver";
+import { SEOHead } from "../components/seo";
+import { generateHomePageMetaTags } from "../utils/seo";
 import "./HomePage.css"; // Import the CSS file to ensure mobile gap fixes are applied
 // Inline styles for HomePage following the unified design system
 const homePageStyles = `
@@ -227,6 +229,7 @@ const HomePage: React.FC = () => {
 
   return (
     <>
+      <SEOHead config={generateHomePageMetaTags()} />
       <style dangerouslySetInnerHTML={{ __html: homePageStyles }} />
       <div className="homepage-container">
         <div className="container">
