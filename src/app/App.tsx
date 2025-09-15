@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import AppRoutes from "./routing/AppRoutes";
 import ScrollToTop from "./components/Layout/ScrollToTop";
 import { restoreAuthState, selectIsAuthenticated, selectUser } from "./store/slices/authSlice";
+import { CacheApiService } from "./services/CacheApiService";
 
 // Import React Toastify CSS
 import "react-toastify/dist/ReactToastify.css";
@@ -16,8 +17,6 @@ const App: React.FC = () => {
 
   // Restore authentication state on app startup
   useEffect(() => {
-    console.log('🚀 App initialized, restoring auth state...');
-    
     // Small delay to ensure localStorage is available
     const timer = setTimeout(() => {
       dispatch(restoreAuthState());
@@ -26,15 +25,13 @@ const App: React.FC = () => {
     return () => clearTimeout(timer);
   }, [dispatch]);
 
-  // Debug auth state changes
+  // Preload essential data for better performance
   useEffect(() => {
-    console.log('🔐 Auth state changed:', {
-      isAuthenticated,
-      hasUser: !!user,
-      userId: user?.id,
-      userEmail: user?.email || user?.username
+    // Preload critical data in background
+    CacheApiService.preloadEssentialData().catch((error) => {
+      console.warn('⚠️ Some essential data failed to preload:', error);
     });
-  }, [isAuthenticated, user]);
+  }, []);
 
   return (
     <>

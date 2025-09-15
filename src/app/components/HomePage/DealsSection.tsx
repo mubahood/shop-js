@@ -154,8 +154,11 @@ const dealsSectionStyles = `
 
   @media (max-width: 767.98px) {
     .deals-section-wrapper {
-      margin: 1rem 0;
+      margin: 0 1rem !important; /* Add horizontal margin on mobile */
       padding: 1rem;
+      margin-top: -80px !important; /* Increased negative margin to eliminate remaining gap */
+      position: relative;
+      z-index: 10;
     }
     
     .deals-header {

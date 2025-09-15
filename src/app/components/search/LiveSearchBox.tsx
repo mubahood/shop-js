@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Form, Button, ListGroup, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useManifest } from "../../hooks/useManifest";
-import { ApiService } from "../../services/ApiService";
+import { CacheApiService } from "../../services/CacheApiService";
 import { ProductModel } from "../../models/ProductModel";
 import { BASE_URL } from "../../../Constants";
 
@@ -454,7 +454,7 @@ const LiveSearchBox: React.FC<LiveSearchBoxProps> = ({
 
       try {
         setIsLoading(true);
-        const results = await ApiService.liveSearch(searchQuery, 6);
+        const results = await CacheApiService.liveSearch(searchQuery, 6);
         setSearchResults(results);
       } catch (error) {
         console.error("Live search failed:", error);
@@ -542,7 +542,7 @@ const LiveSearchBox: React.FC<LiveSearchBoxProps> = ({
   // Clear search history
   const handleClearHistory = async () => {
     try {
-      await ApiService.clearSearchHistory();
+      await CacheApiService.clearSearchHistory();
       setRecentSearches([]);
     } catch (error) {
       console.error("Failed to clear search history:", error);

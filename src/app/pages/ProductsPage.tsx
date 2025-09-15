@@ -479,6 +479,23 @@ const ProductsPage: React.FC = () => {
   const products = productsData?.data || [];
   const totalPages = productsData?.last_page || 1;
 
+  // Debug logging for ProductsPage
+  console.log('📄 ProductsPage: Data status', {
+    isLoading,
+    hasError: !!error,
+    error,
+    productsData,
+    productsCount: products.length,
+    totalPages,
+    currentFilters: {
+      currentPage,
+      selectedCategory,
+      sortBy,
+      sortOrder,
+      priceRange
+    }
+  });
+
   // Update URL params when filters change
   const updateSearchParams = (
     updates: Record<string, string | number | undefined>

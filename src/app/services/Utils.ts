@@ -85,6 +85,34 @@ class Utils {
     return d.toLocaleDateString();
   }
 
+  /**
+   * Clean API parameters by removing undefined, null, empty strings, and 'undefined' strings
+   * This prevents API endpoints from receiving invalid filter parameters
+   */
+  static cleanApiParams(params: Record<string, any>): Record<string, string> {
+    return Object.fromEntries(
+      Object.entries(params)
+        .filter(([key, val]) => {
+          // Remove undefined, null, empty strings, and string 'undefined'
+          return val !== undefined && 
+                 val !== null && 
+                 val !== "" && 
+                 val !== "undefined" &&
+                 val !== "null";
+        })
+        .map(([key, val]) => [key, String(val)])
+    );
+  }
+
+  /**
+   * Build a clean URLSearchParams object from parameters
+   * Automatically filters out problematic values that could break API queries
+   */
+  static buildQueryParams(params: Record<string, any>): URLSearchParams {
+    const cleanParams = Utils.cleanApiParams(params);
+    return new URLSearchParams(cleanParams);
+  }
+
   // Convert an object to JSON string
   static toJson(obj: any) {
     return JSON.stringify(obj);

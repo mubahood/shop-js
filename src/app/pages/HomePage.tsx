@@ -7,6 +7,7 @@ import DealsSection from "../components/HomePage/DealsSection";
 import SuperBuyerSection from "../components/HomePage/SuperBuyerSection";
 import TopProductsSection from "../components/HomePage/TopProductsSection";
 import ToastService from "../services/ToastService";
+import "./HomePage.css"; // Import the CSS file to ensure mobile gap fixes are applied
 // Inline styles for HomePage following the unified design system
 const homePageStyles = `
   .homepage-container {
@@ -33,23 +34,68 @@ const homePageStyles = `
     margin-bottom: 3rem;
   }
 
+  /* Mobile responsiveness fixes - remove gaps significantly */
   @media (max-width: 767.98px) {
+    .homepage-container .container {
+      margin-top: 0 !important; /* Override Bootstrap mt-4 */
+      padding-top: 0 !important;
+    }
+    
     .homepage-section {
-      padding: 1.5rem 0;
+      padding: 0; /* Complete removal of section padding on mobile */
+      margin: 0 !important; /* Force remove all margins */
     }
     
     .homepage-section:first-child {
-      padding-top: 0.5rem;
+      padding-top: 0;
+      margin-top: 0 !important;
     }
     
     .homepage-section:last-child {
-      padding-bottom: 2rem;
+      padding-bottom: 1rem; /* Only add padding to last section */
+      margin-bottom: 0 !important;
+    }
+    
+    .hero-section-fullwidth {
+      margin-bottom: 0; /* Remove all margin after hero section */
+    }
+    
+    /* Force remove gaps between hero and deals - more aggressive */
+    .homepage-section:nth-child(1),
+    .homepage-section:first-of-type {
+      margin-bottom: 0 !important;
+      padding-bottom: 0 !important;
+    }
+    
+    .homepage-section:nth-child(2),
+    .homepage-section:nth-of-type(2) {
+      margin-top: 0 !important;
+      padding-top: 0 !important;
+    }
+    
+    /* Target specific sections by component */
+    .hero-section {
+      margin-bottom: 0 !important;
+      padding-bottom: 0 !important;
+    }
+    
+    .deals-section-wrapper {
+      margin-top: 0 !important;
+      padding-top: 0 !important;
     }
   }
 
   @media (max-width: 575.98px) {
     .homepage-section {
-      padding: 1rem 0;
+      padding: 0; /* Ensure no padding on small mobile */
+    }
+    
+    .homepage-section:first-child {
+      padding-top: 0;
+    }
+    
+    .hero-section-fullwidth {
+      margin-bottom: 0;
     }
   }
 `;

@@ -46,6 +46,12 @@ export class CacheUtils {
             return cached;
           } else {
             // Invalid cached data, remove it
+            console.warn(`⚠️ Cached data validation failed for ${cacheKey}, removing from cache`, {
+              dataType: typeof cached,
+              isArray: Array.isArray(cached),
+              dataLength: Array.isArray(cached) ? cached.length : 'N/A',
+              sampleData: Array.isArray(cached) && cached.length > 0 ? cached[0] : cached
+            });
             CacheService.delete(cacheKey, storageType);
           }
         }
@@ -56,6 +62,12 @@ export class CacheUtils {
 
       // Validate fresh data before caching
       if (validateData && !validateData(freshData)) {
+        console.error(`❌ Fresh data validation failed for ${cacheKey}`, {
+          dataType: typeof freshData,
+          isArray: Array.isArray(freshData),
+          dataLength: Array.isArray(freshData) ? freshData.length : 'N/A',
+          sampleData: Array.isArray(freshData) && freshData.length > 0 ? freshData[0] : freshData
+        });
         throw new Error(`Fresh data validation failed for ${cacheKey}`);
       }
 
@@ -268,19 +280,33 @@ export class CacheUtils {
    */
   static validators = {
     categories: (data: any[]): boolean => {
-      return Array.isArray(data) && data.every(item => 
-        item && typeof item.id === 'number' && typeof item.name === 'string'
-      );
+      if (!Array.isArray(data) || data.length === 0) {
+        return false;
+      }
+      
+      return data.every(item => {
+        // Handle both plain objects and CategoryModel instances
+        const isValidObject = item && 
+          (typeof item.id === 'number' || typeof item.id === 'string') && 
+          typeof item.category === 'string' &&
+          item.category.length > 0;
+        
+        return isValidObject;
+      });
     },
 
     products: (data: any): boolean => {
       if (Array.isArray(data)) {
         return data.every(item => 
-          item && typeof item.id === 'number' && typeof item.name === 'string'
+          item && 
+          (typeof item.id === 'number' || typeof item.id === 'string') && 
+          typeof item.name === 'string'
         );
       }
       // Single product
-      return data && typeof data.id === 'number' && typeof data.name === 'string';
+      return data && 
+        (typeof data.id === 'number' || typeof data.id === 'string') && 
+        typeof data.name === 'string';
     },
 
     manifest: (data: any): boolean => {
@@ -289,8 +315,14 @@ export class CacheUtils {
     },
 
     vendors: (data: any[]): boolean => {
-      return Array.isArray(data) && data.every(item => 
-        item && typeof item.id === 'number' && typeof item.name === 'string'
+      if (!Array.isArray(data)) {
+        return false;
+      }
+      
+      return data.every(item => 
+        item && 
+        (typeof item.id === 'number' || typeof item.id === 'string') && 
+        typeof item.name === 'string'
       );
     }
   };

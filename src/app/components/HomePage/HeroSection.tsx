@@ -38,7 +38,7 @@ const heroSectionStyles = `
 
   @media (max-width: 767.98px) {
     .hero-section {
-      margin: 1rem 0;
+      margin: 0; /* Remove margin to eliminate gap */
     }
   }
 `;

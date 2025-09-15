@@ -3,16 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Badge, Spinner, Alert, Table } from 'react-bootstrap';
 import { CacheApiService } from '../services/CacheApiService';
-import { CacheService } from '../services/CacheService';
+import { CacheService, CacheStats as ServiceCacheStats } from '../services/CacheService';
 import CategoryModel from '../models/CategoryModel';
 import ApiService from '../services/ApiService';
-
-interface CacheStats {
-  hits: number;
-  misses: number;
-  sets: number;
-  hitRate: number;
-}
 
 interface LoadingState {
   cached: boolean;
@@ -35,12 +28,12 @@ const CachePilotDemo: React.FC = () => {
   const [traditionalCategories, setTraditionalCategories] = useState<CategoryModel[] | null>(null);
   const [loading, setLoading] = useState<LoadingState>({ cached: false, traditional: false });
   const [error, setError] = useState<string | null>(null);
-  const [cacheStats, setCacheStats] = useState<CacheStats | null>(null);
+  const [cacheStats, setCacheStats] = useState<ServiceCacheStats | null>(null);
   const [performance, setPerformance] = useState<PerformanceMetrics | null>(null);
 
   // Update cache stats
   const updateCacheStats = () => {
-    const stats = CacheService.getStats();
+    const stats = CacheService.getInstance().getStats();
     setCacheStats(stats);
   };
 
@@ -49,20 +42,20 @@ const CachePilotDemo: React.FC = () => {
     setLoading(prev => ({ ...prev, cached: true }));
     setError(null);
     
-    const startTime = performance.now();
+    const startTime = window.performance.now();
     
     try {
       const result = await CacheApiService.getCategories();
-      const endTime = performance.now();
+      const endTime = window.performance.now();
       const loadTime = endTime - startTime;
       
-      setCategories(result.data);
+      setCategories(result);
       setPerformance(prev => ({
-        ...prev,
         cached: {
           loadTime,
-          source: result.fromCache ? 'cache' : 'api'
-        }
+          source: 'api' // We'll determine this from cache stats
+        },
+        traditional: prev?.traditional || { loadTime: 0, source: 'api' }
       }));
       
       updateCacheStats();
@@ -78,16 +71,16 @@ const CachePilotDemo: React.FC = () => {
     setLoading(prev => ({ ...prev, traditional: true }));
     setError(null);
     
-    const startTime = performance.now();
+    const startTime = window.performance.now();
     
     try {
       const result = await ApiService.getCategories();
-      const endTime = performance.now();
+      const endTime = window.performance.now();
       const loadTime = endTime - startTime;
       
       setTraditionalCategories(result);
       setPerformance(prev => ({
-        ...prev,
+        cached: prev?.cached || { loadTime: 0, source: 'api' },
         traditional: {
           loadTime,
           source: 'api'
@@ -102,7 +95,7 @@ const CachePilotDemo: React.FC = () => {
 
   // Clear cache
   const clearCache = () => {
-    CacheService.clear();
+    CacheService.getInstance().clearAll();
     updateCacheStats();
     setCategories(null);
     setPerformance(null);
@@ -244,10 +237,6 @@ const CachePilotDemo: React.FC = () => {
                             <tr>
                               <td>Cache Misses</td>
                               <td><Badge bg="warning">{cacheStats.misses}</Badge></td>
-                            </tr>
-                            <tr>
-                              <td>Cache Sets</td>
-                              <td><Badge bg="info">{cacheStats.sets}</Badge></td>
                             </tr>
                             <tr>
                               <td>Hit Rate</td>

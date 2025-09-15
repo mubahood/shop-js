@@ -105,10 +105,18 @@ export class CategoryModel {
   static async fetchCategories(): Promise<CategoryModel[]> {
     try {
       const response = await http_get("/categories");
-      if (!Array.isArray(response)) {
+      
+      // Handle API response format: {code, message, data}
+      if (response.code !== 1) {
+        throw new Error(response.message || "Failed to fetch categories");
+      }
+      
+      const categoriesData = response.data;
+      if (!Array.isArray(categoriesData)) {
         throw new Error("Invalid response format for categories.");
       }
-      return response.map((item: any) => CategoryModel.fromJson(item));
+      
+      return categoriesData.map((item: any) => CategoryModel.fromJson(item));
     } catch (error) {
       throw error;
     }
@@ -118,7 +126,13 @@ export class CategoryModel {
   static async fetchCategoryById(id: string | number): Promise<CategoryModel> {
     try {
       const response = await http_get(`/categories/${id}`);
-      return CategoryModel.fromJson(response);
+      
+      // Handle API response format: {code, message, data}
+      if (response.code !== 1) {
+        throw new Error(response.message || "Failed to fetch category");
+      }
+      
+      return CategoryModel.fromJson(response.data);
     } catch (error) {
       throw error;
     }

@@ -6,6 +6,7 @@ import CategoryModel from '../models/CategoryModel';
 import { API_URL } from '../../Constants';
 import Utils from './Utils';
 import { DB_TOKEN, DB_LOGGED_IN_PROFILE } from '../../Constants';
+import { CacheApiService } from './CacheApiService';
 
 // Create the RTK Query API
 export const realProductsApi = createApi({
@@ -51,35 +52,29 @@ export const realProductsApi = createApi({
       home_section_2?: string; // Filter for Super Buyer section
       home_section_3?: string; // Filter for Top Products section
     }>({
-      query: (params = {}) => {
-        const { page = 1, in_stock, ...otherParams } = params;
-        const queryParams: Record<string, string> = {
-          page: String(page),
-        };
-        
-        // Only add defined parameters
-        Object.entries(otherParams).forEach(([key, val]) => {
-          if (val !== undefined && val !== null && val !== '') {
-            queryParams[key] = String(val);
-          }
-        });
-        
-        if (in_stock !== undefined) {
-          queryParams.in_stock = in_stock ? '1' : '0';
+      queryFn: async ({ page = 1, limit = 24, category, search, vendor, min_price, max_price, in_stock, sort_by = 'created_at', sort_order = 'desc' }) => {
+        try {
+          const cacheParams = {
+            page,
+            category,
+            search,
+            vendor,
+            min_price,
+            max_price,
+            in_stock,
+            sort_by: sort_by as 'name' | 'price_1' | 'date_added' | 'metric' | undefined,
+            sort_order: sort_order as 'asc' | 'desc' | undefined,
+            limit
+          };
+          
+          // Use CacheApiService for cache-first data fetching
+          const result = await CacheApiService.getProducts(cacheParams);
+          
+          return { data: result };
+        } catch (error: any) {
+          console.error('❌ RTK Query: Failed to fetch products', error);
+          return { error: { status: 'FETCH_ERROR', error: error.message || 'Failed to fetch products' } };
         }
-        
-        return `products?${new URLSearchParams(queryParams).toString()}`;
-      },
-      transformResponse: (response: any) => {
-        // Handle Laravel API response structure
-        if (response.code === 1 && response.data) {
-          const paginatedData = response.data;
-          paginatedData.data = paginatedData.data.map((item: any) =>
-            ProductModel.fromJson(item)
-          );
-          return paginatedData as PaginatedResponse<ProductModel>;
-        }
-        throw new Error(response.message || 'Failed to fetch products');
       },
       providesTags: (result) =>
         result
@@ -91,24 +86,47 @@ export const realProductsApi = createApi({
     }),
 
     getProductById: builder.query<ProductModel, number>({
-      query: (id) => `products/${id}`,
-      transformResponse: (response: any) => {
-        if (response.code === 1) {
-          return ProductModel.fromJson(response.data);
+      queryFn: async (id) => {
+        try {
+          console.log('🔄 RTK Query: Fetching product by ID with cache-first strategy', id);
+          
+          // Use CacheApiService for cache-first data fetching
+          const result = await CacheApiService.getProduct(id);
+          
+          console.log('✅ RTK Query: Product fetched successfully from cache/API', {
+            productId: result.id,
+            productName: result.name,
+            fromCache: 'cache-first-strategy'
+          });
+          
+          return { data: result };
+        } catch (error: any) {
+          console.error('❌ RTK Query: Failed to fetch product by ID', error);
+          return { error: { status: 'FETCH_ERROR', error: error.message || 'Product not found' } };
         }
-        throw new Error(response.message || 'Product not found');
       },
       providesTags: (result, error, id) => [{ type: 'Product', id }],
     }),
 
     // ===== CATEGORIES =====
     getCategories: builder.query<CategoryModel[], void>({
-      query: () => 'categories',
-      transformResponse: (response: any) => {
-        if (response.code === 1 && Array.isArray(response.data)) {
-          return response.data.map((item: any) => CategoryModel.fromJson(item));
+      queryFn: async () => {
+        try {
+          console.log('🔄 RTK Query: Fetching categories with cache-first strategy');
+          
+          // Use CacheApiService for cache-first data fetching
+          const result = await CacheApiService.getCategories();
+          
+          console.log('✅ RTK Query: Categories fetched successfully from cache/API', {
+            totalCategories: result.length,
+            fromCache: 'cache-first-strategy'
+          });
+          
+          return { data: result };
+        } catch (error: any) {
+          console.error('❌ RTK Query: Failed to fetch categories', error);
+          return { error: { status: 'FETCH_ERROR', error: error.message || 'Failed to fetch categories' } };
         }
-        return [];
       },
       providesTags: (result) =>
         result
@@ -132,12 +150,23 @@ export const realProductsApi = createApi({
 
     // ===== VENDORS =====
     getVendors: builder.query<any[], void>({
-      query: () => 'vendors',
-      transformResponse: (response: any) => {
-        if (response.code === 1 && Array.isArray(response.data)) {
-          return response.data;
+      queryFn: async () => {
+        try {
+          console.log('🔄 RTK Query: Fetching vendors with cache-first strategy');
+          
+          // Use CacheApiService for cache-first data fetching
+          const result = await CacheApiService.getVendors();
+          
+          console.log('✅ RTK Query: Vendors fetched successfully from cache/API', {
+            totalVendors: result.length,
+            fromCache: 'cache-first-strategy'
+          });
+          
+          return { data: result };
+        } catch (error: any) {
+          console.error('❌ RTK Query: Failed to fetch vendors', error);
+          return { error: { status: 'FETCH_ERROR', error: error.message || 'Failed to fetch vendors' } };
         }
-        return [];
       },
       providesTags: [{ type: 'Vendor', id: 'LIST' }],
     }),

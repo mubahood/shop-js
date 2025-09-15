@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import { Heart } from 'lucide-react';
 import { AppDispatch } from '../../store/store';
 import { addToWishlistAPI, removeFromWishlistAPI } from '../../store/slices/wishlistSlice';
-import ApiService from '../../services/ApiService';
+import { CacheApiService } from '../../services/CacheApiService';
 import ToastService from '../../services/ToastService';
 
 interface WishlistButtonProps {
@@ -35,7 +35,7 @@ const WishlistButton: React.FC<WishlistButtonProps> = ({
     const checkWishlistStatus = async () => {
       try {
         setIsCheckingStatus(true);
-        const status = await ApiService.checkWishlist(productId);
+        const status = await CacheApiService.checkWishlist(productId);
         setIsInWishlist(status);
       } catch (error) {
         console.error('Error checking wishlist status:', error);

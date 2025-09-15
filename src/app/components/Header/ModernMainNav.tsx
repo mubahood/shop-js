@@ -21,19 +21,6 @@ const ModernMainNav: React.FC = () => {
   const megaMenuCategories = useMegaMenuCategories();
   const wishlistCount = appCounts.wishlist_count;
   
-  // Debug: Log mega menu categories
-  useEffect(() => {
-    console.log('🔍 Mega Menu Categories Debug:', {
-      count: megaMenuCategories.length,
-      categories: megaMenuCategories.map(cat => ({
-        id: cat.id,
-        name: cat.category,
-        subcategoriesCount: cat.subcategories?.length || 0,
-        subcategories: cat.subcategories?.map(sub => sub.category) || []
-      }))
-    });
-  }, [megaMenuCategories]);
-  
   // Auth selectors
   const isAuthenticated = useSelector(selectIsAuthenticated);
   

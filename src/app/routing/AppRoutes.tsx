@@ -189,6 +189,7 @@ const AppRoutes: React.FC = () => {
           {/* Demo Pages */}
           <Route path="toast-demo" element={<ToastDemo />} />
           <Route path="api-test" element={<ApiTestPage />} />
+          <Route path="test" element={<ApiTestPage />} />
           <Route path="integration-status" element={<ApiIntegrationStatusPage />} />
         </Route>
 

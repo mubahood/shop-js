@@ -157,10 +157,18 @@ export class VendorModel {
   static async fetchVendors(): Promise<VendorModel[]> {
     try {
       const response = await http_get("/vendors");
-      if (!Array.isArray(response)) {
+      
+      // Handle API response format: {code, message, data}
+      if (response.code !== 1) {
+        throw new Error(response.message || "Failed to fetch vendors");
+      }
+      
+      const vendorsData = response.data;
+      if (!Array.isArray(vendorsData)) {
         throw new Error("Invalid response format for vendors.");
       }
-      return response.map((item: any) => VendorModel.fromJson(item));
+      
+      return vendorsData.map((item: any) => VendorModel.fromJson(item));
     } catch (error) {
       console.error("Error fetching vendors:", error);
       throw error;
@@ -171,7 +179,13 @@ export class VendorModel {
   static async fetchVendorById(id: string | number): Promise<VendorModel> {
     try {
       const response = await http_get(`/vendors/${id}`);
-      return VendorModel.fromJson(response);
+      
+      // Handle API response format: {code, message, data}
+      if (response.code !== 1) {
+        throw new Error(response.message || "Failed to fetch vendor");
+      }
+      
+      return VendorModel.fromJson(response.data);
     } catch (error) {
       console.error("Error fetching vendor by ID:", error);
       throw error;

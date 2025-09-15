@@ -62,7 +62,7 @@ const heroCarouselStyles = `
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.2)); /* Much lighter gradient */
     padding: 2rem 1.5rem 1.5rem;
     color: var(--white);
   }
@@ -84,7 +84,7 @@ const heroCarouselStyles = `
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgba(0, 0, 0, 0.1); /* Much lighter hover overlay */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -273,7 +273,7 @@ const HeroCarousel: React.FC = () => {
                       className="hero-slide"
                       style={{
                         background: bannerImageUrl
-                          ? `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url(${bannerImageUrl})`
+                          ? `linear-gradient(rgba(0,0,0,0.05), rgba(0,0,0,0.1)), url(${bannerImageUrl})` /* Much lighter overlay */
                           : `linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-dark) 100%)`,
                         backgroundSize: "cover",
                         backgroundPosition: "center",

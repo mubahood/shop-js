@@ -2,7 +2,12 @@
 /**
  * CacheApiService - Cache-first wrapper for existing ApiService
  * 
- * This service wraps the existing ApiService with cache-first logic.
+ * This service     try {
+      // Re-enable caching with proper error handling      
+      // For products, we'll be selective about caching
+      // Only cache simple queries without complex parameters
+      const isSimpleQuery = !params.search && !params.min_price && !params.max_price && 
+                            (params.page || 1) === 1 && !params.sort_by;e existing ApiService with cache-first logic.
  * It's designed to be a drop-in replacement that:
  * 1. Checks cache first
  * 2. Falls back to existing ApiService methods
@@ -13,7 +18,7 @@
  */
 
 import ApiService from './ApiService';
-import CacheUtils from './CacheUtils';
+import { CacheUtils } from './CacheUtils';
 import { CacheKey } from './CacheService';
 import ProductModel, { PaginatedResponse } from '../models/ProductModel';
 import CategoryModel from '../models/CategoryModel';
@@ -126,26 +131,35 @@ export class CacheApiService {
     sort_order?: 'asc' | 'desc';
     limit?: number;
   } = {}): Promise<PaginatedResponse<ProductModel>> {
-    // For products, we'll be more selective about caching
-    // Only cache simple queries without complex parameters
-    const isSimpleQuery = !params.search && !params.min_price && !params.max_price && 
-                          (params.page || 1) === 1 && !params.sort_by;
+    try {
+      // Re-enable caching with proper error handling
+      console.log('� CacheApiService.getProducts: Processing request with caching', params);
+      
+      // For products, we'll be selective about caching
+      // Only cache simple queries without complex parameters
+      const isSimpleQuery = !params.search && !params.min_price && !params.max_price && 
+                            (params.page || 1) === 1 && !params.sort_by;
 
-    if (isSimpleQuery && params.category) {
-      // Cache products by category
-      return CacheUtils.getWithFallback(
-        'PRODUCTS',
-        () => ApiService.getProducts(params),
-        {
-          storageType: 'sessionStorage', // Use session storage for product lists
-          customDuration: 2 * 60 * 60 * 1000, // 2 hours
-          validateData: (data) => data && Array.isArray(data.data)
-        }
-      );
+      if (isSimpleQuery && params.category) {
+        // Cache products by category
+        return CacheUtils.getWithFallback(
+          'PRODUCTS',
+          () => ApiService.getProducts(params),
+          {
+            storageType: 'sessionStorage', // Use session storage for product lists
+            customDuration: 2 * 60 * 60 * 1000, // 2 hours
+            validateData: (data) => data && Array.isArray(data.data)
+          }
+        );
+      }
+
+      // For complex queries, go direct to API (no caching)
+      return ApiService.getProducts(params);
+    } catch (error) {
+      console.error('❌ CacheApiService.getProducts: Error occurred:', error);
+      // Fallback to direct API call if caching fails
+      return ApiService.getProducts(params);
     }
-
-    // For complex queries, go direct to API (no caching)
-    return ApiService.getProducts(params);
   }
 
   /**
@@ -348,6 +362,13 @@ export class CacheApiService {
 
   static async getProductReviews(productId: number, page = 1): Promise<any> {
     return ApiService.getProductReviews(productId, page);
+  }
+
+  /**
+   * Clear user's search history - no caching for user actions
+   */
+  static async clearSearchHistory(): Promise<boolean> {
+    return ApiService.clearSearchHistory();
   }
 
   /**

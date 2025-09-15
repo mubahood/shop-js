@@ -267,23 +267,81 @@ export class ProductModel {
     params: Record<string, string | number> = {}
   ): Promise<PaginatedResponse<ProductModel>> {
     try {
-      const queryParams = new URLSearchParams({
-        page: String(page),
-        ...Object.fromEntries(
-          Object.entries(params).map(([key, val]) => [key, String(val)])
-        ),
+      // Use standardized parameter cleaning utility
+      const queryParams = Utils.buildQueryParams({
+        page: page,
+        ...params
       });
+      
       const response = await http_get(`products?${queryParams.toString()}`);
       
-      // Handle both direct data and nested data structure
+      // Validate response structure
+      if (!response || typeof response !== 'object') {
+        console.error('❌ ProductModel: Invalid response structure:', response);
+        throw new Error('Invalid API response structure');
+      }
+
+      // Handle both direct data and nested data structure with validation
       const paginatedData: PaginatedResponse<any> = response.data || response;
       
-      paginatedData.data = paginatedData.data.map((item: any) =>
-        ProductModel.fromJson(item)
-      );
+      // Validate pagination structure
+      if (!paginatedData || typeof paginatedData !== 'object') {
+        console.error('❌ ProductModel: Invalid pagination data:', paginatedData);
+        throw new Error('Invalid pagination data structure');
+      }
+
+      // Ensure data array exists and is an array
+      if (!Array.isArray(paginatedData.data)) {
+        console.error('❌ ProductModel: Products data is not an array:', paginatedData.data);
+        // Return empty pagination structure instead of throwing
+        return {
+          current_page: 1,
+          data: [],
+          first_page_url: '',
+          from: null,
+          last_page: 1,
+          last_page_url: '',
+          links: [],
+          next_page_url: null,
+          path: '',
+          per_page: 20,
+          prev_page_url: null,
+          to: null,
+          total: 0
+        };
+      }
+
+      // Transform product data with error handling
+      paginatedData.data = paginatedData.data.map((item: any, index: number) => {
+        try {
+          return ProductModel.fromJson(item);
+        } catch (error) {
+          console.error(`❌ ProductModel: Failed to parse product at index ${index}:`, item, error);
+          // Skip invalid products instead of crashing
+          return null;
+        }
+      }).filter(Boolean); // Remove null entries from failed parsing
+
       return paginatedData as PaginatedResponse<ProductModel>;
     } catch (error) {
-      throw error;
+      console.error('❌ ProductModel.fetchProducts: API request failed:', error);
+      
+      // Return empty pagination structure on error to prevent app crashes
+      return {
+        current_page: 1,
+        data: [],
+        first_page_url: '',
+        from: null,
+        last_page: 1,
+        last_page_url: '',
+        links: [],
+        next_page_url: null,
+        path: '',
+        per_page: 20,
+        prev_page_url: null,
+        to: null,
+        total: 0
+      };
     }
   }
 
@@ -291,7 +349,9 @@ export class ProductModel {
   static async fetchProductById(id: string | number): Promise<ProductModel> {
     try {
       const response = await http_get(`products/${id}`);
-      return ProductModel.fromJson(response);
+      // Handle both wrapped {code, message, data} and direct response
+      const productData = response.data || response;
+      return ProductModel.fromJson(productData);
     } catch (error) {
       throw error;
     }

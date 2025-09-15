@@ -240,10 +240,15 @@ export const http_get = async (path: string, params?: Record<string, any>) => {
       params.user = u.id.toString();
       params['User-Id'] = u.id.toString();
       params.user_id = u.id.toString();
+      console.log(`👤 Added user ID: ${u.id} to ${path} request`);
+    } else {
+      console.log(`🔧 No user logged in, proceeding without user params`);
     }
 
     const response = await api.get(path, { params });
-    return handleResponse(response);
+    
+    const result = handleResponse(response);
+    return result;
   } catch (error) {
     console.error("GET request failed:", error);
     return {

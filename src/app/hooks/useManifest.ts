@@ -1,5 +1,5 @@
 // src/app/hooks/useManifest.ts
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store/store';
 import { 
@@ -251,50 +251,23 @@ export const useMegaMenuCategories = () => {
   const manifest = useSelector((state: RootState) => selectManifest(state));
   const categories = manifest?.categories || [];
   
-  console.log('=== CATEGORY ANALYSIS START ===');
-  console.log('Total categories from manifest:', categories.length);
+  // Debug only if categories length changes or on error
+  const previousLengthRef = useRef<number>(0);
   
-  // Show sample of category structure and all unique values for key fields
-  if (categories.length > 0) {
-    const uniqueIsParentValues = [...new Set(categories.map(cat => cat.is_parent))];
-    const uniqueShowInCategoriesValues = [...new Set(categories.map(cat => cat.show_in_categories))];
-    
-    console.log('Unique is_parent values:', uniqueIsParentValues);
-    console.log('Unique show_in_categories values:', uniqueShowInCategoriesValues);
-    console.log('Sample category structures:', categories.slice(0, 5).map(cat => ({
-      id: cat.id,
-      category: cat.category,
-      is_parent: cat.is_parent,
-      parent_id: cat.parent_id,
-      show_in_categories: cat.show_in_categories
-    })));
+  if (categories.length !== previousLengthRef.current) {
+    console.log('📋 Categories loaded:', categories.length);
+    previousLengthRef.current = categories.length;
   }
   
-  // Step 1: For now, let's use ALL categories to test parent-child relationship
-  // Later we can add back the show_in_categories filter once we confirm this works
-  console.log('Using ALL categories for testing...');
-  
-  // Step 2: Get main categories (parents) - is_parent='Yes'
-  // Try different possible values for is_parent
+  // Get main categories (parents) - is_parent='Yes'
   const mainCategories = categories
     .filter(cat => {
-      const isParent = cat.is_parent === 'Yes' || cat.is_parent === 'YES' || cat.is_parent === 'yes' || cat.is_parent === '1';
-      console.log(`Category "${cat.category}": is_parent="${cat.is_parent}" -> isParent=${isParent}`);
-      return isParent;
+      return cat.is_parent === 'Yes' || cat.is_parent === 'YES' || cat.is_parent === 'yes' || cat.is_parent === '1';
     })
     .slice(0, 3); // Limit to 3 main categories for mega menu
   
-  console.log('Main categories found:', mainCategories.map(cat => ({
-    id: cat.id,
-    name: cat.category,
-    is_parent: cat.is_parent,
-    parent_id: cat.parent_id
-  })));
-  
-  // Step 3: For each main category, find its subcategories
+  // For each main category, find its subcategories
   const categoriesWithSubs = mainCategories.map(parent => {
-    console.log(`\n--- Looking for subcategories of "${parent.category}" (ID: ${parent.id}) ---`);
-    
     // Find subcategories: is_parent='No' AND parent_id=this_category_id
     const subcategories = categories
       .filter(cat => {
@@ -307,33 +280,15 @@ export const useMegaMenuCategories = () => {
           Number(cat.parent_id) === Number(parent.id) ||
           String(cat.parent_id) === String(parent.id);
         
-        console.log(`  Checking "${cat.category}": is_parent="${cat.is_parent}" (isSubcategory=${isSubcategory}), parent_id="${cat.parent_id}" vs parent.id="${parent.id}" (belongsToThisParent=${belongsToThisParent})`);
-        
-        if (isSubcategory && belongsToThisParent) {
-          console.log(`    ✅ MATCH: ${cat.category} belongs to ${parent.category}`);
-        }
-        
         return isSubcategory && belongsToThisParent;
       })
       .slice(0, 6); // Limit to 6 subcategories per parent
-    
-    console.log(`${parent.category} final subcategories (${subcategories.length}):`, 
-      subcategories.map(sub => sub.category)
-    );
     
     return {
       ...parent,
       subcategories
     };
   });
-  
-  console.log('\n=== FINAL MEGA MENU STRUCTURE ===');
-  categoriesWithSubs.forEach(cat => {
-    console.log(`${cat.category} (${cat.subcategories.length} subs):`, 
-      cat.subcategories.map(sub => `  - ${sub.category}`)
-    );
-  });
-  console.log('=== CATEGORY ANALYSIS END ===\n');
   
   return categoriesWithSubs;
 };
