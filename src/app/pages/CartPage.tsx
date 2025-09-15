@@ -1,5 +1,5 @@
 // src/app/pages/CartPage.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, memo } from "react";
 import { Container, Row, Col, Button, Image, Alert, Card } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../hooks/useCart";
@@ -554,21 +554,22 @@ const CartPage: React.FC = () => {
     }
   }, [user]);
 
-  const handleQuantityChange = async (item: CartItemModel, newQuantity: number) => {
+  // Optimized handlers with useCallback for better performance
+  const handleQuantityChange = useCallback(async (item: CartItemModel, newQuantity: number) => {
     await updateQuantity(item.product_id, newQuantity, item.variant);
-  };
+  }, [updateQuantity]);
 
-  const handleRemoveItem = async (item: CartItemModel) => {
+  const handleRemoveItem = useCallback(async (item: CartItemModel) => {
     await removeFromCart(item.product_id, item.variant);
-  };
+  }, [removeFromCart]);
 
-  const handleClearCart = async () => {
+  const handleClearCart = useCallback(async () => {
     if (window.confirm('Are you sure you want to clear your cart?')) {
       await clearCart();
     }
-  };
+  }, [clearCart]);
 
-  const handleCheckout = () => {
+  const handleCheckout = useCallback(() => {
     // Validate user is logged in
     if (!user || !user.id) {
       ToastService.error('Please login to continue');
@@ -584,7 +585,18 @@ const CartPage: React.FC = () => {
 
     // For delivery method, proceed to delivery address page
     navigate('/delivery-address', { state: { order } });
-  };
+  }, [user, isEmpty, navigate, order]);
+
+  // Optimized individual quantity handlers for better performance
+  const handleQuantityDecrease = useCallback((item: CartItemModel) => {
+    const newQuantity = Math.max(1, item.product_quantity - 1);
+    handleQuantityChange(item, newQuantity);
+  }, [handleQuantityChange]);
+
+  const handleQuantityIncrease = useCallback((item: CartItemModel) => {
+    const newQuantity = item.product_quantity + 1;
+    handleQuantityChange(item, newQuantity);
+  }, [handleQuantityChange]);
 
   if (isEmpty) {
     return (
@@ -706,7 +718,7 @@ const CartPage: React.FC = () => {
                         <div className="quantity-control">
                           <button
                             className="quantity-btn"
-                            onClick={() => handleQuantityChange(item, Math.max(1, item.product_quantity - 1))}
+                            onClick={() => handleQuantityDecrease(item)}
                             disabled={isLoading || item.product_quantity <= 1}
                           >
                             <i className="bi bi-dash"></i>
@@ -718,7 +730,7 @@ const CartPage: React.FC = () => {
                           
                           <button
                             className="quantity-btn"
-                            onClick={() => handleQuantityChange(item, item.product_quantity + 1)}
+                            onClick={() => handleQuantityIncrease(item)}
                             disabled={isLoading}
                           >
                             <i className="bi bi-plus"></i>
@@ -832,4 +844,4 @@ const CartPage: React.FC = () => {
   );
 };
 
-export default CartPage;
+export default memo(CartPage);

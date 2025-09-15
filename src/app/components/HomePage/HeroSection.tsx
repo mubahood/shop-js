@@ -6,24 +6,30 @@ import HeroCarousel from "./HeroCarousel";
 // Inline styles for HeroSection following the unified design system
 const heroSectionStyles = `
   .hero-section {
-    margin: 2rem 0;
+    margin: 0;
     padding: 0;
+    width: 100%;
+    max-width: 100%;
   }
 
   .hero-row {
     display: flex;
     gap: 1rem;
     align-items: stretch;
+    width: 100%;
+    max-width: 100%;
   }
 
   .hero-categories-col {
     flex: 0 0 280px;
     min-height: 400px;
+    min-width: 280px;
   }
 
   .hero-carousel-col {
     flex: 1;
     min-height: 400px;
+    min-width: 0;
   }
 
   @media (max-width: 991.98px) {

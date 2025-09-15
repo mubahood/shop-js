@@ -1,5 +1,5 @@
 // src/app/components/HomePage/DealsSection.tsx
-import React, { useRef } from "react";
+import React, { useRef, useCallback, memo } from "react";
 import { Link } from "react-router-dom";
 import Countdown from "./Countdown";
 import ProductCard2 from "../shared/ProductCard2";
@@ -217,8 +217,8 @@ const DealsSection: React.FC = () => {
 
   const products = productsResponse?.data || [];
 
-  // Function to scroll left
-  const scrollLeft = () => {
+  // Optimized scroll functions with useCallback for better performance
+  const scrollLeft = useCallback(() => {
     if (dealsContainerRef.current) {
       // Scroll by 5 cards width + gaps (180px * 5 + 12px * 4 = 948px)
       dealsContainerRef.current.scrollBy({
@@ -226,17 +226,17 @@ const DealsSection: React.FC = () => {
         behavior: "smooth",
       });
     }
-  };
+  }, []);
 
   // Function to scroll right
-  const scrollRight = () => {
+  const scrollRight = useCallback(() => {
     if (dealsContainerRef.current) {
       dealsContainerRef.current.scrollBy({
         left: 948, // Scroll 5 cards worth
         behavior: "smooth",
       });
     }
-  };
+  }, []);
 
   return (
     <>
@@ -305,4 +305,4 @@ const DealsSection: React.FC = () => {
   );
 };
 
-export default React.memo(DealsSection);
+export default memo(DealsSection);

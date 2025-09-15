@@ -1,5 +1,5 @@
 // src/app/components/shared/ProductCard2.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, memo } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { LazyLoadImage } from 'react-lazy-load-image-component';
@@ -388,15 +388,17 @@ const ProductCard2: React.FC<ProductCardProps> = ({
     }
   }, [dispatch, isAuthenticated, manifestData]);
 
-  // Handlers
-  const handleImageLoad = () => setIsImageLoaded(true);
+  // Optimized handlers with useCallback for performance
+  const handleImageLoad = useCallback(() => {
+    setIsImageLoaded(true);
+  }, []);
   
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+  const handleImageError = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
     e.currentTarget.src = "/media/svg/files/blank-image.svg";
     e.currentTarget.onerror = null;
-  };
+  }, []);
 
-  const handleWishlistClick = async (e: React.MouseEvent) => {
+  const handleWishlistClick = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -414,7 +416,7 @@ const ProductCard2: React.FC<ProductCardProps> = ({
     } catch (error) {
       console.error('Wishlist action failed:', error);
     }
-  };
+  }, [dispatch, product.id, isInWishlist, wishlistLoading]);
 
   // Get the image URL - use ProductModel method if available
   let imageUrl: string;
@@ -507,8 +509,8 @@ const ProductCard2: React.FC<ProductCardProps> = ({
 };
 
 // Memoize ProductCard2 to prevent unnecessary re-renders
-// Only re-render if product id, name, or price_1 changes
-export default React.memo(ProductCard2, (prevProps, nextProps) => {
+// Only re-render if product id, name, price_1, or wishlist status changes
+export default memo(ProductCard2, (prevProps, nextProps) => {
   return prevProps.product.id === nextProps.product.id &&
          prevProps.product.name === nextProps.product.name &&
          prevProps.product.price_1 === nextProps.product.price_1 &&

@@ -1,5 +1,5 @@
 // src/app/pages/HomePage.tsx
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback, memo } from "react";
 import { useLocation } from "react-router-dom";
 import { Alert } from "react-bootstrap";
 import HeroSection from "../components/HomePage/HeroSection";
@@ -7,38 +7,69 @@ import DealsSection from "../components/HomePage/DealsSection";
 import SuperBuyerSection from "../components/HomePage/SuperBuyerSection";
 import TopProductsSection from "../components/HomePage/TopProductsSection";
 import ToastService from "../services/ToastService";
+import { useLazyLoad } from "../hooks/useIntersectionObserver";
 import "./HomePage.css"; // Import the CSS file to ensure mobile gap fixes are applied
 // Inline styles for HomePage following the unified design system
 const homePageStyles = `
   .homepage-container {
     background: var(--background-body);
     min-height: 100vh;
+    padding-top: 0.5rem;
   }
 
   .homepage-section {
-    padding: 2rem 0;
+    padding: 0.25rem 0;
   }
 
   .homepage-section:first-child {
-    padding-top: 1rem;
+    padding-top: 0;
   }
 
   .homepage-section:last-child {
-    padding-bottom: 3rem;
+    padding-bottom: 1rem;
   }
 
   .hero-section-fullwidth {
-    width: 100vw;
-    margin-left: calc(-50vw + 50%);
-    padding: 0;
-    margin-bottom: 3rem;
+    width: 100%;
+    max-width: 1160px;
+    margin: 0 auto 0.25rem auto;
   }
 
-  /* Mobile responsiveness fixes - remove gaps significantly */
+  /* Ensure hero content stays within container */
+  .hero-section-fullwidth .hero-section {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .homepage-container .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  /* Mobile responsiveness fixes - reduce gaps and center content */
   @media (max-width: 767.98px) {
+    .homepage-container {
+      padding-top: 0.25rem;
+    }
+    
     .homepage-container .container {
-      margin-top: 0 !important; /* Override Bootstrap mt-4 */
+      margin-top: 0 !important;
       padding-top: 0 !important;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    
+    .hero-section-fullwidth {
+      margin: 0 auto 0.25rem auto;
+      max-width: 100%;
+      padding: 0;
+    }
+    
+    .hero-section-fullwidth .hero-section {
+      margin: 0;
     }
     
     .homepage-section {
@@ -95,10 +126,67 @@ const homePageStyles = `
     }
     
     .hero-section-fullwidth {
-      margin-bottom: 0;
+      margin: 0 auto 0.25rem auto;
+      width: 100%;
+      max-width: 100%;
+      padding: 0 5px;
+    }
+    
+    .homepage-container .container {
+      padding-left: 5px;
+      padding-right: 5px;
     }
   }
 `;
+
+// Lazy loaded section components with performance optimization
+const LazyDealsSection = memo(() => {
+  const { isIntersecting, ref } = useLazyLoad(0.1, '200px');
+  
+  return (
+    <div ref={ref} className="homepage-section">
+      {isIntersecting ? <DealsSection /> : (
+        <div style={{ height: '300px' }} className="d-flex align-items-center justify-content-center">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading deals...</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+});
+
+const LazySuperBuyerSection = memo(() => {
+  const { isIntersecting, ref } = useLazyLoad(0.1, '200px');
+  
+  return (
+    <div ref={ref} className="homepage-section">
+      {isIntersecting ? <SuperBuyerSection /> : (
+        <div style={{ height: '400px' }} className="d-flex align-items-center justify-content-center">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading super buyer deals...</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+});
+
+const LazyTopProductsSection = memo(() => {
+  const { isIntersecting, ref } = useLazyLoad(0.1, '200px');
+  
+  return (
+    <div ref={ref} className="homepage-section">
+      {isIntersecting ? <TopProductsSection /> : (
+        <div style={{ height: '400px' }} className="d-flex align-items-center justify-content-center">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading top products...</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+});
 
 interface LocationState {
   orderSuccess?: boolean;
@@ -110,8 +198,8 @@ const HomePage: React.FC = () => {
   const location = useLocation();
   const state = location.state as LocationState;
 
-  useEffect(() => {
-    // Show order success message when user returns from checkout
+  // Optimized success message handler with useCallback
+  const handleOrderSuccess = useCallback(() => {
     if (state?.orderSuccess && state?.orderId) {
       ToastService.success(
         `🎉 Order #${state.orderId} placed successfully! Thank you for your purchase.`,
@@ -121,13 +209,27 @@ const HomePage: React.FC = () => {
       // Clear the state to prevent showing message on refresh
       window.history.replaceState({}, document.title);
     }
-  }, [state]);
+  }, [state?.orderSuccess, state?.orderId]);
+
+  // Optimized payment navigation handler with useCallback
+  const handlePaymentNavigation = useCallback((orderId: number) => {
+    window.location.href = `/payment/${orderId}`;
+  }, []);
+
+  // Optimized orders navigation handler with useCallback
+  const handleOrdersNavigation = useCallback(() => {
+    window.location.href = "/account/orders";
+  }, []);
+
+  useEffect(() => {
+    handleOrderSuccess();
+  }, [handleOrderSuccess]);
 
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: homePageStyles }} />
       <div className="homepage-container">
-        <div className="container mt-4">
+        <div className="container">
           {/* Order Success Alert */}
           {state?.orderSuccess && state?.orderId && (
             <Alert variant="success" className="mb-4">
@@ -138,28 +240,41 @@ const HomePage: React.FC = () => {
               </p>
               <hr />
               <div className="d-flex justify-content-between">
-                <a href="/account/orders" className="btn btn-outline-success">
+                <button 
+                  onClick={handleOrdersNavigation}
+                  className="btn btn-outline-success"
+                  type="button"
+                >
                   <i className="bi bi-list-ul me-2"></i>
                   View My Orders
-                </a>
+                </button>
                 {state.paymentUrl && (
-                  <a href={`/payment/${state.orderId}`} className="btn btn-success">
+                  <button 
+                    onClick={() => handlePaymentNavigation(state.orderId!)}
+                    className="btn btn-success"
+                    type="button"
+                  >
                     <i className="bi bi-credit-card me-2"></i>
                     Complete Payment
-                  </a>
+                  </button>
                 )}
               </div>
             </Alert>
           )}
 
-          <HeroSection />
-          <DealsSection />
-          <SuperBuyerSection />
-          <TopProductsSection />
+          {/* Hero Section - Always load immediately for LCP */}
+          <div className="homepage-section hero-section-fullwidth">
+            <HeroSection />
+          </div>
+          
+          {/* Lazy loaded sections for improved performance */}
+          <LazyDealsSection />
+          <LazySuperBuyerSection />
+          <LazyTopProductsSection />
         </div>
       </div>
     </>
   );
 };
 
-export default HomePage;
+export default memo(HomePage);
