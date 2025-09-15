@@ -90,4 +90,9 @@ const ProductCardSimple: React.FC<ProductCardProps> = ({
   );
 };
 
-export default ProductCardSimple;
+// Memoize ProductCardSimple to prevent unnecessary re-renders
+export default React.memo(ProductCardSimple, (prevProps, nextProps) => {
+  return prevProps.product.id === nextProps.product.id &&
+         prevProps.product.name === nextProps.product.name &&
+         prevProps.className === nextProps.className;
+});

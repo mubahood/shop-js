@@ -506,4 +506,11 @@ const ProductCard2: React.FC<ProductCardProps> = ({
   );
 };
 
-export default ProductCard2;
+// Memoize ProductCard2 to prevent unnecessary re-renders
+// Only re-render if product id, name, or price_1 changes
+export default React.memo(ProductCard2, (prevProps, nextProps) => {
+  return prevProps.product.id === nextProps.product.id &&
+         prevProps.product.name === nextProps.product.name &&
+         prevProps.product.price_1 === nextProps.product.price_1 &&
+         prevProps.className === nextProps.className;
+});
