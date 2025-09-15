@@ -28,6 +28,8 @@ export default defineConfig({
           'vendor-redux': ['@reduxjs/toolkit', 'react-redux'],
           'vendor-bootstrap': ['react-bootstrap', 'bootstrap'],
           'vendor-ui': ['lucide-react', '@fortawesome/react-fontawesome'],
+          'vendor-router': ['react-router-dom'],
+          'vendor-query': ['@tanstack/react-query'],
         },
       },
     },

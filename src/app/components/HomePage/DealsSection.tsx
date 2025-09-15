@@ -305,4 +305,4 @@ const DealsSection: React.FC = () => {
   );
 };
 
-export default DealsSection;
+export default React.memo(DealsSection);

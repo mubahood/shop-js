@@ -450,4 +450,4 @@ const SuperBuyerSection: React.FC = () => {
   );
 };
 
-export default SuperBuyerSection;
+export default React.memo(SuperBuyerSection);

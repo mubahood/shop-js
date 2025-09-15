@@ -1,7 +1,7 @@
 // src/app/components/shared/ProductCardSimple.tsx
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { ShimmerThumbnail } from "react-shimmer-effects";
+import CustomShimmer from "./CustomShimmer";
 import type { ProductCardProps } from "../../types";
 import { 
   calculateDiscountPercent, 
@@ -46,7 +46,7 @@ const ProductCardSimple: React.FC<ProductCardProps> = ({
       <div className="product-image-container">
         {!isImageLoaded && (
           <div className="shimmer-container">
-            <ShimmerThumbnail 
+            <CustomShimmer 
               height={220} 
               className="shimmer-image"
             />

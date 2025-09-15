@@ -192,4 +192,4 @@ const TopProductsSection: React.FC = () => {
   );
 };
 
-export default TopProductsSection;
+export default React.memo(TopProductsSection);
