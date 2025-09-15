@@ -53,7 +53,7 @@ export class AnalyticsService {
    */
   private static initializeGA4() {
     // Add GA4 tracking code
-    const GA_TRACKING_ID = 'G-XXXXXXXXXX'; // Replace with your GA4 ID
+    const GA_TRACKING_ID = 'G-XJY7DJQJ9E'; // Your GA4 ID
     
     // Load gtag script
     const script = document.createElement('script');
@@ -69,7 +69,7 @@ export class AnalyticsService {
     (window as any).gtag = gtag;
 
     gtag('js', new Date());
-    gtag('config', GA_TRACKING_ID, {
+    gtag('config', 'G-XJY7DJQJ9E', {
       page_title: document.title,
       page_location: window.location.href,
     });
@@ -83,7 +83,7 @@ export class AnalyticsService {
 
     const gtag = (window as any).gtag;
     if (gtag) {
-      gtag('config', 'G-XXXXXXXXXX', {
+      gtag('config', 'G-XJY7DJQJ9E', {
         page_title,
         page_location: page_location || window.location.href,
       });
@@ -253,7 +253,7 @@ export class AnalyticsService {
 
     const gtag = (window as any).gtag;
     if (gtag) {
-      gtag('config', 'G-XXXXXXXXXX', {
+      gtag('config', 'G-XJY7DJQJ9E', {
         custom_map: properties,
       });
     }
