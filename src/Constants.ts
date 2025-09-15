@@ -11,6 +11,43 @@ export const CART_ITEMS = "CART_ITEMS";
 export const LOCAL_DISTRICTS = "LOCAL_DISTRICTS";
 export const APP_NAME = "BlitXpress";
 export const LOCAL_JOBSEEKER_MANIFEST = "LOCAL_JOBSEEKER_MANIFEST";
+
+// Cache System Constants
+export const CACHE_VERSION = "1.0.0";
+export const CACHE_PREFIX = "BLITX_CACHE_";
+export const CACHE_METADATA_KEY = "BLITX_CACHE_METADATA";
+
+// Cache Keys for different data types
+export const CACHE_KEYS = {
+  CATEGORIES: `${CACHE_PREFIX}CATEGORIES`,
+  MANIFEST: `${CACHE_PREFIX}MANIFEST`,
+  PRODUCTS: `${CACHE_PREFIX}PRODUCTS`,
+  PRODUCT_DETAILS: `${CACHE_PREFIX}PRODUCT_DETAILS`,
+  VENDORS: `${CACHE_PREFIX}VENDORS`,
+  SEARCH_RESULTS: `${CACHE_PREFIX}SEARCH`,
+  FEATURED_PRODUCTS: `${CACHE_PREFIX}FEATURED`,
+  BANNER_CATEGORIES: `${CACHE_PREFIX}BANNER_CATS`,
+} as const;
+
+// Cache Expiration Times (in milliseconds)
+export const CACHE_DURATIONS = {
+  CATEGORIES: 24 * 60 * 60 * 1000,        // 24 hours (very stable)
+  MANIFEST: 12 * 60 * 60 * 1000,          // 12 hours (app config)
+  PRODUCTS: 2 * 60 * 60 * 1000,           // 2 hours (moderate freshness)
+  PRODUCT_DETAILS: 1 * 60 * 60 * 1000,    // 1 hour (high freshness)
+  VENDORS: 6 * 60 * 60 * 1000,            // 6 hours (moderately stable)
+  SEARCH_RESULTS: 30 * 60 * 1000,         // 30 minutes (dynamic)
+  FEATURED_PRODUCTS: 4 * 60 * 60 * 1000,  // 4 hours (promotional content)
+  BANNER_CATEGORIES: 24 * 60 * 60 * 1000, // 24 hours (very stable)
+} as const;
+
+// Cache Configuration
+export const CACHE_CONFIG = {
+  MAX_STORAGE_SIZE: 50 * 1024 * 1024,     // 50MB total cache limit
+  CLEANUP_INTERVAL: 24 * 60 * 60 * 1000,  // Run cleanup daily
+  ENABLE_BACKGROUND_SYNC: true,           // Enable background data refresh
+  DEBUG_MODE: false,                      // Enable cache debugging logs
+} as const;
 export const LOGO =
   "https://skills-ug-api.8technologies.net/storage/images/8tech.png";
 

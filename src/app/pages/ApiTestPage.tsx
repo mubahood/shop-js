@@ -1,7 +1,7 @@
 // src/app/pages/ApiTestPage.tsx
 
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Button, Spinner, Alert, Form } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Spinner, Alert, Form, Tab, Tabs } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { 
   useGetProductsQuery,
@@ -15,6 +15,7 @@ import CategoryModel from '../models/CategoryModel';
 import ApiService from '../services/ApiService';
 import CartService from '../services/CartService';
 import ToastService from '../services/ToastService';
+import CachePilotDemo from '../components/CachePilotDemo';
 
 const ApiTestPage: React.FC = () => {
   const [selectedProductId, setSelectedProductId] = useState<number>(134);
@@ -136,24 +137,36 @@ const ApiTestPage: React.FC = () => {
         <Col>
           <h1>API Integration Test Page</h1>
           <p className="text-muted">
-            Testing real Laravel API endpoints and cart functionality.
+            Testing real Laravel API endpoints, cache functionality, and cart integration.
           </p>
-          <div className="d-flex gap-2 mb-3">
-            <Button variant="primary" onClick={testApiMethods}>
-              Test API Methods
-            </Button>
-            <Button variant="success" onClick={testCartFunctions}>
-              Test Cart Functions
-            </Button>
-            <Button variant="info" onClick={() => window.location.reload()}>
-              Refresh Page
-            </Button>
-            <span className="ms-auto badge bg-secondary fs-6">
-              Cart Items: {cartItemCount}
-            </span>
-          </div>
         </Col>
       </Row>
+
+      <Tabs defaultActiveKey="cache-pilot" id="api-test-tabs" className="mb-3">
+        <Tab eventKey="cache-pilot" title="🚀 Cache Pilot Demo">
+          <CachePilotDemo />
+        </Tab>
+        
+        <Tab eventKey="api-tests" title="🔧 API Tests">
+          <Container fluid>
+            <Row className="mb-4">
+              <Col>
+                <div className="d-flex gap-2 mb-3">
+                  <Button variant="primary" onClick={testApiMethods}>
+                    Test API Methods
+                  </Button>
+                  <Button variant="success" onClick={testCartFunctions}>
+                    Test Cart Functions
+                  </Button>
+                  <Button variant="info" onClick={() => window.location.reload()}>
+                    Refresh Page
+                  </Button>
+                  <span className="ms-auto badge bg-secondary fs-6">
+                    Cart Items: {cartItemCount}
+                  </span>
+                </div>
+              </Col>
+            </Row>
 
       {/* Categories Section */}
       <Row className="mb-4">
@@ -452,6 +465,9 @@ const ApiTestPage: React.FC = () => {
           </Card>
         </Col>
       </Row>
+          </Container>
+        </Tab>
+      </Tabs>
     </Container>
   );
 };
