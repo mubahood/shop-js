@@ -46,7 +46,17 @@ export const CACHE_CONFIG = {
   MAX_STORAGE_SIZE: 50 * 1024 * 1024, // 50MB total cache limit
   CLEANUP_INTERVAL: 24 * 60 * 60 * 1000, // Run cleanup daily
   ENABLE_BACKGROUND_SYNC: true, // Enable background data refresh
-  DEBUG_MODE: true, // Enable cache debugging logs
+  DEBUG_MODE: import.meta.env.MODE !== 'production', // Disable in production
+} as const;
+
+// Production Configuration
+export const PRODUCTION_CONFIG = {
+  ENABLE_ANALYTICS: true,
+  ENABLE_ERROR_REPORTING: true,
+  ENABLE_PERFORMANCE_MONITORING: true,
+  API_TIMEOUT: 10000, // 10 seconds for production
+  MAX_RETRY_ATTEMPTS: 2,
+  ENABLE_SERVICE_WORKER: true,
 } as const;
 
 export const EMPLOYMENT_STATUS_OPTIONS = [
