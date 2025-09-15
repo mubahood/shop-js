@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+import 'react-lazy-load-image-component/src/effects/blur.css';
 import type { ProductCardProps } from "../../types";
 import { 
   calculateDiscountPercent, 
@@ -431,12 +433,17 @@ const ProductCard2: React.FC<ProductCardProps> = ({
             {/* Shimmer overlay for loading state */}
             {!isImageLoaded && <div className="pc2-shimmer-overlay" />}
             
-            <img
+            <LazyLoadImage
               src={imageUrl}
               alt={product.name}
               className={`pc2-product-image ${isImageLoaded ? 'pc2-loaded' : 'pc2-loading'}`}
               onLoad={handleImageLoad}
               onError={handleImageError}
+              effect="blur"
+              placeholderSrc="/placeholder-product.svg"
+              loading="lazy"
+              width="100%"
+              height="220"
             />
             
             {/* Discount badge */}
