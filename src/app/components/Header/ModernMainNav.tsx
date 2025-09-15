@@ -8,6 +8,7 @@ import { useCart } from "../../hooks/useCart";
 import { useAppCounts, useMegaMenuCategories } from "../../hooks/useManifest";
 import { useManifest } from "../../hooks/useManifest";
 import LiveSearchBox from "../search/LiveSearchBox";
+import OptimizedLazyImage from "../shared/OptimizedLazyImage";
 import "./ModernMainNav.css";
 
 const ModernMainNav: React.FC = () => {
@@ -360,7 +361,16 @@ const ModernMainNav: React.FC = () => {
       <div className={`mobile-nav-offcanvas ${isMenuOpen ? "show" : ""}`}>
         <div className="offcanvas-header">
           <div className="offcanvas-logo">
-            <img src="/media/logos/logo.png" alt="Blitxpress" className="mobile-offcanvas-logo" />
+            <OptimizedLazyImage 
+              src="/media/logos/logo.png" 
+              alt="Blitxpress" 
+              className="mobile-offcanvas-logo"
+              options={{
+                width: 150,
+                height: 50,
+                loading: 'eager' // Logo should load immediately
+              }}
+            />
           </div>
           <button 
             className="offcanvas-close-btn"

@@ -21,6 +21,7 @@ import { useDispatch } from 'react-redux';
 import { useGetProductByIdQuery } from '../../../services/productsApi';
 import { addToCart } from '../../../store/slices/cartSlice';
 import { showNotification } from '../../../store/slices/notificationSlice';
+import OptimizedLazyImage from '../../../components/shared/OptimizedLazyImage';
 
 const ProductHeroSection: React.FC = () => {
   const { id } = useParams<{ id?: string }>();
@@ -66,15 +67,36 @@ const ProductHeroSection: React.FC = () => {
     );
 
   // pricing + stock
-  const price1 = +p.price_1,
-    price2 = +p.price_2,
-    discount = price2 > price1 ? Math.round(((price2 - price1) / price2) * 100) : 0,
-    sold = p.stock?.items_sold || 0,
-    total = p.stock?.total_items || 0,
-    remain = total - sold,
-    soldPct = total ? (sold / total) * 100 : 0,
-    outOfStock = total > 0 && remain <= 0,
-    gallery = [p.feature_photo, ...(p.images || [])];
+  // Memoized expensive calculations for performance
+  const productData = useMemo(() => {
+    if (!p) return null;
+    
+    const price1 = +p.price_1;
+    const price2 = +p.price_2;
+    const discount = price2 > price1 ? Math.round(((price2 - price1) / price2) * 100) : 0;
+    const sold = p.stock?.items_sold || 0;
+    const total = p.stock?.total_items || 0;
+    const remain = total - sold;
+    const soldPct = total ? (sold / total) * 100 : 0;
+    const outOfStock = total > 0 && remain <= 0;
+    const gallery = [p.feature_photo, ...(p.images || [])];
+    
+    return {
+      price1,
+      price2,
+      discount,
+      sold,
+      total,
+      remain,
+      soldPct,
+      outOfStock,
+      gallery
+    };
+  }, [p]);
+
+  if (!productData) return null;
+  
+  const { price1, price2, discount, sold, total, remain, soldPct, outOfStock, gallery } = productData;
 
   // handlers
   const changeQty = (delta: number) => setQty(q => Math.min(Math.max(1, q + delta), remain));
@@ -137,11 +159,17 @@ const ProductHeroSection: React.FC = () => {
             >
               {gallery.map((url, idx) => (
                 <Carousel.Item key={idx}>
-                  <img
+                  <OptimizedLazyImage
                     src={url}
-                    onError={e => (e.currentTarget.src = '/placeholder.png')}
+                    alt={`${p.name} - Image ${idx + 1}`}
                     className="d-block w-100 product-main-image"
                     onClick={() => setShowModal(true)}
+                    options={{
+                      width: 500,
+                      height: 500,
+                      loading: 'eager' // Main product images should load immediately
+                    }}
+                    onError={e => (e.currentTarget.src = '/placeholder.png')}
                   />
                 </Carousel.Item>
               ))}
@@ -153,10 +181,16 @@ const ProductHeroSection: React.FC = () => {
                   placement="top"
                   overlay={<Tooltip>View image {idx + 1}</Tooltip>}
                 >
-                  <img
+                  <OptimizedLazyImage
                     src={url}
+                    alt={`${p.name} - Thumbnail ${idx + 1}`}
                     className={`thumbnail ${mainImg === url ? 'selected' : ''}`}
                     onClick={() => setMainImg(url)}
+                    options={{
+                      width: 80,
+                      height: 80,
+                      loading: 'lazy'
+                    }}
                   />
                 </OverlayTrigger>
               ))}
@@ -320,7 +354,16 @@ const ProductHeroSection: React.FC = () => {
           <Modal.Title>{p.name}</Modal.Title>
         </Modal.Header>
         <Modal.Body className="text-center">
-          <img src={mainImg} className="img-fluid" alt={p.name} />
+          <OptimizedLazyImage
+            src={mainImg}
+            alt={p.name}
+            className="img-fluid"
+            options={{
+              width: 800,
+              height: 800,
+              loading: 'eager'
+            }}
+          />
         </Modal.Body>
       </Modal>
     </>
