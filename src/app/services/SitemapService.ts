@@ -95,7 +95,7 @@ export class SitemapService {
       while (hasMorePages && productUrls.length < this.MAX_URLS_PER_SITEMAP) {
         const response = await http_get(`products?page=${page}&limit=100`);
         
-        if (response.success && response.data?.data) {
+        if (response.code === 1 && response.data?.data) {
           const products = response.data.data;
           
           products.forEach((product: any) => {
@@ -128,7 +128,7 @@ export class SitemapService {
     try {
       const response = await http_get('manifest');
       
-      if (response.success && response.data?.categories) {
+      if (response.code === 1 && response.data?.categories) {
         return response.data.categories.map((category: any) => ({
           loc: `${this.BASE_URL}/products?category=${category.id}`,
           lastmod: new Date().toISOString().split('T')[0],
