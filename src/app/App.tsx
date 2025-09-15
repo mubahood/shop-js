@@ -3,8 +3,11 @@ import { ToastContainer } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import AppRoutes from "./routing/AppRoutes";
 import ScrollToTop from "./components/Layout/ScrollToTop";
+import ErrorBoundary from "./components/shared/ErrorBoundary";
 import { restoreAuthState, selectIsAuthenticated, selectUser } from "./store/slices/authSlice";
 import { CacheApiService } from "./services/CacheApiService";
+import AnalyticsService from "./services/AnalyticsService";
+import PerformanceService from "./services/PerformanceService";
 
 // Import React Toastify CSS
 import "react-toastify/dist/ReactToastify.css";
@@ -25,6 +28,13 @@ const App: React.FC = () => {
     return () => clearTimeout(timer);
   }, [dispatch]);
 
+  // Initialize analytics and performance monitoring in production
+  useEffect(() => {
+    AnalyticsService.initialize();
+    PerformanceService.initialize();
+    PerformanceService.trackBundlePerformance();
+  }, []);
+
   // Preload essential data for better performance
   useEffect(() => {
     // Preload critical data in background
@@ -34,7 +44,7 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <>
+    <ErrorBoundary>
       <ScrollToTop />
       <AppRoutes />
       <ToastContainer
@@ -50,7 +60,7 @@ const App: React.FC = () => {
         theme="light"
         className="custom-toast-container"
       />
-    </>
+    </ErrorBoundary>
   );
 };
 
