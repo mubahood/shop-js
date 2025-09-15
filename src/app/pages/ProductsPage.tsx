@@ -18,6 +18,8 @@ import { useManifestCategories } from "../hooks/useManifest";
 import ProductCard from "../components/shared/ProductCard";
 import DynamicBreadcrumb from "../components/shared/DynamicBreadcrumb";
 import { ProductModel } from "../models/ProductModel";
+import { SEOHead, CategorySchema } from "../components/seo";
+import { generateCategoryMetaTags, generateSearchMetaTags } from "../utils/seo";
 
 // Optimized minimalistic styles using theme colors
 const productsPageStyles = `
@@ -571,8 +573,61 @@ const ProductsPage: React.FC = () => {
     return "All Products";
   };
 
+  // Generate SEO meta tags based on page type
+  const generateSEOConfig = () => {
+    const searchTerm = searchParams.get("search");
+    
+    if (searchTerm) {
+      // Search results page SEO
+      return generateSearchMetaTags(searchTerm, productsData?.total || 0);
+    }
+    
+    if (selectedCategory && categories) {
+      // Category page SEO
+      const category = categories.find((c) => c.id === selectedCategory);
+      if (category) {
+        return generateCategoryMetaTags({
+          name: category.category,
+          description: `Shop ${category.category} products online in Uganda. Best prices and fast delivery at BlitXpress.`,
+          productCount: productsData?.total || 0
+        });
+      }
+    }
+
+    // Default products page SEO
+    return generateCategoryMetaTags({
+      name: "All Products",
+      description: "Shop all products online in Uganda. Electronics, fashion, home & garden, and more with fast delivery and secure checkout.",
+      productCount: productsData?.total || 0
+    });
+  };
+
+  // Generate category schema data
+  const getCategorySchemaData = () => {
+    if (selectedCategory && categories) {
+      const category = categories.find((c) => c.id === selectedCategory);
+      if (category) {
+        return {
+          name: category.category,
+          description: `Shop ${category.category} products online in Uganda. Best prices and fast delivery at BlitXpress.`,
+          productCount: productsData?.total || 0,
+          url: window.location.href
+        };
+      }
+    }
+    
+    return {
+      name: "All Products",
+      description: "Shop all products online in Uganda. Electronics, fashion, home & garden, and more with fast delivery and secure checkout.",
+      productCount: productsData?.total || 0,
+      url: window.location.href
+    };
+  };
+
   return (
     <>
+      <SEOHead config={generateSEOConfig()} />
+      <CategorySchema category={getCategorySchemaData()} />
       {/* Dynamic Breadcrumb */}
       <DynamicBreadcrumb
         context={{
