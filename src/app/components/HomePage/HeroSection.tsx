@@ -30,6 +30,10 @@ const heroSectionStyles = `
     .hero-categories-col {
       display: none;
     }
+    .hero-carousel-col{
+      min-height: 260px!important; 
+      margin-top: 30px!important;
+    } 
     
     .hero-row {
       gap: 0;

@@ -60,8 +60,8 @@ const topProductsSectionStyles = `
   /* Mobile responsiveness fixes */
   @media (max-width: 767.98px) {
     .top-products-section-wrapper {
-      margin: 0.5rem 1rem 2rem 1rem; /* Add horizontal margin on mobile */
-      padding: 1.5rem;
+      margin-top: 10px !important; /* Add horizontal margin on mobile */
+      padding: 10px!important; /* Reduce padding on mobile */
     }
     
     .top-products-grid {
@@ -82,7 +82,7 @@ const topProductsSectionStyles = `
 
   @media (max-width: 575.98px) {
     .top-products-section-wrapper {
-      margin: 0.25rem 0.75rem 1.5rem 0.75rem; /* Horizontal margin for small mobile */
+      margin-top: 10; /* Horizontal margin for small mobile */
       padding: 1rem;
     }
     
