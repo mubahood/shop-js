@@ -1912,6 +1912,18 @@ const inlineStyles = `
     .related-products h3::after {
       width: 40px;
     }
+
+    /* Reduce gap between breadcrumb and main content on mobile */
+    .dynamic-breadcrumb + .container {
+      margin-top: -8px;
+    }
+  }
+
+  /* Extra small screens - further reduce spacing */
+  @media (max-width: 576px) {
+    .dynamic-breadcrumb + .container {
+      margin-top: -12px;
+    }
   }
 `;
 
@@ -1933,9 +1945,27 @@ const ProductDetailPage: React.FC = () => {
     isFetching,
     isError,
     error,
+    refetch,
   } = useGetProductByIdQuery(productId, {
     skip: !productId,
+    // Force refetch when productId changes
+    refetchOnMountOrArgChange: true,
+    // Disable caching for product details to ensure fresh data
+    refetchOnFocus: true,
+    refetchOnReconnect: true,
   });
+
+  // Force refetch when productId changes
+  useEffect(() => {
+    if (productId && refetch) {
+      refetch();
+    }
+  }, [productId, refetch]);
+
+  // Update product-related state when product data changes
+  useEffect(() => {
+    // Product data changed, component will re-render with new data
+  }, [product, isLoading, isFetching, isError, id]);
 
   // Fetch related products
   const { data: relatedProductsData } = useGetProductsQuery(
@@ -1967,6 +1997,22 @@ const ProductDetailPage: React.FC = () => {
   const handleTagClick = (tag: string) => {
     navigate(`/search?q=${encodeURIComponent(tag)}`);
   };
+
+  // Reset component state when productId changes (before new product loads)
+  useEffect(() => {
+    // Reset all local state to prevent showing old product data
+    setSelectedImage("");
+    setImageErrored(false);
+    setQuantity(1);
+    setVariantsSelection({});
+    setShowModal(false);
+    setSliderPosition(0);
+    setModalImageIndex(0);
+    setShowReviewModal(false);
+    
+    // Scroll to top when product changes
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [productId]);
 
   // Initialize image & variants when product loads
   useEffect(() => {

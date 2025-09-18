@@ -1,6 +1,6 @@
 // src/app/utils/imageUtils.ts
 
-import { BASE_URL } from '../../Constants';
+import { API_CONFIG } from '../constants';
 
 /**
  * Image utility functions for handling product and category images
@@ -30,7 +30,7 @@ export const getImageUrl = (img: string | null | undefined): string => {
   img0 = img0.replace('/images', '');
   
   // Construct full URL for storage images
-  return `${BASE_URL}/storage/${img0}`;
+  return `${API_CONFIG.BASE_URL}/storage/${img0}`;
 };
 
 /**
@@ -65,7 +65,7 @@ export const getVendorImageUrl = (img: string | null | undefined): string => {
  * Get a fallback image URL for when images fail to load
  */
 export const getFallbackImageUrl = (): string => {
-  return `${BASE_URL}/storage/default.png`;
+  return `${API_CONFIG.BASE_URL}/storage/default.png`;
 };
 
 /**

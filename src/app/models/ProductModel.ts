@@ -174,12 +174,52 @@ export class ProductModel {
    */
   getAllImages(): string[] {
     try {
+      console.log("🖼️ Raw rates:", this.rates);
       const parsed = JSON.parse(this.rates || "[]");
+      console.log("🖼️ Parsed data:", parsed);
+      
       if (Array.isArray(parsed)) {
-        const images = parsed.map(item => item.src).filter(Boolean);
-        return images.map(img => Utils.img(img));
+        const images = parsed.map((item, index) => {
+          if (item.src) {
+            console.log(`🖼️ [${index}] Original src:`, item.src);
+            console.log(`🖼️ [${index}] Original thumbnail:`, item.thumbnail);
+            
+            // Clean up escaped slashes and normalize the path
+            let cleanSrc = item.src
+              .replace(/\\\//g, '/') // Remove escaped slashes
+              .replace(/\\/g, '/') // Convert backslashes to forward slashes
+              .trim();
+            
+            // Remove duplicate slashes
+            cleanSrc = cleanSrc.replace(/\/+/g, '/');
+            
+            // Utils.img() expects just the filename and will add the full path
+            // So we need to extract just the filename from paths like "images/filename.jpg"
+            if (cleanSrc.includes('/')) {
+              cleanSrc = cleanSrc.split('/').pop() || cleanSrc;
+            }
+            
+            console.log(`🖼️ [${index}] Cleaned filename for Utils.img():`, cleanSrc);
+            return cleanSrc;
+          }
+          return null;
+        }).filter(Boolean);
+        
+        console.log("🖼️ All cleaned filenames:", images);
+        
+        const processedImages = images.map((img, index) => {
+          const finalUrl = Utils.img(img);
+          console.log(`� [${index}] Input to Utils.img():`, img);
+          console.log(`🔗 [${index}] Final URL from Utils.img():`, finalUrl);
+          return finalUrl;
+        });
+        
+        console.log("🔗 All final URLs:", processedImages);
+        
+        return processedImages;
       }
     } catch (err) {
+      console.error("getAllImages() - Parse error:", err);
     }
     return [this.getMainImage()];
   }

@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useManifest } from "../../hooks/useManifest";
 import { CacheApiService } from "../../services/CacheApiService";
 import { ProductModel } from "../../models/ProductModel";
-import { BASE_URL } from "../../../Constants";
+import { API_CONFIG } from "../../constants";
 
 // Inline CSS styles for LiveSearchBox
 const inlineStyles = `
@@ -618,7 +618,7 @@ const LiveSearchBox: React.FC<LiveSearchBoxProps> = ({
                         >
                           <div className="livesearch-product-image">
                             <img
-                              src={`${BASE_URL}/storage/${
+                              src={`${API_CONFIG.BASE_URL}/storage/${
                                 product.feature_photo || "placeholder-image.jpg"
                               }`}
                               alt={product.name}

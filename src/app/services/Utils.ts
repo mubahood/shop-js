@@ -1,4 +1,4 @@
-import { BASE_URL, DB_LOGGED_IN_PROFILE, DB_TOKEN } from "../constants";
+import { API_CONFIG, DB_LOGGED_IN_PROFILE, DB_TOKEN } from "../constants";
 import { ProfileModel } from "../models/ProfileModel";
 import { http_get } from "./Api";
 
@@ -197,7 +197,7 @@ class Utils {
   }
 
   static img(url: any) {
-    var default_img = BASE_URL + "/storage/images/default.png";
+    var default_img = API_CONFIG.BASE_URL + "/storage/images/default.png";
     if (url === null) {
       return default_img;
     }
@@ -236,11 +236,11 @@ class Utils {
     if (last_segment === undefined) {
       return "";
     }
-    return BASE_URL + "/storage/images/" + last_segment;
+    return API_CONFIG.BASE_URL + "/storage/images/" + last_segment;
   }
 
   static file(url: any) {
-    var default_img = BASE_URL + "/storage/images/default.png";
+    var default_img = API_CONFIG.BASE_URL + "/storage/images/default.png";
     if (url === null) {
       return default_img;
     }
@@ -279,7 +279,7 @@ class Utils {
     if (last_segment === undefined) {
       return "";
     }
-    return BASE_URL + "/storage/files/" + last_segment;
+    return API_CONFIG.BASE_URL + "/storage/files/" + last_segment;
   }
 
   moneyFormat(any: string): string { 

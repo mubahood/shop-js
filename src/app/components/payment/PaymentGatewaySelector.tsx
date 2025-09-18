@@ -96,13 +96,10 @@ const PaymentGatewaySelector: React.FC<PaymentGatewaySelectorProps> = ({
         description: `Payment for Order #${order.id}`
       };
 
-      console.log('Initializing payment with request:', paymentRequest);
-
       // Initialize payment with Pesapal
       const response = await PesapalService.initializePayment(paymentRequest);
 
       if (response.success && response.data) {
-        console.log('Payment initialized successfully:', response.data);
         
         // Notify parent component
         onPaymentInitialized?.(response.data);

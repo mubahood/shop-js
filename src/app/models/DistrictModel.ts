@@ -1,6 +1,6 @@
 import Utils from "../services/Utils";
 import { http_get } from "../services/Api";
-import { BASE_URL, LOCAL_DISTRICTS } from "../constants";
+import { API_CONFIG, LOCAL_DISTRICTS } from "../constants";
 
 export class DistrictModel {
   id = "0";

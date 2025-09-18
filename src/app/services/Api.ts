@@ -1,12 +1,13 @@
 import axios from "axios";
-import { DB_TOKEN, DB_LOGGED_IN_PROFILE, API_URL } from "../../Constants";
+import { DB_TOKEN, DB_LOGGED_IN_PROFILE, DEBUG_CONFIG } from "../../Constants";
+import { API_CONFIG } from "../constants";
 import Utils from "./Utils";
 import ToastService from "./ToastService";
 
 // Create an axios instance with default configuration
 const api = axios.create({
   // baseURL: "https://fabricare.hambren.com/api", // Backend API base URL
-  baseURL: API_URL, // Backend API base URL
+  baseURL: API_CONFIG.API_URL, // Backend API base URL
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -240,9 +241,13 @@ export const http_get = async (path: string, params?: Record<string, any>) => {
       params.user = u.id.toString();
       params['User-Id'] = u.id.toString();
       params.user_id = u.id.toString();
-      console.log(`👤 Added user ID: ${u.id} to ${path} request`);
+      if (DEBUG_CONFIG.ENABLE_API_LOGS) {
+        console.log(`👤 Added user ID: ${u.id} to ${path} request`);
+      }
     } else {
-      console.log(`🔧 No user logged in, proceeding without user params`);
+      if (DEBUG_CONFIG.ENABLE_API_LOGS) {
+        console.log(`🔧 No user logged in, proceeding without user params`);
+      }
     }
 
     const response = await api.get(path, { params });

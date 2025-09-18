@@ -19,7 +19,8 @@ import {
   CACHE_METADATA_KEY,
   CACHE_KEYS,
   CACHE_DURATIONS,
-  CACHE_CONFIG
+  CACHE_CONFIG,
+  DEBUG_CONFIG
 } from "../../Constants";
 
 // Types for cache system

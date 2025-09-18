@@ -13,7 +13,7 @@ import PublicOnlyRoute from "../components/Auth/PublicOnlyRoute";
 
 // Lazy loaded components for better performance
 const HomePage = React.lazy(() => import("../pages/HomePage"));
-const ProductDetailPage = React.lazy(() => import("../pages/ProductDetailPage/ProductDetailPage"));
+const ProductDetailPageWrapper = React.lazy(() => import("../pages/ProductDetailPage/ProductDetailPageWrapper"));
 const ProductsPage = React.lazy(() => import("../pages/ProductsPage"));
 const CategoryPage = React.lazy(() => import("../pages/CategoryPage"));
 const CartPage = React.lazy(() => import("../pages/CartPage"));
@@ -85,7 +85,7 @@ const AppRoutes: React.FC = () => {
           
           {/* Products */}
           <Route path="products" element={<ProductsPage />} />
-          <Route path="product/:id" element={<ProductDetailPage />} />
+          <Route path="product/:id" element={<ProductDetailPageWrapper />} />
           <Route path="category/:categoryId" element={<CategoryPage />} />
           <Route path="search" element={<SearchResultsPage />} />
           

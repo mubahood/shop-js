@@ -1,7 +1,8 @@
-// export const BASE_URL = "https://skills-ug-api.8technologies.net";
-export const BASE_URL = "https://blit.blitxpress.com";
-// export const BASE_URL = "http://localhost:8888/blitxpress";
-export const API_URL = BASE_URL + "/api";
+// ===================================================================
+// API CONFIGURATION - Moved to /src/app/constants/index.ts
+// Use API_CONFIG instead of these direct exports
+// ===================================================================
+
 export const TIMEOUT = 8000;
 export const MAX_RETRIES = 3;
 export const DATE_FORMAT = "YYYY-MM-DD";
@@ -46,7 +47,23 @@ export const CACHE_CONFIG = {
   MAX_STORAGE_SIZE: 50 * 1024 * 1024, // 50MB total cache limit
   CLEANUP_INTERVAL: 24 * 60 * 60 * 1000, // Run cleanup daily
   ENABLE_BACKGROUND_SYNC: true, // Enable background data refresh
-  DEBUG_MODE: import.meta.env.MODE !== 'production', // Disable in production
+  DEBUG_MODE: import.meta.env.MODE !== "production", // Disable in production
+} as const;
+
+// Debug Configuration
+export const DEBUG_CONFIG = {
+  ENABLE_CONSOLE_LOGS: import.meta.env.MODE === "development", // Only in development
+  ENABLE_ANALYTICS_LOGS: false, // Disable analytics spam
+  ENABLE_API_LOGS: false, // Disable API spam  
+  ENABLE_PERFORMANCE_LOGS: false, // Disable performance spam
+  LOG_LEVEL: import.meta.env.MODE === "production" ? "error" : "debug",
+} as const;
+
+// Service Initialization Guards
+export const SERVICE_GUARDS = {
+  ANALYTICS_INITIALIZED: false,
+  CACHE_INITIALIZED: false,
+  PERFORMANCE_INITIALIZED: false,
 } as const;
 
 // Production Configuration

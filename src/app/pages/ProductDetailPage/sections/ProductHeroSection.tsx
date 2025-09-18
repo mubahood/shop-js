@@ -35,6 +35,18 @@ const ProductHeroSection: React.FC = () => {
   const [variants, setVariants] = useState<Record<string, string>>({});
   const [showModal, setShowModal] = useState(false);
 
+  // Reset component state when productId changes (before new product loads)
+  useEffect(() => {
+    // Reset all local state to prevent showing old product data
+    setMainImg('');
+    setQty(1);
+    setVariants({});
+    setShowModal(false);
+    
+    // Scroll to top when product changes
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [productId]);
+
   useEffect(() => {
     if (!p) return;
     setMainImg(p.feature_photo);

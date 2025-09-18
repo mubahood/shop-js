@@ -96,6 +96,10 @@ const breadcrumbStyles = `
   @media (max-width: 768px) {
     .dynamic-breadcrumb {
       padding: 8px 0;
+      margin-bottom: 0;
+      margin-top: 2rem;
+      height: 3rem;
+      
     }
     
     .dynamic-breadcrumb .breadcrumb-list {
@@ -105,15 +109,32 @@ const breadcrumbStyles = `
     .dynamic-breadcrumb .breadcrumb-item:not(:last-child)::after {
       margin: 0 6px !important;
     }
+
+    /* Remove default Bootstrap container padding on mobile for tighter spacing */
+    .dynamic-breadcrumb .container {
+      padding-left: 15px;
+      padding-right: 15px;
+    }
   }
 
   @media (max-width: 576px) {
+    .dynamic-breadcrumb {
+      padding: 4px 0;
+      margin-bottom: 0;
+    }
+
     .dynamic-breadcrumb .breadcrumb-list {
       font-size: 12px;
     }
     
     .dynamic-breadcrumb .breadcrumb-item:not(:last-child)::after {
       margin: 0 4px !important;
+    }
+
+    /* Further reduce container padding on very small screens */
+    .dynamic-breadcrumb .container {
+      padding-left: 12px;
+      padding-right: 12px;
     }
   }
 `;

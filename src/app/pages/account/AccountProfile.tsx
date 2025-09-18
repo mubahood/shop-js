@@ -37,7 +37,6 @@ const AccountProfile: React.FC = () => {
   // Initialize profile data from user state
   useEffect(() => {
     if (user) {
-      console.log('User object:', user); // Debug logging
       const newProfile = {
         first_name: user.first_name || '',
         last_name: user.last_name || '',
@@ -47,7 +46,6 @@ const AccountProfile: React.FC = () => {
         sex: user.sex || '',
         intro: user.intro || ''
       };
-      console.log('Initialized profile:', newProfile); // Debug logging
       setProfile(newProfile);
     }
   }, [user]);
@@ -168,9 +166,6 @@ const AccountProfile: React.FC = () => {
         ToastService.error('Please check the form data');
         return;
       }
-
-      // Debug logging
-      console.log('Sending profile data:', profileData);
 
       // Call the API
       const updatedUser = await ApiService.updateProfile(profileData);

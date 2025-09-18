@@ -54,7 +54,11 @@ export class ImageOptimization {
       format = 'auto'
     } = options;
 
-    let optimizedUrl = Utils.img(imagePath);
+    // Check if this is a frontend asset path (starts with /media or /public)
+    // If so, use it directly without Utils.img() which adds backend storage path
+    let optimizedUrl = (imagePath.startsWith('/media/') || imagePath.startsWith('/public/')) 
+      ? imagePath 
+      : Utils.img(imagePath);
     
     // For now, return the original URL as the backend doesn't support WebP conversion yet
     // This method provides the foundation for future backend integration
@@ -75,7 +79,11 @@ export class ImageOptimization {
       sizes = '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
     } = options;
 
-    const baseUrl = Utils.img(imagePath);
+    // Check if this is a frontend asset path (starts with /media or /public)
+    // If so, use it directly without Utils.img() which adds backend storage path
+    const baseUrl = (imagePath.startsWith('/media/') || imagePath.startsWith('/public/')) 
+      ? imagePath 
+      : Utils.img(imagePath);
     
     // Generate different sizes for responsive images
     const sizes_array = [

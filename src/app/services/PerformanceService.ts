@@ -1,6 +1,6 @@
 // src/app/services/PerformanceService.ts
 import AnalyticsService from "./AnalyticsService";
-import { PRODUCTION_CONFIG } from "../../Constants";
+import { PRODUCTION_CONFIG, DEBUG_CONFIG } from "../../Constants";
 
 interface PerformanceMetric {
   name: string;
@@ -22,14 +22,15 @@ interface VitalMetric {
  */
 export class PerformanceService {
   private static metrics: PerformanceMetric[] = [];
-  private static observer: PerformanceObserver | null = null;
+  private static observers: Map<string, PerformanceObserver> = new Map();
   private static isEnabled = PRODUCTION_CONFIG.ENABLE_ANALYTICS;
+  private static isInitialized = false;
 
   /**
    * Initialize performance monitoring
    */
   static initialize() {
-    if (!this.isEnabled || typeof window === 'undefined') return;
+    if (!this.isEnabled || typeof window === 'undefined' || this.isInitialized) return;
 
     // Track navigation timing
     this.trackNavigationTiming();
@@ -43,7 +44,10 @@ export class PerformanceService {
     // Track user interactions
     this.trackUserInteractions();
 
-    console.log('📊 Performance monitoring initialized');
+    this.isInitialized = true;
+    if (DEBUG_CONFIG.ENABLE_PERFORMANCE_LOGS) {
+      console.log('📊 Performance monitoring initialized');
+    }
   }
 
   /**
@@ -234,15 +238,21 @@ export class PerformanceService {
   }
 
   /**
-   * Observe performance entries
+   * Safely observe performance entries, preventing duplicate observers
    */
   private static observePerformance(type: string, callback: (entries: PerformanceEntry[]) => void) {
+    // Prevent duplicate observers for the same type
+    if (this.observers.has(type)) {
+      return;
+    }
+
     try {
       const observer = new PerformanceObserver((list) => {
         callback(list.getEntries());
       });
       
       observer.observe({ type, buffered: true });
+      this.observers.set(type, observer);
     } catch (error) {
       console.warn(`Failed to observe ${type} performance:`, error);
     }

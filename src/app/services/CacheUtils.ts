@@ -6,7 +6,7 @@
  */
 
 import CacheService, { CacheKey, StorageType } from './CacheService';
-import { CACHE_KEYS } from '../../Constants';
+import { CACHE_KEYS } from '../constants';
 
 /**
  * Cache-first data loader with fallback

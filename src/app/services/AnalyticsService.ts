@@ -1,5 +1,5 @@
 // src/app/services/AnalyticsService.ts
-import { PRODUCTION_CONFIG } from "../../Constants";
+import { PRODUCTION_CONFIG, DEBUG_CONFIG } from "../../Constants";
 
 interface AnalyticsEvent {
   event: string;
@@ -108,7 +108,9 @@ export class AnalyticsService {
       });
     }
 
-    console.log('📊 Event tracked:', { event, category, action, label, value });
+    if (DEBUG_CONFIG.ENABLE_ANALYTICS_LOGS) {
+      console.log('📊 Event tracked:', { event, category, action, label, value });
+    }
   }
 
   /**

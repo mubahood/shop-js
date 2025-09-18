@@ -4,7 +4,7 @@ import { useGetProductsQuery } from '../../services/realProductsApi';
 import ProductModel from '../../models/ProductModel';
 import Utils from '../../services/Utils';
 import { getProductImage } from '../../utils';
-import { BASE_URL } from '../../../Constants';
+import { API_CONFIG } from '../../constants';
 
 const ImageDebug: React.FC = () => {
   const { data: productsData } = useGetProductsQuery({ page: 1, limit: 3 });
@@ -19,7 +19,7 @@ const ImageDebug: React.FC = () => {
         '=== IMAGE DEBUG ===',
         `Product: ${product.name}`,
         `Raw feature_photo: ${product.feature_photo}`,
-        `BASE_URL: ${BASE_URL}`,
+        `BASE_URL: ${API_CONFIG.BASE_URL}`,
         `Is ProductModel instance: ${product instanceof ProductModel}`,
         `Has getMainImage method: ${typeof product.getMainImage === 'function'}`,
       ];

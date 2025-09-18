@@ -59,7 +59,6 @@ const PaymentPage: React.FC = () => {
   };
 
   const handlePaymentInitialized = (data: any) => {
-    console.log('Payment initialized:', data);
     setPaymentData(data);
     setActiveTab('status');
     ToastService.info('Redirecting to payment gateway...', { autoClose: 3000 });
@@ -240,7 +239,6 @@ const PaymentPage: React.FC = () => {
                       orderId={parseInt(orderId)}
                       trackingId={paymentData?.order_tracking_id}
                       onStatusUpdate={(status, data) => {
-                        console.log('Status update:', status, data);
                         if (status.toUpperCase() === 'COMPLETED') {
                           // Reload order details to update payment confirmation
                           loadOrderDetails();

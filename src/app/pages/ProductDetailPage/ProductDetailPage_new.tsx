@@ -62,6 +62,19 @@ const ProductDetailPage: React.FC = () => {
   >({});
   const [showModal, setShowModal] = useState(false);
 
+  // Reset component state when productId changes (before new product loads)
+  useEffect(() => {
+    // Reset all local state to prevent showing old product data
+    setSelectedImage("");
+    setImageErrored(false);
+    setQuantity(1);
+    setVariantsSelection({});
+    setShowModal(false);
+    
+    // Scroll to top when product changes
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [productId]);
+
   // Initialize image & variants when product loads
   useEffect(() => {
     if (!product) return;
@@ -125,8 +138,6 @@ const ProductDetailPage: React.FC = () => {
         size: variantsSelection.Size || variantsSelection.size || '',
         ...variantsSelection
       };
-
-      console.log('Adding to cart:', { product: product?.name, quantity, variant });
 
       if (product) {
         const success = await addToCartHook(product, quantity, variant);

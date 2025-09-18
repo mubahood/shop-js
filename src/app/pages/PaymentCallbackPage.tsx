@@ -35,8 +35,6 @@ const PaymentCallbackPage: React.FC = () => {
   }, [searchParams]);
 
   const handleStatusUpdate = (status: string, data: any) => {
-    console.log('Payment status updated:', status, data);
-    
     // Handle different payment statuses
     switch (status.toUpperCase()) {
       case 'COMPLETED':

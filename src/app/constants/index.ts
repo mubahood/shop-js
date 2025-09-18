@@ -12,8 +12,8 @@ export * from '../../Constants';
 // ===================================================================
 
 export const API_CONFIG = {
-  BASE_URL: "https://blit.blitxpress.com",
-  API_URL: "https://blit.blitxpress.com/api",
+  BASE_URL: "http://localhost:8888/blitxpress",
+  API_URL: "http://localhost:8888/blitxpress/api",
   TIMEOUT: 5000,
   MAX_RETRIES: 3,
 } as const;

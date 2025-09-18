@@ -23,6 +23,7 @@ import { CacheKey } from './CacheService';
 import ProductModel, { PaginatedResponse } from '../models/ProductModel';
 import CategoryModel from '../models/CategoryModel';
 import VendorModel from '../models/VendorModel';
+import { DEBUG_CONFIG } from '../constants';
 
 /**
  * Cache-enhanced API service with fallback to original ApiService
@@ -133,7 +134,9 @@ export class CacheApiService {
   } = {}): Promise<PaginatedResponse<ProductModel>> {
     try {
       // Re-enable caching with proper error handling
-      console.log('� CacheApiService.getProducts: Processing request with caching', params);
+      if (DEBUG_CONFIG.ENABLE_API_LOGS) {
+        console.log('� CacheApiService.getProducts: Processing request with caching', params);
+      }
       
       // For products, we'll be selective about caching
       // Only cache simple queries without complex parameters
@@ -191,21 +194,14 @@ export class CacheApiService {
    * Get single product with cache
    */
   static async getProduct(id: number): Promise<ProductModel> {
-    // Use memory cache for individual products (shorter duration)
+    // For product details, bypass the predefined cache system since we need unique cache per product ID
+    // Use direct API call to ensure each product loads correctly
     try {
-      const cacheKey = 'PRODUCT_DETAILS';
-      return await CacheUtils.getWithFallback(
-        cacheKey,
-        () => ApiService.getProduct(id),
-        {
-          storageType: 'memory',
-          customDuration: 1 * 60 * 60 * 1000, // 1 hour
-          validateData: CacheUtils.validators.products
-        }
-      );
+      const result = await ApiService.getProduct(id);
+      return result;
     } catch (error) {
-      // Fallback to direct API call
-      return ApiService.getProduct(id);
+      console.error('❌ CacheApiService: Error getting product:', error);
+      throw error;
     }
   }
 

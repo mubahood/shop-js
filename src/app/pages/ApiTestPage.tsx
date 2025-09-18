@@ -94,11 +94,11 @@ const ApiTestPage: React.FC = () => {
       ToastService.info("Testing API methods...");
       
       // Test ApiService methods
-      console.log('Testing Categories:', await ApiService.getCategories());
-      console.log('Testing Vendors:', await ApiService.getVendors());
-      console.log('Testing Products:', await ApiService.getProducts({ page: 1, limit: 3 }));
+      await ApiService.getCategories();
+      await ApiService.getVendors();
+      await ApiService.getProducts({ page: 1, limit: 3 });
       
-      ToastService.success("API methods tested successfully! Check console for results.");
+      ToastService.success("API methods tested successfully!");
     } catch (error) {
       ToastService.error("API test failed: " + error);
       console.error('API Test Error:', error);
@@ -113,18 +113,12 @@ const ApiTestPage: React.FC = () => {
       CartService.addToCart(1, 2, { color: 'red' }, { name: 'Test Product 1', price: '100000' });
       CartService.addToCart(2, 1, { size: 'large' }, { name: 'Test Product 2', price: '200000' });
       
-      console.log('Cart Items:', CartService.getCartItems());
-      console.log('Cart Count:', CartService.getCartItemCount());
-      console.log('Is Product 1 in cart:', CartService.isInCart(1, { color: 'red' }));
-      console.log('Product 1 quantity:', CartService.getProductQuantity(1, { color: 'red' }));
-      
+      const itemCount = CartService.getCartItemCount();
       const total = await CartService.getCartTotal();
       const formattedTotal = await CartService.getFormattedCartTotal();
-      console.log('Cart Total:', total);
-      console.log('Formatted Total:', formattedTotal);
       
-      setCartItemCount(CartService.getCartItemCount());
-      ToastService.success("Cart functions tested! Check console for results.");
+      setCartItemCount(itemCount);
+      ToastService.success(`Cart functions tested! Items: ${itemCount}, Total: ${formattedTotal}`);
     } catch (error) {
       ToastService.error("Cart test failed: " + error);
       console.error('Cart Test Error:', error);

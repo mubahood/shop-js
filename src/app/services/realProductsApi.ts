@@ -3,16 +3,17 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import ProductModel, { PaginatedResponse } from '../models/ProductModel';
 import CategoryModel from '../models/CategoryModel';
-import { API_URL } from '../../Constants';
+import { API_CONFIG } from '../constants';
 import Utils from './Utils';
-import { DB_TOKEN, DB_LOGGED_IN_PROFILE } from '../../Constants';
+import { DB_TOKEN, DB_LOGGED_IN_PROFILE } from '../constants';
 import { CacheApiService } from './CacheApiService';
+import ApiService from './ApiService';
 
 // Create the RTK Query API
 export const realProductsApi = createApi({
   reducerPath: 'realProductsApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: API_URL,
+    baseUrl: API_CONFIG.API_URL,
     prepareHeaders: (headers) => {
       const token = Utils.loadFromDatabase(DB_TOKEN);
       const user = Utils.loadFromDatabase(DB_LOGGED_IN_PROFILE);
@@ -34,6 +35,7 @@ export const realProductsApi = createApi({
     },
   }),
   tagTypes: ['Product', 'Category', 'Vendor', 'Review'],
+  keepUnusedDataFor: 0, // Disable caching to prevent stale product data
   endpoints: (builder) => ({
     
     // ===== PRODUCTS =====
@@ -88,16 +90,8 @@ export const realProductsApi = createApi({
     getProductById: builder.query<ProductModel, number>({
       queryFn: async (id) => {
         try {
-          console.log('🔄 RTK Query: Fetching product by ID with cache-first strategy', id);
-          
-          // Use CacheApiService for cache-first data fetching
-          const result = await CacheApiService.getProduct(id);
-          
-          console.log('✅ RTK Query: Product fetched successfully from cache/API', {
-            productId: result.id,
-            productName: result.name,
-            fromCache: 'cache-first-strategy'
-          });
+          // Bypass CacheApiService and use ApiService directly to avoid cache issues
+          const result = await ApiService.getProduct(id);
           
           return { data: result };
         } catch (error: any) {
