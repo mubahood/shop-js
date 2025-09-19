@@ -6,10 +6,26 @@
  */
 
 .superbuyer-section-wrapper {
-  background-image: url("https://ae-pic-a1.aliexpress-media.com/kf/Sd4b8b26b77d94bd891e89a8665e4b5e47/2424x917.png");
-  background-size: cover;
-  background-position: center top;
-  background-repeat: no-repeat;
+  /* Primary color background */
+  background: #05179F;
+  
+  /* Simple white square box patterns - just outlines */
+  background-image: 
+    /* Horizontal lines for square boxes */
+    repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(255, 255, 255, 0.15) 49px, rgba(255, 255, 255, 0.15) 51px),
+    /* Vertical lines for square boxes */
+    repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(255, 255, 255, 0.15) 49px, rgba(255, 255, 255, 0.15) 51px);
+  
+  /* Pattern sizes */
+  background-size: 
+    50px 50px,
+    50px 50px;
+  
+  /* Pattern positioning */
+  background-position: 
+    0 0,
+    25px 25px;
+  
   position: relative;
   /* Removed direct padding-left/right here, Container inside will handle that */
   padding-top: 50px; /* Increased top padding for the overall section */
@@ -21,6 +37,50 @@
   flex-direction: column;
   justify-content: center;
   /* my-4 from HomePage.tsx will apply outer margin */
+  
+  /* Subtle animation for the pattern */
+  animation: superbuyer-pattern-float 20s ease-in-out infinite;
+}
+
+/* Keyframes for subtle pattern animation */
+@keyframes superbuyer-pattern-float {
+  0%, 100% {
+    background-position: 
+      0 0,
+      100px 50px,
+      50px 150px,
+      0 0,
+      30px 30px,
+      75px 25px,
+      25px 75px,
+      125px 125px,
+      0 0,
+      20px 20px,
+      0 0,
+      40px 40px;
+  }
+  50% {
+    background-position: 
+      10px 5px,
+      110px 55px,
+      60px 155px,
+      5px 5px,
+      35px 35px,
+      80px 30px,
+      30px 80px,
+      130px 130px,
+      5px 5px,
+      25px 25px,
+      5px 5px,
+      45px 45px;
+  }
+}
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .superbuyer-section-wrapper {
+    animation: none;
+  }
 }
 
 .superbuyer-background-overlay {
@@ -82,22 +142,20 @@
 }
 
 .superbuyer-shop-now-btn {
-  background: linear-gradient(
-    to right,
-    var(--primary-color-light),
-    var(--primary-color)
-  );
-  color: var(--white);
+  background: #d71529;
+  color: white;
   font-weight: 700;
   padding: 15px 35px;
   border-radius: var(--border-radius);
   transition: all var(--transition-speed) var(--transition-timing-function);
   box-shadow: var(--shadow-md);
+  border: none;
 }
 .superbuyer-shop-now-btn:hover {
-  background: linear-gradient(to right, var(--primary-color), var(--primary-color-dark)); /* Consistent gradient on hover */
+  background: #b81222;
   box-shadow: var(--shadow-lg);
   transform: translateY(-4px);
+  color: white;
 }
 
 .superbuyer-stats {
@@ -259,7 +317,20 @@
 @media (max-width: 991.98px) {
   .superbuyer-section-wrapper {
     padding: 30px;
-    background-position: center 20%;
+    /* Adjust pattern sizes for tablets */
+    background-size: 
+      150px 150px,
+      130px 130px, 
+      170px 170px,
+      45px 45px,
+      45px 45px,
+      110px 110px,
+      90px 90px,
+      100px 100px,
+      30px 30px,
+      30px 30px,
+      60px 60px,
+      60px 60px;
   }
   .superbuyer-background-overlay {
     background: linear-gradient(
@@ -299,6 +370,22 @@
 }
 
 @media (max-width: 767.98px) {
+  .superbuyer-section-wrapper {
+    /* Adjust pattern sizes for mobile */
+    background-size: 
+      120px 120px,
+      100px 100px, 
+      140px 140px,
+      35px 35px,
+      35px 35px,
+      90px 90px,
+      70px 70px,
+      80px 80px,
+      25px 25px,
+      25px 25px,
+      50px 50px,
+      50px 50px;
+  }
   .superbuyer-title {
     font-size: 2.8rem; /* Further reduced for smaller tablets */
   }
@@ -339,6 +426,22 @@
 }
 
 @media (max-width: 575.98px) {
+  .superbuyer-section-wrapper {
+    /* Further reduce pattern sizes for small mobile */
+    background-size: 
+      100px 100px,
+      80px 80px, 
+      120px 120px,
+      30px 30px,
+      30px 30px,
+      70px 70px,
+      60px 60px,
+      65px 65px,
+      20px 20px,
+      20px 20px,
+      40px 40px,
+      40px 40px;
+  }
   .superbuyer-title {
     font-size: 2.2rem; /* Final size for smallest mobiles */
   }

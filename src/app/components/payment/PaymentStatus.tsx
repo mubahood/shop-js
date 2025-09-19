@@ -93,8 +93,9 @@ const PaymentStatus: React.FC<PaymentStatusProps> = ({
   };
 
   const getStatusDisplay = () => {
-    switch (status.toUpperCase()) {
+    switch (status) {
       case 'COMPLETED':
+      case 'SUCCESSFUL':
       case 'SUCCESS':
         return {
           variant: 'success' as const,
@@ -114,10 +115,10 @@ const PaymentStatus: React.FC<PaymentStatusProps> = ({
       case 'INVALID':
       case 'ERROR':
         return {
-          variant: 'danger' as const,
-          icon: 'bi-x-circle-fill',
-          title: 'Payment Failed',
-          message: statusData?.payment_status_description || 'Payment processing failed. Please try again.'
+          variant: 'secondary' as const,
+          icon: 'bi-clock-history',
+          title: 'Payment Not Paid',
+          message: 'This payment has not been completed yet. You can try paying again or contact support if needed.'
         };
       case 'CHECKING':
         return {
@@ -129,9 +130,9 @@ const PaymentStatus: React.FC<PaymentStatusProps> = ({
       default:
         return {
           variant: 'secondary' as const,
-          icon: 'bi-question-circle-fill',
-          title: 'Unknown Status',
-          message: 'Payment status is unclear. Please refresh or contact support.'
+          icon: 'bi-clock-history',
+          title: 'Payment Status',
+          message: 'Payment has not been completed yet. You can retry or check again later.'
         };
     }
   };
@@ -153,7 +154,7 @@ const PaymentStatus: React.FC<PaymentStatusProps> = ({
   }
 
   return (
-    <Card className={`payment-status border-${statusDisplay.variant} ${className}`}>
+    <Card className={`payment-status ${statusDisplay.variant === 'secondary' ? 'border-light' : `border-${statusDisplay.variant}`} ${className}`}>
       <Card.Body>
         {error && (
           <Alert variant="danger" dismissible onClose={() => setError('')} className="mb-3">
@@ -172,7 +173,7 @@ const PaymentStatus: React.FC<PaymentStatusProps> = ({
           </p>
           
           <Badge bg={statusDisplay.variant} className="status-badge">
-            {status.toUpperCase()}
+            {status === 'FAILED' || status === 'INVALID' || status === 'ERROR' ? 'NOT PAID' : status.toUpperCase()}
           </Badge>
         </div>
 

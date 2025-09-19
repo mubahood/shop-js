@@ -1,10 +1,12 @@
 // src/app/components/HomePage/SuperBuyerSection.tsx
 import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
+import { Link } from "react-router-dom";
 import SuperBuyerFeatureCard from "./SuperBuyerFeatureCard";
 import { useGetProductsQuery } from "../../services/realProductsApi";
 import ProductModel from "../../models/ProductModel";
 import { getProductImage } from "../../utils";
+import "./SuperBuyerSection.css";
 
 // Interface for SuperBuyer card data
 interface MiniProduct {
@@ -24,15 +26,112 @@ export interface SuperBuyerCardData {
 // Inline styles for SuperBuyerSection following the unified design system
 const superBuyerStyles = `
   .superbuyer-section-wrapper {
+    /* Base gradient background */
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-dark) 100%);
+    
+    /* Creative geometric pattern overlay with animation */
+    background-image: 
+      /* Large decorative squares with subtle animation */
+      radial-gradient(circle at 15% 25%, rgba(255, 255, 255, 0.08) 15px, transparent 15px),
+      radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.06) 20px, transparent 20px),
+      radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.05) 25px, transparent 25px),
+      
+      /* Medium pattern squares */
+      linear-gradient(45deg, rgba(255, 255, 255, 0.03) 25%, transparent 25%),
+      linear-gradient(-45deg, rgba(255, 255, 255, 0.03) 25%, transparent 25%),
+      
+      /* Small dotted pattern */
+      radial-gradient(circle at 40% 60%, rgba(255, 255, 255, 0.04) 8px, transparent 8px),
+      radial-gradient(circle at 60% 30%, rgba(255, 255, 255, 0.04) 10px, transparent 10px),
+      radial-gradient(circle at 25% 80%, rgba(255, 255, 255, 0.04) 6px, transparent 6px),
+      
+      /* Geometric grid pattern */
+      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      
+      /* Diamond pattern overlay */
+      linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.03) 50%, transparent 60%),
+      linear-gradient(-45deg, transparent 40%, rgba(255, 255, 255, 0.03) 50%, transparent 60%);
+    
+    /* Pattern sizes and positioning */
+    background-size: 
+      200px 200px,
+      180px 180px, 
+      220px 220px,
+      60px 60px,
+      60px 60px,
+      150px 150px,
+      120px 120px,
+      140px 140px,
+      40px 40px,
+      40px 40px,
+      80px 80px,
+      80px 80px;
+    
+    /* Pattern positioning for dynamic effect */
+    background-position: 
+      0 0,
+      100px 50px,
+      50px 150px,
+      0 0,
+      30px 30px,
+      75px 25px,
+      25px 75px,
+      125px 125px,
+      0 0,
+      20px 20px,
+      0 0,
+      40px 40px;
+    
     border-radius: var(--border-radius);
     margin: 2rem 0;
     padding: 2rem 0;
     position: relative;
     overflow: hidden;
-    background-image: url("https://ae-pic-a1.aliexpress-media.com/kf/Sd4b8b26b77d94bd891e89a8665e4b5e47/2424x917.png");
-    background-size: cover;
-    background-position: center;
+    
+    /* Subtle animation for the pattern */
+    animation: superbuyer-pattern-float 20s ease-in-out infinite;
+  }
+
+  /* Keyframes for subtle pattern animation */
+  @keyframes superbuyer-pattern-float {
+    0%, 100% {
+      background-position: 
+        0 0,
+        100px 50px,
+        50px 150px,
+        0 0,
+        30px 30px,
+        75px 25px,
+        25px 75px,
+        125px 125px,
+        0 0,
+        20px 20px,
+        0 0,
+        40px 40px;
+    }
+    50% {
+      background-position: 
+        10px 5px,
+        110px 55px,
+        60px 155px,
+        5px 5px,
+        35px 35px,
+        80px 30px,
+        30px 80px,
+        130px 130px,
+        5px 5px,
+        25px 25px,
+        5px 5px,
+        45px 45px;
+    }
+  }
+
+  /* Respect user's motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    .superbuyer-section-wrapper {
+      animation: none;
+    }
   }
 
   .superbuyer-background-overlay {
@@ -347,7 +446,6 @@ const SuperBuyerSection: React.FC = () => {
 
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: superBuyerStyles }} />
       <section className="superbuyer-section-wrapper mt-4 mb-4">
         {/* Primary overlay for the entire section for text readability */}
         <div className="superbuyer-background-overlay"></div>
@@ -380,34 +478,36 @@ const SuperBuyerSection: React.FC = () => {
                   <i className="bi bi-currency-dollar me-2"></i>Financial support
                 </span>
               </div>
-              <Button variant="light" className="superbuyer-shop-now-btn mt-5" disabled={isLoading || !isDataReady}>
-                Shop now
-              </Button>
+              <Link to="/products" style={{ textDecoration: 'none' }}>
+                <Button variant="danger" className="superbuyer-shop-now-btn mt-5" disabled={isLoading || !isDataReady}>
+                  Shop now
+                </Button>
+              </Link>
             </div>
 
             {/* Right Stats Block */}
             <div className="superbuyer-stats">
               <div className="superbuyer-stat-item">
-                <h2 className="superbuyer-stat-number">5M+</h2>
-                <p className="superbuyer-stat-text">Factory direct supply</p>
-                <i className="bi bi-building superbuyer-stat-icon"></i>
+                <h2 className="superbuyer-stat-number">15K+</h2>
+                <p className="superbuyer-stat-text">Happy customers in Uganda</p>
+                <i className="bi bi-people superbuyer-stat-icon"></i>
               </div>
               <div className="superbuyer-stat-item">
-                <h2 className="superbuyer-stat-number">20M+</h2>
-                <p className="superbuyer-stat-text">Value dropshipping items</p>
-                <i className="bi bi-box-seam superbuyer-stat-icon"></i>
+                <h2 className="superbuyer-stat-number">2,500+</h2>
+                <p className="superbuyer-stat-text">Electronics & gadgets</p>
+                <i className="bi bi-phone superbuyer-stat-icon"></i>
               </div>
               <div className="superbuyer-stat-item">
-                <h2 className="superbuyer-stat-number">10</h2>
-                <p className="superbuyer-stat-text">Local warehouses worldwide</p>
-                <i className="bi bi-globe superbuyer-stat-icon"></i>
+                <h2 className="superbuyer-stat-number">48H</h2>
+                <p className="superbuyer-stat-text">Delivery within Kampala</p>
+                <i className="bi bi-truck superbuyer-stat-icon"></i>
               </div>
               <div className="superbuyer-stat-item">
-                <h2 className="superbuyer-stat-number">24H</h2>
+                <h2 className="superbuyer-stat-number">6M</h2>
                 <p className="superbuyer-stat-text">
-                  Personalized sourcing service
+                  Warranty on all products
                 </p>
-                <i className="bi bi-clock-history superbuyer-stat-icon"></i>
+                <i className="bi bi-shield-check superbuyer-stat-icon"></i>
               </div>
             </div>
           </div>
