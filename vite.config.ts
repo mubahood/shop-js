@@ -15,6 +15,12 @@ export default defineConfig({
       usePolling: true
     }
   },
+  define: {
+    global: 'globalThis',
+  },
+  optimizeDeps: {
+    exclude: ['bootstrap-icons']
+  },
   build: {
     chunkSizeWarningLimit: 3000,
     outDir: 'dist',
@@ -37,7 +43,7 @@ export default defineConfig({
           'vendor-table': ['@tanstack/react-table'],
           'vendor-utils': ['axios', 'clsx', 'react-helmet-async', 'react-intl', 'react-toastify'],
           'vendor-media': ['swiper', 'react-lazy-load-image-component', 'react-share'],
-          'vendor-icons': ['bootstrap-icons', 'react-icons']
+          'vendor-icons': ['react-icons']
         },
         // Optimize asset naming for caching
         chunkFileNames: (chunkInfo) => {

@@ -1,0 +1,1 @@
+import{j as r,C as o}from"./vendor-bootstrap.Cb0qwmXw.js";import{c as e}from"./vendor-router.B0e-E_To.js";import"./vendor-react.CLpfVYS4.js";const s=()=>{const{categoryId:s}=e();return r.jsx(o,{children:r.jsxs("div",{className:"py-5",children:[r.jsxs("h1",{children:["Category: ",s]}),r.jsx("p",{children:"Category page implementation coming soon..."})]})})};export{s as default};
