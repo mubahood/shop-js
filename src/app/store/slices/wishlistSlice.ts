@@ -2,7 +2,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { ProductWithExtras } from '../../types';
 import ApiService from '../../services/ApiService';
-import { loadManifest } from './manifestSlice';
 
 interface WishlistItem {
   id: number;
@@ -48,6 +47,7 @@ export const addToWishlistAPI = createAsyncThunk(
     try {
       await ApiService.addToWishlist(productId);
       // Reload manifest to get updated counts instead of manually updating
+      const { loadManifest } = await import('./manifestSlice');
       dispatch(loadManifest());
       return productId;
     } catch (error: any) {
@@ -62,6 +62,7 @@ export const removeFromWishlistAPI = createAsyncThunk(
     try {
       await ApiService.removeFromWishlist(productId);
       // Reload manifest to get updated counts instead of manually updating
+      const { loadManifest } = await import('./manifestSlice');
       dispatch(loadManifest());
       return productId;
     } catch (error: any) {

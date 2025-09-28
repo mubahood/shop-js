@@ -14,11 +14,14 @@ export * from "../../Constants";
 /* 
   BASE_URL: "http://localhost:8888/blitxpress",
   API_URL: "http://localhost:8888/blitxpress/api",
+
+    BASE_URL: "https://www.blit.blitxpress.com",
+  API_URL: "https://www.blit.blitxpress.com/api",
 */
 
 export const API_CONFIG = {
-  BASE_URL: "https://www.blit.blitxpress.com",
-  API_URL: "https://www.blit.blitxpress.com/api",
+  BASE_URL: "http://localhost:8888/blitxpress",
+  API_URL: "http://localhost:8888/blitxpress/api",
   TIMEOUT: 5000,
   MAX_RETRIES: 3,
 } as const;
