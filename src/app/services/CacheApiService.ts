@@ -101,17 +101,11 @@ export class CacheApiService {
   // ===== MANIFEST =====
   
   /**
-   * Get application manifest with cache-first strategy
+   * Get application manifest - ALWAYS fetch fresh data from server
    */
   static async getManifest(): Promise<any> {
-    return CacheUtils.getWithFallback(
-      'MANIFEST',
-      () => ApiService.getManifest(),
-      {
-        storageType: 'localStorage',
-        validateData: CacheUtils.validators.manifest
-      }
-    );
+    // Always fetch fresh manifest data to ensure homepage sections are up-to-date
+    return await ApiService.getManifest();
   }
 
   // ===== PRODUCTS =====
@@ -131,6 +125,9 @@ export class CacheApiService {
     sort_by?: 'name' | 'price_1' | 'date_added' | 'metric';
     sort_order?: 'asc' | 'desc';
     limit?: number;
+    home_section_1?: string;
+    home_section_2?: string;
+    home_section_3?: string;
   } = {}): Promise<PaginatedResponse<ProductModel>> {
     try {
       // Re-enable caching with proper error handling
@@ -142,6 +139,27 @@ export class CacheApiService {
       // Only cache simple queries without complex parameters
       const isSimpleQuery = !params.search && !params.min_price && !params.max_price && 
                             (params.page || 1) === 1 && !params.sort_by;
+
+      // Cache homepage sections (home_section_1, home_section_2, home_section_3) separately
+      if (params.home_section_1 || params.home_section_2 || params.home_section_3) {
+        const sectionKey = params.home_section_1 ? 'FLASH_SALES' : 
+                          params.home_section_2 ? 'SUPER_BUYER' : 'TOP_PRODUCTS';
+        
+        // Temporarily disable caching for all home sections to ensure fresh data
+        console.log(`🔧 DEBUG: Bypassing cache for ${sectionKey}, making fresh API call`, params);
+        return ApiService.getProducts(params);
+        
+        // TODO: Re-enable caching once we confirm all sections are working
+        // return CacheUtils.getWithFallback(
+        //   sectionKey,
+        //   () => ApiService.getProducts(params),
+        //   {
+        //     storageType: 'sessionStorage',
+        //     customDuration: 30 * 60 * 1000, // 30 minutes for homepage sections
+        //     validateData: (data) => data && Array.isArray(data.data)
+        //   }
+        // );
+      }
 
       if (isSimpleQuery && params.category) {
         // Cache products by category

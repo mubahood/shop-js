@@ -39,87 +39,44 @@ export class ManifestService {
   }
 
   /**
-   * Load homepage manifest with all required data
-   * This mirrors the Flutter app's manifest loading approach
+   * Load homepage manifest data - ALWAYS fetch fresh from server
    */
-  async loadHomepageManifest(forceRefresh = false): Promise<HomepageManifest> {
-    const now = Date.now();
-    
-    // Return cached data if valid and not forcing refresh
-    if (
-      !forceRefresh &&
-      this.cachedManifest &&
-      (now - this.lastCacheTime) < this.cacheExpiry
-    ) {
-      return this.cachedManifest;
-    }
-
+  private async loadHomepageManifestFromApi(): Promise<HomepageManifest> {
+    // Always fetch fresh data to ensure homepage sections are up-to-date
     try {
-      const manifest: HomepageManifest = {
-        banners: [],
-        categories: [],
-        topProducts: [],
-        featuredCategories: [],
-        isLoading: true,
-        lastUpdated: new Date(),
-      };
-
-      // Load all data concurrently like the Flutter app
-      const [
-        bannersData,
-        categoriesData,
-        vendorsData,
-        topProductsData,
-      ] = await Promise.allSettled([
+      const [banners, categories, topProducts] = await Promise.all([
         this.loadBanners(),
         this.loadCategories(),
-        this.loadVendors(),
-        this.loadTopProducts(),
+        this.loadTopProducts()
       ]);
 
-      // Process banners
-      if (bannersData.status === 'fulfilled') {
-        manifest.banners = bannersData.value;
-      } else {
-        console.warn('Failed to load banners:', bannersData.reason);
-      }
+      const featuredCategories = this.getFeaturedCategories(categories);
 
-      // Process categories
-      if (categoriesData.status === 'fulfilled') {
-        manifest.categories = categoriesData.value;
-        manifest.featuredCategories = this.getFeaturedCategories(categoriesData.value);
-      } else {
-        console.warn('Failed to load categories:', categoriesData.reason);
-      }
+      const manifest: HomepageManifest = {
+        banners,
+        categories,
+        topProducts,
+        featuredCategories,
+        isLoading: false,
+        lastUpdated: new Date()
+      };
 
-      // Process top products
-      if (topProductsData.status === 'fulfilled') {
-        manifest.topProducts = topProductsData.value;
-      } else {
-        console.warn('Failed to load top products:', topProductsData.reason);
-      }
-
-      manifest.isLoading = false;
-
-      // Cache the result
+      // Update cache for current session (no time-based caching)
       this.cachedManifest = manifest;
-      this.lastCacheTime = now;
+      this.lastCacheTime = Date.now();
 
       return manifest;
     } catch (error) {
       console.error('Failed to load homepage manifest:', error);
-      ToastService.error('Failed to load homepage data');
-      
-      // Return a fallback manifest
-      return {
-        banners: [],
-        categories: [],
-        topProducts: [],
-        featuredCategories: [],
-        isLoading: false,
-        lastUpdated: new Date(),
-      };
+      throw error;
     }
+  }
+
+  /**
+   * Public method to load homepage manifest (always fresh data)
+   */
+  async loadHomepageManifest(forceRefresh: boolean = true): Promise<HomepageManifest> {
+    return await this.loadHomepageManifestFromApi();
   }
 
   /**
@@ -285,16 +242,11 @@ export class ManifestService {
   }
 
   /**
-   * Get cached manifest if available
+   * Get cached manifest - DISABLED to ensure fresh data loading
    */
   getCachedManifest(): HomepageManifest | null {
-    const now = Date.now();
-    if (
-      this.cachedManifest &&
-      (now - this.lastCacheTime) < this.cacheExpiry
-    ) {
-      return this.cachedManifest;
-    }
+    // Always return null to force fresh data loading on each request
+    // This ensures admin changes to homepage sections are immediately visible
     return null;
   }
 }

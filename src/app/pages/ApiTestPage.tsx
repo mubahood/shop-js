@@ -31,6 +31,48 @@ const ApiTestPage: React.FC = () => {
     refetch: refetchProducts
   } = useGetProductsQuery({ page: 1, limit: 5 });
 
+  // Test for Flash Deals Section (home_section_1 = 'Yes')
+  const { 
+    data: flashDealsData, 
+    isLoading: flashDealsLoading, 
+    error: flashDealsError,
+    refetch: refetchFlashDeals
+  } = useGetProductsQuery({ 
+    page: 1, 
+    limit: 12,
+    sort_by: 'created_at',
+    sort_order: 'desc',
+    home_section_1: 'Yes'
+  });
+
+  // Test for Super Buyer Section (home_section_2 = 'Yes')
+  const { 
+    data: superBuyerData, 
+    isLoading: superBuyerLoading, 
+    error: superBuyerError,
+    refetch: refetchSuperBuyer
+  } = useGetProductsQuery({ 
+    page: 1, 
+    limit: 6,
+    sort_by: 'created_at',
+    sort_order: 'desc',
+    home_section_2: 'Yes'
+  });
+
+  // Test for Top Products Section (home_section_3 = 'Yes')
+  const { 
+    data: topProductsData, 
+    isLoading: topProductsLoading, 
+    error: topProductsError,
+    refetch: refetchTopProducts
+  } = useGetProductsQuery({ 
+    page: 1, 
+    limit: 24,
+    sort_by: 'created_at',
+    sort_order: 'desc',
+    home_section_3: 'Yes'
+  });
+
   const { 
     data: categories, 
     isLoading: categoriesLoading, 
@@ -272,6 +314,180 @@ const ApiTestPage: React.FC = () => {
                     </Col>
                   ))}
                 </Row>
+              )}
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Flash Deals Section (home_section_1 = 'Yes') */}
+      <Row className="mb-4">
+        <Col>
+          <Card>
+            <Card.Header>
+              <div className="d-flex justify-content-between align-items-center">
+                <h4>Flash Deals Test (home_section_1 = 'Yes')</h4>
+                <Button variant="outline-danger" size="sm" onClick={refetchFlashDeals}>
+                  Refresh Flash Deals
+                </Button>
+              </div>
+            </Card.Header>
+            <Card.Body>
+              {flashDealsLoading && <Spinner animation="border" />}
+              {flashDealsError && (
+                <Alert variant="danger">
+                  Error loading flash deals: {JSON.stringify(flashDealsError)}
+                </Alert>
+              )}
+              {flashDealsData && (
+                <div>
+                  <Alert variant="danger">
+                    <strong>Found {flashDealsData.data.length} products with home_section_1 = 'Yes'</strong>
+                    <br />
+                    Total in API: {flashDealsData.total} | Per Page: {flashDealsData.per_page}
+                  </Alert>
+                  <Row>
+                    {flashDealsData.data.slice(0, 6).map((product: ProductModel) => (
+                      <Col md={6} lg={4} key={product.id} className="mb-3">
+                        <Card>
+                          <Card.Img 
+                            variant="top" 
+                            src={product.getMainImage()} 
+                            style={{ height: '150px', objectFit: 'cover' }}
+                          />
+                          <Card.Body>
+                            <h6 className="small">{product.name}</h6>
+                            <p className="text-success fw-bold small">{product.getFormattedPrice()}</p>
+                            <p className="small text-muted">
+                              ID: {product.id} | home_section_1: <strong>{(product as any).home_section_1 || 'N/A'}</strong>
+                            </p>
+                          </Card.Body>
+                        </Card>
+                      </Col>
+                    ))}
+                  </Row>
+                  {flashDealsData.data.length === 0 && (
+                    <Alert variant="warning">
+                      No products found with home_section_1 = 'Yes'. This indicates the filtering is not working correctly.
+                    </Alert>
+                  )}
+                </div>
+              )}
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Super Buyer Section (home_section_2 = 'Yes') */}
+      <Row className="mb-4">
+        <Col>
+          <Card>
+            <Card.Header>
+              <div className="d-flex justify-content-between align-items-center">
+                <h4>Super Buyer Test (home_section_2 = 'Yes')</h4>
+                <Button variant="outline-success" size="sm" onClick={refetchSuperBuyer}>
+                  Refresh Super Buyer
+                </Button>
+              </div>
+            </Card.Header>
+            <Card.Body>
+              {superBuyerLoading && <Spinner animation="border" />}
+              {superBuyerError && (
+                <Alert variant="danger">
+                  Error loading super buyer products: {JSON.stringify(superBuyerError)}
+                </Alert>
+              )}
+              {superBuyerData && (
+                <div>
+                  <Alert variant="success">
+                    <strong>Found {superBuyerData.data.length} products with home_section_2 = 'Yes'</strong>
+                    <br />
+                    Total in API: {superBuyerData.total} | Per Page: {superBuyerData.per_page}
+                  </Alert>
+                  <Row>
+                    {superBuyerData.data.slice(0, 6).map((product: ProductModel) => (
+                      <Col md={6} lg={4} key={product.id} className="mb-3">
+                        <Card>
+                          <Card.Img 
+                            variant="top" 
+                            src={product.getMainImage()} 
+                            style={{ height: '150px', objectFit: 'cover' }}
+                          />
+                          <Card.Body>
+                            <h6 className="small">{product.name}</h6>
+                            <p className="text-success fw-bold small">{product.getFormattedPrice()}</p>
+                            <p className="small text-muted">
+                              ID: {product.id} | home_section_2: <strong>{(product as any).home_section_2 || 'N/A'}</strong>
+                            </p>
+                          </Card.Body>
+                        </Card>
+                      </Col>
+                    ))}
+                  </Row>
+                  {superBuyerData.data.length === 0 && (
+                    <Alert variant="warning">
+                      No products found with home_section_2 = 'Yes'. This indicates the filtering is not working correctly.
+                    </Alert>
+                  )}
+                </div>
+              )}
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Top Products Section (home_section_3 = 'Yes') */}
+      <Row className="mb-4">
+        <Col>
+          <Card>
+            <Card.Header>
+              <div className="d-flex justify-content-between align-items-center">
+                <h4>Top Products Test (home_section_3 = 'Yes')</h4>
+                <Button variant="outline-primary" size="sm" onClick={refetchTopProducts}>
+                  Refresh Top Products
+                </Button>
+              </div>
+            </Card.Header>
+            <Card.Body>
+              {topProductsLoading && <Spinner animation="border" />}
+              {topProductsError && (
+                <Alert variant="danger">
+                  Error loading top products: {JSON.stringify(topProductsError)}
+                </Alert>
+              )}
+              {topProductsData && (
+                <div>
+                  <Alert variant="info">
+                    <strong>Found {topProductsData.data.length} products with home_section_3 = 'Yes'</strong>
+                    <br />
+                    Total in API: {topProductsData.total} | Per Page: {topProductsData.per_page}
+                  </Alert>
+                  <Row>
+                    {topProductsData.data.slice(0, 6).map((product: ProductModel) => (
+                      <Col md={6} lg={4} key={product.id} className="mb-3">
+                        <Card>
+                          <Card.Img 
+                            variant="top" 
+                            src={product.getMainImage()} 
+                            style={{ height: '150px', objectFit: 'cover' }}
+                          />
+                          <Card.Body>
+                            <h6 className="small">{product.name}</h6>
+                            <p className="text-success fw-bold small">{product.getFormattedPrice()}</p>
+                            <p className="small text-muted">
+                              ID: {product.id} | home_section_3: <strong>{(product as any).home_section_3 || 'N/A'}</strong>
+                            </p>
+                          </Card.Body>
+                        </Card>
+                      </Col>
+                    ))}
+                  </Row>
+                  {topProductsData.data.length === 0 && (
+                    <Alert variant="warning">
+                      No products found with home_section_3 = 'Yes'. This indicates the filtering is not working correctly.
+                    </Alert>
+                  )}
+                </div>
               )}
             </Card.Body>
           </Card>

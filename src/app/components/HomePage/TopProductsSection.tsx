@@ -97,12 +97,13 @@ const topProductsSectionStyles = `
 `;
 
 const TopProductsSection: React.FC = () => {
-  // Fetch products for Top Products section
+  // Fetch products for Top Products section - only products with home_section_3 = 'Yes'
   const { data: productsResponse, isLoading, error } = useGetProductsQuery({
     page: 1,
     limit: 24,
     sort_by: 'created_at',
-    sort_order: 'desc'
+    sort_order: 'desc',
+    home_section_3: 'Yes'  // Only fetch products marked for Top Products section
   });
 
   const products = productsResponse?.data || [];

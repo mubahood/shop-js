@@ -28,6 +28,9 @@ export const CACHE_KEYS = {
   SEARCH_RESULTS: `${CACHE_PREFIX}SEARCH`,
   FEATURED_PRODUCTS: `${CACHE_PREFIX}FEATURED`,
   BANNER_CATEGORIES: `${CACHE_PREFIX}BANNER_CATS`,
+  FLASH_SALES: `${CACHE_PREFIX}FLASH_SALES`,
+  SUPER_BUYER: `${CACHE_PREFIX}SUPER_BUYER`,
+  TOP_PRODUCTS: `${CACHE_PREFIX}TOP_PRODUCTS`,
 } as const;
 
 // Cache Expiration Times (in milliseconds)
@@ -40,6 +43,9 @@ export const CACHE_DURATIONS = {
   SEARCH_RESULTS: 30 * 60 * 1000, // 30 minutes (dynamic)
   FEATURED_PRODUCTS: 4 * 60 * 60 * 1000, // 4 hours (promotional content)
   BANNER_CATEGORIES: 24 * 60 * 60 * 1000, // 24 hours (very stable)
+  FLASH_SALES: 30 * 60 * 1000, // 30 minutes (homepage flash sales)
+  SUPER_BUYER: 30 * 60 * 1000, // 30 minutes (homepage super buyer)
+  TOP_PRODUCTS: 30 * 60 * 1000, // 30 minutes (homepage top products)
 } as const;
 
 // Cache Configuration

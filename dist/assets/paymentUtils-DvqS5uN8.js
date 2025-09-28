@@ -1,0 +1,1 @@
+import{P as _}from"./index-CKEAHB3Z.js";const e=e=>!!e&&(!0===e.pay_on_delivery||1===e.pay_on_delivery||"1"===e.pay_on_delivery||"true"===e.pay_on_delivery||e.payment_gateway===_.GATEWAYS.CASH_ON_DELIVERY||e.payment_status===_.PAYMENT_STATUS.PAY_ON_DELIVERY);export{e as i};

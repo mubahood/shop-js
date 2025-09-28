@@ -166,6 +166,7 @@ export class OrderModel {
     order.delivery_amount = Utils.to_str(m["delivery_amount"], "");
     order.payable_amount = Utils.to_str(m["payable_amount"], "");
     order.items = Utils.to_str(m["items"], "");
+    order.pay_on_delivery = m["pay_on_delivery"] === true || m["pay_on_delivery"] === 1 || m["pay_on_delivery"] === "1" || m["pay_on_delivery"] === "true";
     return order;
   }
 
@@ -209,6 +210,7 @@ export class OrderModel {
       delivery_amount: this.delivery_amount,
       payable_amount: this.payable_amount,
       items: this.items,
+      pay_on_delivery: this.pay_on_delivery,
     };
   }
 

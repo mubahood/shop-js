@@ -54,7 +54,7 @@ export const realProductsApi = createApi({
       home_section_2?: string; // Filter for Super Buyer section
       home_section_3?: string; // Filter for Top Products section
     }>({
-      queryFn: async ({ page = 1, limit = 24, category, search, vendor, min_price, max_price, in_stock, sort_by = 'created_at', sort_order = 'desc' }) => {
+      queryFn: async ({ page = 1, limit = 24, category, search, vendor, min_price, max_price, in_stock, sort_by = 'created_at', sort_order = 'desc', home_section_1, home_section_2, home_section_3 }) => {
         try {
           const cacheParams = {
             page,
@@ -66,7 +66,10 @@ export const realProductsApi = createApi({
             in_stock,
             sort_by: sort_by as 'name' | 'price_1' | 'date_added' | 'metric' | undefined,
             sort_order: sort_order as 'asc' | 'desc' | undefined,
-            limit
+            limit,
+            home_section_1,
+            home_section_2,
+            home_section_3
           };
           
           // Use CacheApiService for cache-first data fetching

@@ -27,6 +27,9 @@ export class ApiService {
     sort_by?: 'name' | 'price_1' | 'date_added' | 'metric';
     sort_order?: 'asc' | 'desc';
     limit?: number;
+    home_section_1?: string; // Filter for Flash Sales section
+    home_section_2?: string; // Filter for Super Buyer section
+    home_section_3?: string; // Filter for Top Products section
   } = {}): Promise<PaginatedResponse<ProductModel>> {
     try {
       const { page = 1, in_stock, ...otherFilters } = params;
@@ -35,6 +38,17 @@ export class ApiService {
       // Convert boolean to string for API
       if (in_stock !== undefined) {
         filters.in_stock = in_stock ? 1 : 0;
+      }
+      
+      // Debug logging for home section filtering
+      if (params.home_section_1 || params.home_section_2 || params.home_section_3) {
+        const sectionType = params.home_section_1 ? 'FLASH_DEALS' : 
+                           params.home_section_2 ? 'SUPER_BUYER' : 'TOP_PRODUCTS';
+        console.log(`🔧 DEBUG: ApiService.getProducts called with ${sectionType}`, {
+          originalParams: params,
+          filtersToSend: filters,
+          page
+        });
       }
       
       return await ProductModel.fetchProducts(page, filters);

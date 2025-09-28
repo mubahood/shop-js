@@ -94,6 +94,55 @@ export const PRODUCT_CONFIG = {
 } as const;
 
 // ===================================================================
+// PAYMENT & ORDER SETTINGS
+// ===================================================================
+
+export const PAYMENT_CONFIG = {
+  GATEWAYS: {
+    PESAPAL: 'pesapal',
+    STRIPE: 'stripe',
+    MANUAL: 'manual',
+    CASH_ON_DELIVERY: 'cash_on_delivery',
+  },
+  PAYMENT_STATUS: {
+    PENDING: 'PENDING_PAYMENT',
+    COMPLETED: 'COMPLETED',
+    FAILED: 'FAILED',
+    PAY_ON_DELIVERY: 'PAY_ON_DELIVERY',
+    CANCELLED: 'CANCELLED',
+  },
+  PAY_ON_DELIVERY: {
+    ENABLED: true,
+    LABEL: 'Pay on Delivery',
+    DESCRIPTION: 'Pay when your order is delivered to you',
+    ICON: 'bi-cash-coin',
+    DEFAULT_SELECTED: false,
+  }
+} as const;
+
+export const ORDER_CONFIG = {
+  STATES: {
+    PENDING: '0',
+    PROCESSING: '1', 
+    COMPLETED: '2',
+    CANCELLED: '3',
+    FAILED: '4',
+  },
+  STATE_LABELS: {
+    '0': 'Pending',
+    '1': 'Processing',
+    '2': 'Completed', 
+    '3': 'Cancelled',
+    '4': 'Failed',
+  },
+  PAY_ON_DELIVERY_BADGE: {
+    TEXT: 'Pay on Delivery',
+    COLOR: 'success',
+    ICON: 'bi-cash-coin'
+  }
+} as const;
+
+// ===================================================================
 // NOTIFICATION SETTINGS
 // ===================================================================
 

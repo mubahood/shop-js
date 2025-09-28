@@ -8,6 +8,7 @@ import PaymentGatewaySelector from '../components/payment/PaymentGatewaySelector
 import PaymentStatus from '../components/payment/PaymentStatus';
 import ToastService from '../services/ToastService';
 import DynamicBreadcrumb from '../components/shared/DynamicBreadcrumb';
+import { isPayOnDelivery, getPaymentStatusInfo } from '../utils/paymentUtils';
 import './PaymentPage.css';
 
 const PaymentPage: React.FC = () => {
@@ -42,8 +43,13 @@ const PaymentPage: React.FC = () => {
         const orderData = Array.isArray(response.data) ? response.data[0] : response.data;
         setOrder(orderData);
         
+        // Check if this is a pay-on-delivery order
+        if (isPayOnDelivery(orderData)) {
+          setActiveTab('status');
+          ToastService.success('This is a Pay-on-Delivery order. No online payment required!');
+        }
         // Check if payment is already completed
-        if (orderData.payment_confirmation === 'PAID') {
+        else if (orderData.payment_confirmation === 'PAID') {
           setActiveTab('status');
           ToastService.success('This order has already been paid for!');
         }
@@ -75,7 +81,10 @@ const PaymentPage: React.FC = () => {
   };
 
   const handleWhatsApp = () => {
-    const message = `Hello, I would like to pay for order #${orderId}. Please assist me with the payment process.`;
+    const isPayOnDeliveryOrder = order && isPayOnDelivery(order);
+    const message = isPayOnDeliveryOrder
+      ? `Hello, I have a Pay-on-Delivery order #${orderId}. I would like to get updates on my order status and delivery information.`
+      : `Hello, I would like to pay for order #${orderId}. Please assist me with the payment process.`;
     const whatsappUrl = `https://wa.me/${contactNumber.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
@@ -141,9 +150,15 @@ const PaymentPage: React.FC = () => {
           <Col lg={8} md={10}>
             {/* Header */}
             <div className="payment-header text-center mb-4">
-              <h2>Complete Your Payment</h2>
+              <h2>{order && isPayOnDelivery(order) ? 'Order Confirmation' : 'Complete Your Payment'}</h2>
               <p className="text-muted">
                 Order #{orderId} • {order?.customer_name}
+                {order && isPayOnDelivery(order) && (
+                  <span className="d-block mt-1">
+                    <i className="bi bi-cash-coin me-2 text-success"></i>
+                    <span className="badge bg-success">Pay on Delivery</span>
+                  </span>
+                )}
               </p>
             </div>
 
@@ -164,12 +179,30 @@ const PaymentPage: React.FC = () => {
                     <span className="fw-semibold">{parseFloat(order.delivery_amount || '0').toLocaleString('en-UG', { style: 'currency', currency: 'UGX' })}</span>
                   </div>
                   <hr />
-                  <div className="d-flex justify-content-between align-items-center">
-                    <span className="fw-bold">Amount to Pay:</span>
-                    <span className="fw-bold text-primary fs-5">
-                      {parseFloat(order.payable_amount || order.amount || '0').toLocaleString('en-UG', { style: 'currency', currency: 'UGX' })}
-                    </span>
-                  </div>
+                  {isPayOnDelivery(order) ? (
+                    <div className="text-center py-3">
+                      <div className="d-flex justify-content-center align-items-center mb-2">
+                        <i className="bi bi-cash-coin fs-3 text-success me-2"></i>
+                        <span className="badge bg-success fs-6">Pay on Delivery</span>
+                      </div>
+                      <p className="text-muted mb-0">
+                        Payment will be collected when your order is delivered
+                      </p>
+                      <div className="mt-2">
+                        <span className="fw-bold">Amount Due on Delivery:</span>
+                        <span className="fw-bold text-success fs-5 ms-2">
+                          {parseFloat(order.payable_amount || order.amount || '0').toLocaleString('en-UG', { style: 'currency', currency: 'UGX' })}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span className="fw-bold">Amount to Pay:</span>
+                      <span className="fw-bold text-primary fs-5">
+                        {parseFloat(order.payable_amount || order.amount || '0').toLocaleString('en-UG', { style: 'currency', currency: 'UGX' })}
+                      </span>
+                    </div>
+                  )}
                 </Card.Body>
               </Card>
             )}
@@ -178,22 +211,24 @@ const PaymentPage: React.FC = () => {
             <Card className="payment-main-card">
               <Card.Header className="bg-white">
                 <Nav variant="tabs" activeKey={activeTab} onSelect={(k) => setActiveTab(k as any)}>
-                  <Nav.Item>
-                    <Nav.Link eventKey="payment">
-                      <i className="bi bi-credit-card me-2"></i>
-                      Online Payment
-                    </Nav.Link>
-                  </Nav.Item>
+                  {order && !isPayOnDelivery(order) && (
+                    <Nav.Item>
+                      <Nav.Link eventKey="payment">
+                        <i className="bi bi-credit-card me-2"></i>
+                        Online Payment
+                      </Nav.Link>
+                    </Nav.Item>
+                  )}
                   <Nav.Item>
                     <Nav.Link eventKey="status">
                       <i className="bi bi-clock-history me-2"></i>
-                      Payment Status
+                      {order && isPayOnDelivery(order) ? 'Order Status' : 'Payment Status'}
                     </Nav.Link>
                   </Nav.Item>
                   <Nav.Item>
                     <Nav.Link eventKey="contact">
                       <i className="bi bi-telephone me-2"></i>
-                      Contact Payment
+                      Contact Support
                     </Nav.Link>
                   </Nav.Item>
                 </Nav>
@@ -208,7 +243,7 @@ const PaymentPage: React.FC = () => {
                 )}
 
                 {/* Online Payment Tab */}
-                {activeTab === 'payment' && order && (
+                {activeTab === 'payment' && order && !isPayOnDelivery(order) && (
                   <div className="payment-tab">
                     <div className="payment-intro mb-4">
                       <h5>Secure Online Payment</h5>
@@ -225,38 +260,116 @@ const PaymentPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Payment Status Tab */}
+                {/* Payment/Order Status Tab */}
                 {activeTab === 'status' && orderId && (
                   <div className="status-tab">
-                    <div className="status-intro mb-4">
-                      <h5>Payment Status</h5>
-                      <p className="text-muted">
-                        Check the current status of your payment and get real-time updates.
-                      </p>
-                    </div>
+                    {order && isPayOnDelivery(order) ? (
+                      <div className="pay-on-delivery-status">
+                        <div className="status-intro mb-4">
+                          <h5>Order Status</h5>
+                          <p className="text-muted">
+                            Your order is confirmed! Payment will be collected upon delivery.
+                          </p>
+                        </div>
 
-                    <PaymentStatus
-                      orderId={parseInt(orderId)}
-                      trackingId={paymentData?.order_tracking_id}
-                      onStatusUpdate={(status, data) => {
-                        if (status.toUpperCase() === 'COMPLETED') {
-                          // Reload order details to update payment confirmation
-                          loadOrderDetails();
-                        }
-                      }}
-                      showActions={true}
-                      className="mb-4"
-                    />
+                        <div className="pay-on-delivery-info">
+                          <div className="alert alert-success d-flex align-items-center mb-4">
+                            <i className="bi bi-check-circle-fill fs-4 me-3"></i>
+                            <div>
+                              <h6 className="mb-1">Order Confirmed - Pay on Delivery</h6>
+                              <p className="mb-0">No online payment required. Prepare cash for delivery.</p>
+                            </div>
+                          </div>
+
+                          <div className="delivery-info bg-light p-4 rounded">
+                            <h6 className="mb-3">
+                              <i className="bi bi-truck me-2"></i>
+                              Delivery Information
+                            </h6>
+                            <div className="row">
+                              <div className="col-md-6">
+                                <div className="info-item mb-2">
+                                  <strong>Amount Due:</strong>
+                                  <span className="text-success ms-2">
+                                    {parseFloat(order.payable_amount || order.amount || '0').toLocaleString('en-UG', { style: 'currency', currency: 'UGX' })}
+                                  </span>
+                                </div>
+                                <div className="info-item mb-2">
+                                  <strong>Payment Method:</strong>
+                                  <span className="ms-2">Cash on Delivery</span>
+                                </div>
+                              </div>
+                              <div className="col-md-6">
+                                <div className="info-item mb-2">
+                                  <strong>Order Status:</strong>
+                                  <span className="badge bg-primary ms-2">Processing</span>
+                                </div>
+                                <div className="info-item mb-2">
+                                  <strong>Delivery Address:</strong>
+                                  <span className="ms-2 text-muted">As provided during checkout</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="delivery-tips mt-4">
+                            <h6 className="mb-3">
+                              <i className="bi bi-lightbulb me-2"></i>
+                              Delivery Tips
+                            </h6>
+                            <ul className="list-unstyled">
+                              <li className="mb-2">
+                                <i className="bi bi-cash me-2 text-success"></i>
+                                Prepare exact cash amount to avoid delays
+                              </li>
+                              <li className="mb-2">
+                                <i className="bi bi-person-check me-2 text-info"></i>
+                                Be available at delivery address during estimated time
+                              </li>
+                              <li className="mb-2">
+                                <i className="bi bi-telephone me-2 text-warning"></i>
+                                Keep your phone accessible for delivery updates
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="online-payment-status">
+                        <div className="status-intro mb-4">
+                          <h5>Payment Status</h5>
+                          <p className="text-muted">
+                            Check the current status of your payment and get real-time updates.
+                          </p>
+                        </div>
+
+                        <PaymentStatus
+                          orderId={parseInt(orderId)}
+                          trackingId={paymentData?.order_tracking_id}
+                          onStatusUpdate={(status, data) => {
+                            if (status.toUpperCase() === 'COMPLETED') {
+                              // Reload order details to update payment confirmation
+                              loadOrderDetails();
+                            }
+                          }}
+                          showActions={true}
+                          className="mb-4"
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
 
-                {/* Contact Payment Tab */}
+                {/* Contact Support Tab */}
                 {activeTab === 'contact' && (
                   <div className="contact-tab">
                     <div className="contact-intro text-center mb-4">
-                      <h5>Alternative Payment Methods</h5>
+                      <h5>{order && isPayOnDelivery(order) ? 'Order Support' : 'Payment Support'}</h5>
                       <p className="text-muted">
-                        For assistance with payment or alternative payment methods, contact us directly.
+                        {order && isPayOnDelivery(order) 
+                          ? 'Need help with your order or delivery? Contact us for assistance.'
+                          : 'For assistance with payment or alternative payment methods, contact us directly.'
+                        }
                       </p>
                     </div>
 

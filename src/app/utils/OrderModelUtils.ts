@@ -96,6 +96,7 @@ export class OrderModelUtils {
       stripe_url: order?.stripe_url || '',
       stripe_paid: order?.stripe_paid || '',
       items: order?.items || '',
+      pay_on_delivery: order?.pay_on_delivery || false,
     };
   }
 

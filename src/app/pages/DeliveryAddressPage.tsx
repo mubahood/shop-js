@@ -381,12 +381,7 @@ const DeliveryAddressPage: React.FC = () => {
     if (!order.customer_phone_number_1 || order.customer_phone_number_1.length < 10) {
       newErrors.customer_phone_number_1 = 'Please enter a valid phone number';
     }
-
-    // Check if phone starts with +
-    if (order.customer_phone_number_1 && order.customer_phone_number_1.startsWith('+')) {
-      newErrors.customer_phone_number_1 = 'Phone number should not start with +';
-    }
-
+ 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };

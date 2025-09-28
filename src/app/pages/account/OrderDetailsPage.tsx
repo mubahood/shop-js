@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { OrderModel } from '../../models/OrderModel';
 import { formatPrice } from '../../utils';
 import ToastService from '../../services/ToastService';
+import { isPayOnDelivery } from '../../utils/paymentUtils';
 
 const OrderDetailsPage: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
@@ -121,6 +122,12 @@ const OrderDetailsPage: React.FC = () => {
       return;
     }
     
+    // Check if this is a pay-on-delivery order
+    if (order && isPayOnDelivery(order)) {
+      ToastService.info('This is a Pay-on-Delivery order. Payment will be collected upon delivery.');
+      return;
+    }
+    
     // Redirect to integrated payment page
     navigate(`/payment/${order?.id}`);
   };
@@ -235,10 +242,10 @@ const OrderDetailsPage: React.FC = () => {
                   fontSize: 'var(--font-size-xs)',
                   fontWeight: 'var(--font-weight-medium)',
                   borderRadius: 'var(--border-radius)',
-                  backgroundColor: order.isPaid() ? 'var(--success-color)' : 'var(--danger-color)',
+                  backgroundColor: isPayOnDelivery(order) ? 'var(--warning-color)' : (order.isPaid() ? 'var(--success-color)' : 'var(--danger-color)'),
                   color: 'var(--white)'
                 }}>
-                  {order.isPaid() ? 'Paid' : 'Not Paid'}
+                  {isPayOnDelivery(order) ? 'Pay on Delivery' : (order.isPaid() ? 'Paid' : 'Not Paid')}
                 </span>
               </div>
               <div style={{
@@ -260,29 +267,88 @@ const OrderDetailsPage: React.FC = () => {
                         {/* Pay Button */}
             {!order.isPaid() && (
               <div>
-                <button 
-                  className="acc-btn acc-btn-primary acc-btn-lg"
-                  onClick={handlePayOrder}
-                  style={{
-                    padding: 'var(--spacing-3) var(--spacing-6)',
-                    fontSize: 'var(--font-size-lg)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 'var(--spacing-2)',
-                    margin: '0 auto'
-                  }}
-                >
-                  <i className="bi bi-credit-card"></i>
-                  PAY NOW
-                </button>
-                <p style={{
-                  textAlign: 'center',
-                  marginTop: 'var(--spacing-2)',
-                  fontSize: 'var(--font-size-sm)',
-                  color: 'var(--text-color-medium)'
-                }}>
-                  Secure payment with Pesapal
-                </p>
+                {isPayOnDelivery(order) ? (
+                  <div>
+                    <div style={{
+                      textAlign: 'center',
+                      padding: 'var(--spacing-4)',
+                      backgroundColor: 'var(--warning-light)',
+                      borderRadius: 'var(--border-radius)',
+                      border: '1px solid var(--warning-color)',
+                      marginBottom: 'var(--spacing-3)'
+                    }}>
+                      <i className="bi bi-cash-coin" style={{
+                        fontSize: '2rem',
+                        color: 'var(--warning-color)',
+                        marginBottom: 'var(--spacing-2)'
+                      }}></i>
+                      <h4 style={{
+                        margin: '0 0 var(--spacing-1) 0',
+                        color: 'var(--warning-color)',
+                        fontSize: 'var(--font-size-lg)'
+                      }}>
+                        Pay on Delivery
+                      </h4>
+                      <p style={{
+                        margin: 0,
+                        color: 'var(--text-color-medium)',
+                        fontSize: 'var(--font-size-sm)'
+                      }}>
+                        Payment will be collected when your order is delivered. Please prepare exact cash amount.
+                      </p>
+                    </div>
+                    
+                    <button 
+                      className="acc-btn acc-btn-secondary acc-btn-lg"
+                      onClick={() => navigate(`/payment/${order?.id}`)}
+                      style={{
+                        padding: 'var(--spacing-3) var(--spacing-6)',
+                        fontSize: 'var(--font-size-lg)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 'var(--spacing-2)',
+                        margin: '0 auto'
+                      }}
+                    >
+                      <i className="bi bi-eye"></i>
+                      VIEW ORDER STATUS
+                    </button>
+                    <p style={{
+                      textAlign: 'center',
+                      marginTop: 'var(--spacing-2)',
+                      fontSize: 'var(--font-size-sm)',
+                      color: 'var(--text-color-medium)'
+                    }}>
+                      Track your delivery and get updates
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <button 
+                      className="acc-btn acc-btn-primary acc-btn-lg"
+                      onClick={handlePayOrder}
+                      style={{
+                        padding: 'var(--spacing-3) var(--spacing-6)',
+                        fontSize: 'var(--font-size-lg)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 'var(--spacing-2)',
+                        margin: '0 auto'
+                      }}
+                    >
+                      <i className="bi bi-credit-card"></i>
+                      PAY NOW
+                    </button>
+                    <p style={{
+                      textAlign: 'center',
+                      marginTop: 'var(--spacing-2)',
+                      fontSize: 'var(--font-size-sm)',
+                      color: 'var(--text-color-medium)'
+                    }}>
+                      Secure payment with Pesapal
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>

@@ -207,12 +207,13 @@ const DealsSection: React.FC = () => {
   // Create a ref for the deals container
   const dealsContainerRef = useRef<HTMLDivElement>(null);
 
-  // Fetch products for Flash Sales section
+  // Fetch products for Flash Sales section - only products with home_section_1 = 'Yes'
   const { data: productsResponse, isLoading, error } = useGetProductsQuery({
     page: 1,
     limit: 12,
     sort_by: 'created_at',
-    sort_order: 'desc'
+    sort_order: 'desc',
+    home_section_1: 'Yes'  // Only fetch products marked for Flash Sales section
   });
 
   const products = productsResponse?.data || [];

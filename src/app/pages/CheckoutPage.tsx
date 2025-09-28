@@ -9,6 +9,8 @@ import ToastService from '../services/ToastService';
 import { http_post } from '../services/Api';
 import { OrderModelUtils } from '../utils/OrderModelUtils';
 import DynamicBreadcrumb from '../components/shared/DynamicBreadcrumb';
+import { PAYMENT_CONFIG } from '../constants';
+
 
 // Inline styles for CheckoutPage following the unified design system
 const checkoutPageStyles = `
@@ -356,6 +358,84 @@ const checkoutPageStyles = `
       width: calc(100% - 40px);
     }
   }
+
+  /* Payment Method Styles */
+  .payment-method-section {
+    width: 100%;
+  }
+
+  .payment-option {
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 16px;
+    margin: 0;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    background: var(--white);
+  }
+
+  .payment-option:hover {
+    border-color: var(--primary-color);
+    background: var(--background-light);
+  }
+
+  .payment-option input[type="radio"]:checked + label .payment-option,
+  .payment-option:has(input[type="radio"]:checked) {
+    border-color: var(--primary-color);
+    background: rgba(13, 110, 253, 0.05);
+    box-shadow: 0 0 0 1px rgba(13, 110, 253, 0.1);
+  }
+
+  .payment-option .form-check-input {
+    margin-top: 0.2em;
+    transform: scale(1.1);
+  }
+
+  .payment-option .form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+
+  .payment-option label {
+    cursor: pointer;
+    margin-bottom: 0;
+    padding: 4px 0;
+  }
+
+  .payment-option strong {
+    font-weight: 600;
+    color: var(--text-color-dark);
+  }
+
+  .payment-option .small {
+    color: var(--text-color-medium);
+    font-size: 0.875rem;
+  }
+
+  .payment-option i {
+    font-size: 1.1rem;
+  }
+
+  /* Mobile responsiveness for payment options */
+  @media (max-width: 768px) {
+    .payment-option {
+      padding: 12px;
+    }
+    
+    .payment-method-header h5 {
+      font-size: 1.1rem;
+    }
+    
+    .payment-option .d-flex {
+      flex-direction: column;
+      align-items: flex-start !important;
+    }
+    
+    .payment-option .d-flex .bi-check-circle-fill {
+      align-self: flex-end;
+      margin-top: -24px;
+    }
+  }
 `;
 
 interface LocationState {
@@ -386,6 +466,7 @@ const CheckoutPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [payOnDelivery, setPayOnDelivery] = useState<boolean>(PAYMENT_CONFIG.PAY_ON_DELIVERY.DEFAULT_SELECTED);
 
   // Calculate totals with safety checks
   const cartTotal = parseFloat(getFormattedTotal().replace(/[^0-9.-]+/g, '')) || 0;
@@ -447,6 +528,9 @@ const CheckoutPage: React.FC = () => {
       deliveryData.phone_number_2 = order.customer_phone_number_2 || order.customer_phone_number_1;
       deliveryData.phone_number_1 = order.customer_phone_number_1;
       deliveryData.phone_number = deliveryData.phone_number_1;
+      
+      // Add pay on delivery flag
+      deliveryData.pay_on_delivery = payOnDelivery;
 
       // Submit order to API with exact same structure as Dart
       const response = await http_post('orders-create', {
@@ -484,17 +568,33 @@ const CheckoutPage: React.FC = () => {
       // Clear cart after successful order submission (like Dart: await CartItem.deleteAll())
       await clearCart();
 
-      ToastService.success('Order submitted successfully!', { autoClose: 4000 });
-
-      // Navigate to payment page for immediate payment processing
-      navigate(`/payment/${createdOrder.id}`, { 
-        state: { 
-          orderSuccess: true, 
-          orderId: createdOrder.id,
-          order: createdOrder,
-          paymentUrl: OrderModelUtils.getPaymentLink(createdOrder)
-        } 
-      });
+      // Check payment method and redirect accordingly
+      if (payOnDelivery) {
+        ToastService.success('Order submitted successfully! You will pay when the order is delivered.', { autoClose: 5000 });
+        
+        // Redirect to orders page for pay-on-delivery orders
+        navigate('/account/orders', { 
+          state: { 
+            orderSuccess: true, 
+            orderId: createdOrder.id,
+            order: createdOrder,
+            payOnDelivery: true,
+            message: 'Your Pay-on-Delivery order has been placed successfully!'
+          } 
+        });
+      } else {
+        ToastService.success('Order submitted successfully! Redirecting to payment...', { autoClose: 4000 });
+        
+        // Navigate to payment page for online payment processing
+        navigate(`/payment/${createdOrder.id}`, { 
+          state: { 
+            orderSuccess: true, 
+            orderId: createdOrder.id,
+            order: createdOrder,
+            paymentUrl: OrderModelUtils.getPaymentLink(createdOrder)
+          } 
+        });
+      }
 
     } catch (error: any) {
       setErrorMessage(error.message || 'Failed to submit order');
@@ -572,6 +672,94 @@ const CheckoutPage: React.FC = () => {
                   {formatPrice(order?.delivery_amount || "0")}
                 </div>
               </div>
+              
+              {/* Payment Method Selection */}
+              <div className="summary-item" style={{ padding: 'var(--spacing-4)', backgroundColor: 'var(--background-light)', borderRadius: 'var(--border-radius)', margin: 'var(--spacing-3) 0' }}>
+                <div className="payment-method-section">
+                  <div className="payment-method-header mb-3">
+                    <h5 className="mb-1 d-flex align-items-center gap-2">
+                      <i className="bi bi-credit-card fs-5 text-primary"></i>
+                      Payment Method
+                    </h5>
+                    <p className="text-muted mb-0 small">Choose how you want to pay for your order</p>
+                  </div>
+                  
+                  <div className="payment-options">
+                    {/* Pay Online Option */}
+                    <div className="form-check payment-option mb-3">
+                      <input
+                        className="form-check-input"
+                        type="radio"
+                        name="paymentMethod"
+                        id="payOnline"
+                        checked={!payOnDelivery}
+                        onChange={() => {
+                          setPayOnDelivery(false);
+                          setErrorMessage('');
+                        }}
+                      />
+                      <label className="form-check-label w-100" htmlFor="payOnline">
+                        <div className="d-flex align-items-center justify-content-between">
+                          <div className="d-flex align-items-center gap-2">
+                            <i className="bi bi-credit-card text-primary"></i>
+                            <div>
+                              <strong>Pay Online</strong>
+                              <div className="small text-muted">Mobile Money, Credit Card, Bank Transfer</div>
+                            </div>
+                          </div>
+                          {!payOnDelivery && (
+                            <i className="bi bi-check-circle-fill text-success"></i>
+                          )}
+                        </div>
+                      </label>
+                    </div>
+
+                    {/* Pay on Delivery Option */}
+                    <div className="form-check payment-option">
+                      <input
+                        className="form-check-input"
+                        type="radio"
+                        name="paymentMethod"
+                        id="payOnDelivery"
+                        checked={payOnDelivery}
+                        onChange={() => {
+                          setPayOnDelivery(true);
+                          setErrorMessage('');
+                        }}
+                      />
+                      <label className="form-check-label w-100" htmlFor="payOnDelivery">
+                        <div className="d-flex align-items-center justify-content-between">
+                          <div className="d-flex align-items-center gap-2">
+                            <i className={`${PAYMENT_CONFIG.PAY_ON_DELIVERY.ICON} text-success`}></i>
+                            <div>
+                              <strong>{PAYMENT_CONFIG.PAY_ON_DELIVERY.LABEL}</strong>
+                              <div className="small text-muted">{PAYMENT_CONFIG.PAY_ON_DELIVERY.DESCRIPTION}</div>
+                            </div>
+                          </div>
+                          {payOnDelivery && (
+                            <i className="bi bi-check-circle-fill text-success"></i>
+                          )}
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  {payOnDelivery && (
+                    <div className="pay-on-delivery-notice mt-3 p-3 bg-success bg-opacity-10 border border-success border-opacity-25 rounded">
+                      <div className="d-flex align-items-start gap-2">
+                        <i className="bi bi-info-circle text-success mt-1"></i>
+                        <div>
+                          <strong>Cash on Delivery Selected</strong>
+                          <p className="mb-0 small text-muted">
+                            You will pay for this order when it's delivered to you. Please prepare exact cash amount.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
               <div className="summary-divider-bold"></div>
               {/* Total */}
               <div className="summary-item summary-total">
@@ -613,7 +801,7 @@ const CheckoutPage: React.FC = () => {
                     {isSubmitting ? 'Submitting Order...' : 'Loading...'}
                   </>
                 ) : (
-                  'Submit Order'
+                  payOnDelivery ? 'Place Order (Pay on Delivery)' : 'Submit Order & Proceed to Payment'
                 )}
               </Button>
             </div>

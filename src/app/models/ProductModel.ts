@@ -313,6 +313,17 @@ export class ProductModel {
         ...params
       });
       
+      // Debug logging for home section filtering
+      if (params.home_section_1 || params.home_section_2 || params.home_section_3) {
+        const sectionType = params.home_section_1 ? 'FLASH_DEALS' : 
+                           params.home_section_2 ? 'SUPER_BUYER' : 'TOP_PRODUCTS';
+        console.log(`🔧 DEBUG: ProductModel.fetchProducts making API call for ${sectionType}`, {
+          params,
+          queryParamsString: queryParams.toString(),
+          fullUrl: `products?${queryParams.toString()}`
+        });
+      }
+      
       const response = await http_get(`products?${queryParams.toString()}`);
       
       // Validate response structure

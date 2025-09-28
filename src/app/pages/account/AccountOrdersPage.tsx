@@ -1,22 +1,37 @@
 // src/app/pages/account/AccountOrdersPage.tsx
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { OrderModel } from '../../models/OrderModel';
 import { formatPrice } from '../../utils';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import ToastService from '../../services/ToastService';
+import { isPayOnDelivery } from '../../utils/paymentUtils';
 
 const AccountOrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<OrderModel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useSelector((state: RootState) => state.auth);
+  const location = useLocation();
 
   useEffect(() => {
     if (user && user.id) {
       loadOrders();
     }
   }, [user]);
+
+  useEffect(() => {
+    // Handle success message from pay-on-delivery checkout
+    const state = location.state as any;
+    if (state && state.orderSuccess && state.payOnDelivery) {
+      ToastService.success(state.message || 'Your Pay-on-Delivery order has been placed successfully!', { 
+        autoClose: 6000 
+      });
+      
+      // Clear the state to prevent showing the message on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   const loadOrders = async () => {
     try {
@@ -189,7 +204,22 @@ const AccountOrdersPage: React.FC = () => {
                           </p>
                         </div>
                         <div style={{ textAlign: 'right' }}>
-                          {getOrderStatusBadge(order.order_state)}
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 'var(--spacing-1)' }}>
+                            {getOrderStatusBadge(order.order_state)}
+                            {isPayOnDelivery(order) && (
+                              <span style={{
+                                padding: 'var(--spacing-1) var(--spacing-2)',
+                                fontSize: 'var(--font-size-xs)',
+                                fontWeight: 'var(--font-weight-medium)',
+                                borderRadius: 'var(--border-radius)',
+                                backgroundColor: 'var(--warning-color)',
+                                color: 'var(--white)',
+                                display: 'inline-block'
+                              }}>
+                                Pay on Delivery
+                              </span>
+                            )}
+                          </div>
                           <div style={{
                             fontSize: 'var(--font-size-lg)',
                             fontWeight: 'var(--font-weight-bold)',
@@ -291,11 +321,11 @@ const AccountOrdersPage: React.FC = () => {
                           View Details
                         </Link>
                         
-                        {/* Payment button for unpaid orders */}
+                        {/* Payment/Status button for unpaid orders */}
                         {!order.isPaid() && (order.order_state === '0' || order.order_state === '1') && (
                           <Link 
                             to={`/payment/${order.id}`}
-                            className="acc-btn acc-btn-primary acc-btn-sm"
+                            className={`acc-btn ${isPayOnDelivery(order) ? 'acc-btn-outline' : 'acc-btn-primary'} acc-btn-sm`}
                             style={{
                               display: 'flex',
                               alignItems: 'center',
@@ -303,8 +333,8 @@ const AccountOrdersPage: React.FC = () => {
                               textDecoration: 'none'
                             }}
                           >
-                            <i className="bi bi-credit-card"></i>
-                            Pay Now
+                            <i className={`bi ${isPayOnDelivery(order) ? 'bi-eye' : 'bi-credit-card'}`}></i>
+                            {isPayOnDelivery(order) ? 'View Status' : 'Pay Now'}
                           </Link>
                         )}
                         

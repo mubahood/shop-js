@@ -6,10 +6,9 @@
  */
 
 .superbuyer-section-wrapper {
-  background-image: url("https://ae-pic-a1.aliexpress-media.com/kf/Sd4b8b26b77d94bd891e89a8665e4b5e47/2424x917.png");
-  background-size: cover;
-  background-position: center top;
-  background-repeat: no-repeat;
+  /* Base gradient background */
+  background: linear-gradient(135deg, #05179F 0%, #041266 100%) !important;
+
   position: relative;
   /* Removed direct padding-left/right here, Container inside will handle that */
   padding-top: 50px; /* Increased top padding for the overall section */
@@ -23,6 +22,29 @@
   /* my-4 from HomePage.tsx will apply outer margin */
 }
 
+/* White grid pattern overlay - crossing lines forming square boxes */
+.superbuyer-section-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    /* Vertical lines */
+    linear-gradient(90deg, transparent 0px, transparent 49px, rgba(255, 255, 255, 0.12) 49px, rgba(255, 255, 255, 0.12) 51px, transparent 51px),
+    /* Horizontal lines */
+    linear-gradient(0deg, transparent 0px, transparent 49px, rgba(255, 255, 255, 0.12) 49px, rgba(255, 255, 255, 0.12) 51px, transparent 51px);
+  background-size: 
+    50px 50px,
+    50px 50px;
+  background-position: 
+    0 0,
+    0 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
 .superbuyer-background-overlay {
   position: absolute;
   top: 0;
@@ -31,10 +53,10 @@
   bottom: 0;
   background: linear-gradient(
     to right,
-    rgba(0, 0, 0, 0.75) 0%,
-    rgba(0, 0, 0, 0.45) 50%,
-    rgba(0, 0, 0, 0.1) 100%
-  ); /* Bolder gradient */
+    rgba(0, 0, 0, 0.1) 0%,
+    rgba(0, 0, 0, 0.05) 50%,
+    rgba(0, 0, 0, 0.02) 100%
+  ); /* Much lighter overlay for gradient background */
   z-index: 1;
 }
 
@@ -51,12 +73,15 @@
   align-items: flex-start; /* Align content to the top within this flex container */
   padding-bottom: 60px; /* More space between banner content and highlight cards */
   flex-wrap: wrap;
+  gap: 20px; /* Add gap between left and right sections on mobile */
 }
 
 .superbuyer-banner-left {
   color: var(--white);
   max-width: 480px;
   padding-right: 30px;
+  flex: 1;
+  min-width: 280px;
   /* Removed fixed margin-bottom from here; controlled by flex/gap/component margins */
 }
 
@@ -84,8 +109,8 @@
 .superbuyer-shop-now-btn {
   background: linear-gradient(
     to right,
-    var(--primary-color-light),
-    var(--primary-color)
+    var(--accent-color-light),
+    var(--accent-color)
   );
   color: var(--white);
   font-weight: 700;
@@ -95,7 +120,7 @@
   box-shadow: var(--shadow-md);
 }
 .superbuyer-shop-now-btn:hover {
-  background: linear-gradient(to right, var(--primary-color), var(--primary-color-dark)); /* Consistent gradient on hover */
+  background: linear-gradient(to right, var(--accent-color), var(--accent-color-dark)); /* Accent color gradient on hover */
   box-shadow: var(--shadow-lg);
   transform: translateY(-4px);
 }
@@ -108,6 +133,8 @@
   text-align: left;
   max-width: 420px;
   padding-left: 30px;
+  flex: 1;
+  min-width: 280px;
 }
 
 .superbuyer-stat-item {
@@ -258,24 +285,27 @@
 /* --- Responsive Adjustments for SuperBuyer Section --- */
 @media (max-width: 991.98px) {
   .superbuyer-section-wrapper {
-    padding: 30px;
-    background-position: center 20%;
-  }
-  .superbuyer-background-overlay {
-    background: linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, 0.75) 0%,
-      rgba(0, 0, 0, 0.3) 100%
-    );
+    padding: 30px 20px;
   }
   .superbuyer-banner-content-area {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
     padding-bottom: 30px;
+    gap: 25px;
   }
   .superbuyer-banner-left {
-    margin-bottom: 25px;
+    max-width: 100%;
+    padding-right: 0;
+    margin-bottom: 0;
+  }
+  .superbuyer-stats {
+    max-width: 100%;
+    padding-left: 0;
+    justify-self: center;
   }
   .superbuyer-title {
-    font-size: 3.5rem; /* Larger on tablet than previous mobile */
+    font-size: 3.5rem;
   }
   .superbuyer-shop-now-btn {
     padding: 12px 25px;
@@ -299,15 +329,28 @@
 }
 
 @media (max-width: 767.98px) {
+  .superbuyer-section-wrapper {
+    padding-top: 25px;
+    padding-bottom: 25px;
+  }
+  .superbuyer-banner-content-area {
+    padding-bottom: 30px;
+  }
   .superbuyer-title {
-    font-size: 2.8rem; /* Further reduced for smaller tablets */
+    font-size: 2.8rem;
   }
   .superbuyer-features {
     font-size: 14px;
+    justify-content: center;
+  }
+  .superbuyer-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
   .superbuyer-feature-cards-grid .col-md-4 {
     flex: 0 0 100%;
     max-width: 100%;
+    margin-bottom: 15px;
   }
   .superbuyer-feature-card {
     padding: 15px;
@@ -339,19 +382,41 @@
 }
 
 @media (max-width: 575.98px) {
+  .superbuyer-section-wrapper {
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+  .superbuyer-banner-content-area {
+    padding-bottom: 20px;
+    gap: 20px;
+  }
   .superbuyer-title {
-    font-size: 2.2rem; /* Final size for smallest mobiles */
+    font-size: 2.2rem;
+    line-height: 1.1;
+  }
+  .superbuyer-features {
+    font-size: 13px;
+    gap: 10px 15px;
   }
   .superbuyer-shop-now-btn {
     padding: 10px 20px;
     font-size: 0.95rem;
+    width: 100%;
+    max-width: 200px;
   }
   .superbuyer-stats {
     grid-template-columns: 1fr;
     gap: 10px;
   }
   .superbuyer-stat-item {
-    padding: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+  .superbuyer-stat-number {
+    font-size: 1.5rem;
+  }
+  .superbuyer-stat-text {
+    font-size: 11px;
   }
   .superbuyer-mini-product-item {
     flex-basis: 100%;
@@ -367,6 +432,8 @@
     margin-bottom: 0;
     margin-right: 10px;
     flex-shrink: 0;
+    width: 60px;
+    height: 60px;
   }
   .mini-product-pricing {
     flex-direction: row;
@@ -376,5 +443,39 @@
   .mini-product-badge {
     order: 3;
     margin-left: auto;
+  }
+}
+
+/* Extra small mobile phones */
+@media (max-width: 400px) {
+  .superbuyer-section-wrapper {
+    margin: 5px;
+    padding: 15px 10px;
+  }
+  .superbuyer-title {
+    font-size: 1.8rem;
+  }
+  .superbuyer-features {
+    font-size: 12px;
+    gap: 6px 10px;
+  }
+  .superbuyer-features span {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .superbuyer-shop-now-btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+  .superbuyer-stat-item {
+    padding: 10px;
+  }
+  .superbuyer-stat-number {
+    font-size: 1.4rem;
+  }
+  .superbuyer-stat-text {
+    font-size: 11px;
   }
 }

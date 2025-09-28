@@ -15,7 +15,7 @@
 @import "../components/shared/ProductCard2.css";
 
 /* 4. HomePage Components */
-/* Inline styles moved to respective components */
+@import "../components/HomePage/SuperBuyerSection.css";
 
 /* 6. Global Utility Classes and Overrides */
 
