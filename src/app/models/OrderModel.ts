@@ -43,6 +43,7 @@ export class OrderModel {
   delivery_amount: string = "";
   payable_amount: string = "";
   items: string = "";
+  pay_on_delivery: boolean = false;
 
   /**
    * Returns 13% tax as a string, based on the provided value.
