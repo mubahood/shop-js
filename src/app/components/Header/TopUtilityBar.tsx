@@ -1,13 +1,15 @@
 // src/app/components/Header/TopUtilityBar.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
+import ThemeToggle from '../shared/ThemeToggle';
 
 const TopUtilityBar: React.FC = () => {
   return (
     // Outer div for full-width background, hidden on mobile
     <div className="top-utility-bar-wrapper d-none d-lg-block">
       {/* Inner div to constrain content */}
-      <div className="container d-flex justify-content-end align-items-center py-1">
+      <div className="container d-flex justify-content-end align-items-center py-1 gap-3">
+        <ThemeToggle className="btn-outline-secondary border-0" />
         <Link to="/sell" className="utility-link">Sell on BlitXpress</Link>
         <Link to="/buyer-protection" className="utility-link">Buyer Protection</Link>
         <Link to="/help" className="utility-link">Help</Link>

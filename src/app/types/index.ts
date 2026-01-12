@@ -91,6 +91,7 @@ export interface ProductCardProps {
   product: ProductWithExtras;
   className?: string;
   showStock?: boolean;
+  variant?: 'default' | 'flash-sales';
 }
 
 export interface SectionHeaderProps {

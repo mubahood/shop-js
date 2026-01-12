@@ -4,7 +4,8 @@
 
 .homepage-container {
   background: var(--background-body, #ffffff);
-  min-height: 100vh;
+  padding-bottom: 0;
+  margin-bottom: 0;
 }
 
 .homepage-section {

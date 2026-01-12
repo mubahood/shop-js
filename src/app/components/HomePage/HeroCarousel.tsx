@@ -207,13 +207,22 @@ const HeroCarousel: React.FC = () => {
   const categories = useManifestCategories();
   const { isLoading, error } = useManifest();
 
+  // Banner image used in SearchAndCategorySection - exclude from carousel
+  const excludedBannerImage = 'f124a471fc367a999e8bd6f5a1a587bd.jpg';
+
   // Filter categories that have show_in_banner = "Yes" exactly like Flutter
+  // Also exclude categories that use the same banner image as the static banner
   const bannerCategories =
     categories?.filter((cat) => {
       const showInBanner =
         cat.show_in_banner?.toString().toLowerCase() === "yes";
       const hasBannerImage = cat.banner_image && cat.banner_image.trim() !== "";
-      return showInBanner; // Only check show_in_banner, image is optional
+      
+      // Exclude if this category uses the same banner image as the static banner
+      const usesExcludedImage = cat.banner_image && 
+        cat.banner_image.includes(excludedBannerImage);
+      
+      return showInBanner && !usesExcludedImage; // Only check show_in_banner, image is optional
     }) || [];
 
   if (isLoading) {

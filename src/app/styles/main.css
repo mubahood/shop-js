@@ -19,21 +19,27 @@
 
 /* 6. Global Utility Classes and Overrides */
 
-/* FORCE LIGHT MODE - Disable all dark mode */
+/* Dark mode variables */
 html[data-bs-theme="dark"],
 html[data-theme="dark"],
 [data-bs-theme="dark"],
 [data-theme="dark"] {
-  color-scheme: light !important;
-}
-
-/* Override any dark mode media queries */
-@media (prefers-color-scheme: dark) {
-  html,
-  body,
-  * {
-    color-scheme: light !important;
-  }
+  color-scheme: dark;
+  --background-body: #212121;
+  --background-light: #2a2a2a;
+  --background-muted: #1c1c1c;
+  --bg-light: #2a2a2a;
+  --bg-white: #212121;
+  --bg-muted: #1c1c1c;
+  --white: #212121;
+  --black: #e5e7eb;
+  --text-color-dark: #f1f5f9;
+  --text-color-medium: #d1d5db;
+  --text-color-light: #9ca3af;
+  --border-color: #2f2f2f;
+  --border-color-light: #262626;
+  background-color: var(--background-body);
+  color: var(--text-color-dark);
 }
 
 /* Container improvements */

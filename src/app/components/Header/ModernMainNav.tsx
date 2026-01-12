@@ -102,7 +102,7 @@ const ModernMainNav: React.FC = () => {
               {/* Logo */}
               <Link to="/" className="mobile-logo-wrapper">
                 <img
-                  src="/media/logos/logo.png"
+                  src="/media/logos/logo-1.png"
                   alt="Blitxpress"
                   className="mobile-logo"
                 />
@@ -182,7 +182,7 @@ const ModernMainNav: React.FC = () => {
           {/* Desktop Logo */}
           <Link to="/" className="logo-wrapper me-4">
             <img
-              src="/media/logos/logo.png"
+              src="/media/logos/logo-1.png"
               alt="Blitxpress"
               className="main-logo"
             />
@@ -362,7 +362,7 @@ const ModernMainNav: React.FC = () => {
         <div className="offcanvas-header">
           <div className="offcanvas-logo">
             <OptimizedLazyImage 
-              src="/media/logos/logo.png" 
+              src="/media/logos/logo-1.png" 
               alt="Blitxpress" 
               className="mobile-offcanvas-logo"
               options={{

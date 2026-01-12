@@ -1,0 +1,202 @@
+/* Simple Navbar Styles - Matching Screenshot Design */
+
+.simple-navbar {
+  background: var(--white);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.simple-navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+/* Logo Section */
+.simple-navbar-logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.simple-navbar-logo-img {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Center Section */
+.simple-navbar-center {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  justify-content: center;
+}
+
+.simple-navbar-link {
+  color: var(--text-color-light);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 400;
+  transition: color 0.2s ease;
+}
+
+.simple-navbar-link:hover {
+  color: var(--text-color-dark);
+  text-decoration: none;
+}
+
+.simple-navbar-separator {
+  color: var(--border-color);
+  font-size: 14px;
+  user-select: none;
+}
+
+/* Right Section */
+.simple-navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* Orange Wishlist Button */
+.simple-navbar-wishlist-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ff6b35;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.simple-navbar-wishlist-btn:hover {
+  background: #e55a2b;
+  color: white;
+  text-decoration: none;
+  transform: scale(1.05);
+}
+
+.simple-navbar-wishlist-btn i {
+  font-size: 18px;
+}
+
+/* Orange Cart Button */
+.simple-navbar-cart-btn {
+  min-width: 80px;
+  height: 40px;
+  border-radius: 20px;
+  background: #ff6b35;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-decoration: none;
+  padding: 0 16px;
+  transition: all 0.2s ease;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.simple-navbar-cart-btn:hover {
+  background: #e55a2b;
+  color: white;
+  text-decoration: none;
+  transform: scale(1.02);
+}
+
+.simple-navbar-cart-btn i {
+  font-size: 18px;
+}
+
+.cart-count {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+}
+
+/* Dark Mode Support */
+[data-bs-theme="dark"] .simple-navbar {
+  background: var(--bg-dark, #212121);
+  border-bottom-color: var(--border-color-dark, #333);
+}
+
+[data-bs-theme="dark"] .logo-text {
+  color: var(--text-color-light-dark, #e0e0e0);
+}
+
+[data-bs-theme="dark"] .logo-text strong {
+  color: var(--text-color-dark-dark, #ffffff);
+}
+
+[data-bs-theme="dark"] .simple-navbar-link {
+  color: var(--text-color-light-dark, #b0b0b0);
+}
+
+[data-bs-theme="dark"] .simple-navbar-link:hover {
+  color: var(--text-color-dark-dark, #ffffff);
+}
+
+[data-bs-theme="dark"] .simple-navbar-separator {
+  color: var(--border-color-dark, #444);
+}
+
+/* Responsive Design */
+@media (max-width: 991.98px) {
+  .simple-navbar-center {
+    display: none;
+  }
+  
+  .simple-navbar-container {
+    padding: 10px 15px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .simple-navbar-container {
+    padding: 8px 12px;
+    gap: 12px;
+  }
+  
+  .logo-text {
+    font-size: 16px;
+  }
+  
+  .logo-icon svg {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .simple-navbar-wishlist-btn,
+  .simple-navbar-cart-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    padding: 0 12px;
+  }
+  
+  .simple-navbar-right {
+    gap: 8px;
+  }
+  
+  .simple-navbar-link {
+    font-size: 12px;
+  }
+}
+

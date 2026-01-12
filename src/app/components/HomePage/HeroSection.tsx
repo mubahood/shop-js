@@ -1,6 +1,5 @@
 // src/app/components/HomePage/HeroSection.tsx
 import React from "react";
-import CategoryList from "./CategoryList";
 import HeroCarousel from "./HeroCarousel";
 
 // Inline styles for HeroSection following the unified design system
@@ -20,22 +19,14 @@ const heroSectionStyles = `
     max-width: 100%;
   }
 
-  .hero-categories-col {
-    flex: 0 0 280px;
-    min-height: 400px;
-    min-width: 280px;
-  }
-
   .hero-carousel-col {
     flex: 1;
     min-height: 400px;
     min-width: 0;
+    width: 100%;
   }
 
   @media (max-width: 991.98px) {
-    .hero-categories-col {
-      display: none;
-    }
     .hero-carousel-col{
       min-height: 260px!important; 
       margin-top: 30px!important;
@@ -59,12 +50,7 @@ const HeroSection: React.FC = () => {
       <style dangerouslySetInnerHTML={{ __html: heroSectionStyles }} />
       <section className="hero-section">
         <div className="hero-row">
-          {/* Left Column for Categories */}
-          <div className="hero-categories-col">
-            <CategoryList />
-          </div>
-
-          {/* Right Column for Carousel */}
+          {/* Carousel */}
           <div className="hero-carousel-col">
             <HeroCarousel />
           </div>

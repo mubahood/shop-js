@@ -75,7 +75,7 @@ const SuperBuyerSection: React.FC = () => {
 
   return (
     <>
-      <section className="superbuyer-section-wrapper mt-4 mb-4">
+      <section className="superbuyer-section-wrapper mb-4">
         {/* Primary overlay for the entire section for text readability */}
         <div className="superbuyer-background-overlay"></div>
 
@@ -90,7 +90,7 @@ const SuperBuyerSection: React.FC = () => {
         )}
 
         {/* Content within Bootstrap Container for horizontal alignment */}
-        <Container fluid className={`superbuyer-content-container px-3 px-md-4 ${(isLoading || !isDataReady) ? 'superbuyer-section-skeleton' : ''}`}>
+        <Container className={`superbuyer-content-container ${(isLoading || !isDataReady) ? 'superbuyer-section-skeleton' : ''}`}>
           {/* Top Banner Content Area */}
           <div className={`superbuyer-banner-content-area ${(isLoading || !isDataReady) ? 'superbuyer-skeleton-pulse' : ''}`}>
             {/* Left Content Block */}

@@ -10,16 +10,15 @@
   background: linear-gradient(135deg, #05179F 0%, #041266 100%) !important;
 
   position: relative;
-  /* Removed direct padding-left/right here, Container inside will handle that */
-  padding-top: 50px; /* Increased top padding for the overall section */
-  padding-bottom: 50px; /* Increased bottom padding for the overall section */
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 50px 20px; /* Consistent padding to match search section */
   border-radius: var(--border-radius); /* Apply new minimal radius */
   overflow: hidden;
   box-shadow: var(--shadow-md); /* Stronger shadow for the whole block */
   display: flex;
   flex-direction: column;
   justify-content: center;
-  /* my-4 from HomePage.tsx will apply outer margin */
 }
 
 /* White grid pattern overlay - crossing lines forming square boxes */
@@ -64,7 +63,8 @@
 .superbuyer-content-container {
     position: relative; /* To stack content above overlay */
     z-index: 2; /* Ensures content is above overlay */
-    /* py-2 from component JSX will add inner vertical padding */
+    max-width: 100%;
+    padding: 0 !important; /* Override Bootstrap Container padding to match search section */
 }
 
 .superbuyer-banner-content-area {

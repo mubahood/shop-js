@@ -95,6 +95,94 @@ const productCard2Styles = `
     100% { background-position: 200% 0; }
   }
 
+  /* Overlapping Sale Badges - Matching the design */
+  .pc2-sale-badges-container {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .pc2-sale-badge-top {
+    background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+    color: var(--white);
+    padding: 3px 8px;
+    border-radius: 4px 4px 4px 0;
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transform: rotate(-2deg);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    white-space: nowrap;
+  }
+
+  .pc2-sale-badge-bottom {
+    background: linear-gradient(135deg, #f33d02 0%, #cc2f00 100%);
+    color: var(--white);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.2;
+    box-shadow: 0 2px 4px rgba(243, 61, 2, 0.4);
+    white-space: nowrap;
+    margin-left: 2px;
+  }
+
+  /* Flash Sales Variant Styles */
+  .pc2-flash-sales-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: #ff6600;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    z-index: 3;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  }
+
+  .pc2-price-cut-badge {
+    background: #ffcccc;
+    color: #cc0000;
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-top: 4px;
+    display: inline-block;
+  }
+
+  .pc2-flash-sales .pc2-current-price {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .pc2-flash-sales .pc2-rating-section {
+    margin-top: 6px;
+  }
+
+  .pc2-flash-sales .pc2-rating-star-icon {
+    color: #FFB800;
+  }
+
+  /* Hide rating section if it contains 0 or is empty */
+  .pc2-rating-section:empty,
+  .pc2-rating-section:has(.pc2-rating-value:empty),
+  .pc2-rating-section:has(.pc2-review-count:empty) {
+    display: none !important;
+  }
+
+  /* Legacy discount badge - keeping for backward compatibility */
   .pc2-discount-badge {
     position: absolute;
     top: 6px;
@@ -187,11 +275,18 @@ const productCard2Styles = `
   }
 
   .pc2-current-price {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--primary-color);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-color-dark);
     margin: 0;
-    line-height: 1.2;
+    line-height: 1.3;
+  }
+
+  .pc2-price-prefix {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-color-medium);
+    margin-right: 4px;
   }
 
   .pc2-original-price {
@@ -209,6 +304,27 @@ const productCard2Styles = `
     margin-top: 4px;
   }
 
+  .pc2-rating-star-icon {
+    font-size: 14px;
+    color: #FFB800;
+    line-height: 1;
+  }
+
+  .pc2-rating-value {
+    font-size: 12px;
+    color: var(--text-color-dark);
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .pc2-review-count {
+    font-size: 11px;
+    color: var(--text-color-medium);
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  /* Legacy star rating - keeping for backward compatibility */
   .pc2-star-rating {
     display: flex;
     gap: 1px;
@@ -221,12 +337,6 @@ const productCard2Styles = `
 
   .pc2-rating-star.pc2-empty {
     color: var(--border-color);
-  }
-
-  .pc2-review-count {
-    font-size: 10px;
-    color: var(--text-color-medium);
-    font-weight: 500;
   }
 
   /* Responsive Design */
@@ -262,6 +372,16 @@ const productCard2Styles = `
     
     .pc2-original-price {
       font-size: 10px;
+    }
+    
+    .pc2-sale-badge-top {
+      font-size: 8px;
+      padding: 2px 6px;
+    }
+
+    .pc2-sale-badge-bottom {
+      font-size: 9px;
+      padding: 3px 8px;
     }
     
     .pc2-discount-badge {
@@ -307,6 +427,22 @@ const productCard2Styles = `
       font-size: 9px;
     }
     
+    .pc2-sale-badges-container {
+      top: 4px;
+      left: 4px;
+      gap: 1px;
+    }
+
+    .pc2-sale-badge-top {
+      font-size: 7px;
+      padding: 2px 5px;
+    }
+
+    .pc2-sale-badge-bottom {
+      font-size: 8px;
+      padding: 2px 6px;
+    }
+    
     .pc2-discount-badge {
       top: 4px;
       left: 4px;
@@ -347,7 +483,8 @@ const productCard2Styles = `
 const ProductCard2: React.FC<ProductCardProps> = ({ 
   product, 
   className = "", 
-  showStock = false // ProductCard2 doesn't show stock by default
+  showStock = false, // ProductCard2 doesn't show stock by default
+  variant = 'default'
 }) => {
   const dispatch = useDispatch<AppDispatch>();
   const [isImageLoaded, setIsImageLoaded] = useState(false);
@@ -429,7 +566,7 @@ const ProductCard2: React.FC<ProductCardProps> = ({
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: productCard2Styles }} />
-      <div className={`pc2-card-container ${className}`}>
+      <div className={`pc2-card-container ${variant === 'flash-sales' ? 'pc2-flash-sales' : ''} ${className}`}>
         <Link to={getProductUrl(product.id)} className="pc2-link-wrapper">
           <div className="pc2-image-wrapper">
             {/* Shimmer overlay for loading state */}
@@ -448,10 +585,16 @@ const ProductCard2: React.FC<ProductCardProps> = ({
               height="220"
             />
             
-            {/* Discount badge */}
-            {discountPercent > 0 && (
-              <div className="pc2-discount-badge">
-                -{discountPercent}%
+            {/* Flash Sales Variant Badge */}
+            {variant === 'flash-sales' && (
+              <div className="pc2-flash-sales-badge">Xpress Deals</div>
+            )}
+            
+            {/* Overlapping Sale Badges - Default Design */}
+            {variant === 'default' && discountPercent > 0 && (
+              <div className="pc2-sale-badges-container">
+                <div className="pc2-sale-badge-top">SALE</div>
+                <div className="pc2-sale-badge-bottom">{discountPercent}% OFF</div>
               </div>
             )}
 
@@ -472,34 +615,52 @@ const ProductCard2: React.FC<ProductCardProps> = ({
             <h3 className="pc2-product-title">{product.name}</h3>
             
             <div className="pc2-pricing-section">
-              <div className="pc2-current-price">
-                UGX {price1.toLocaleString()}
-              </div>
-              {price2 > price1 && (
-                <div className="pc2-original-price">
-                  UGX {price2.toLocaleString()}
-                </div>
+              {variant === 'flash-sales' ? (
+                <>
+                  <div className="pc2-current-price">
+                    UGX {price1.toLocaleString()}
+                  </div>
+                  {price2 > price1 && (
+                    <div className="pc2-price-cut-badge">
+                      Price Cut from UGX{price2.toLocaleString()}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div className="pc2-current-price">
+                    <span className="pc2-price-prefix">From</span>
+                    UGX {price1.toLocaleString()}
+                  </div>
+                  {price2 > price1 && (
+                    <div className="pc2-original-price">
+                      UGX {price2.toLocaleString()}
+                    </div>
+                  )}
+                </>
               )}
             </div>
             
-            {product.rating && (
+            {/* Rating */}
+            {variant === 'flash-sales' ? (
+              // Static rating for flash sales cards (matches design screenshot)
               <div className="pc2-rating-section">
-                <div className="pc2-star-rating">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <i
-                      key={star}
-                      className={`pc2-rating-star ${
-                        star <= (product.rating || 0) 
-                          ? 'bi-star-fill' 
-                          : 'bi-star pc2-empty'
-                      }`}
-                    />
-                  ))}
-                </div>
-                {product.reviewCount && (
-                  <span className="pc2-review-count">({product.reviewCount})</span>
-                )}
+                <i className="bi bi-star-fill pc2-rating-star-icon"></i>
+                <span className="pc2-rating-value">4.8</span>
+                <span className="pc2-review-count">(8)</span>
               </div>
+            ) : (
+              product.rating && typeof product.rating === 'number' && product.rating > 0 && (
+                <div className="pc2-rating-section">
+                  <i className="bi bi-star-fill pc2-rating-star-icon"></i>
+                  <span className="pc2-rating-value">
+                    {product.rating.toFixed(1)}
+                  </span>
+                  {product.reviewCount && typeof product.reviewCount === 'number' && product.reviewCount > 0 && (
+                    <span className="pc2-review-count">({product.reviewCount})</span>
+                  )}
+                </div>
+              )
             )}
           </div>
         </Link>

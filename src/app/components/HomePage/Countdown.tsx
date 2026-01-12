@@ -10,38 +10,14 @@ const countdownStyles = `
   .countdown-timer {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-weight: 500;
-    color: var(--text-color-medium);
+    gap: 0;
+    font-weight: 600;
+    color: white;
     font-size: 0.9rem;
-  }
-
-  .countdown-label {
-    color: var(--text-color-medium);
-  }
-
-  .countdown-time-group {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-  }
-
-  .countdown-time-box {
-    background-color: var(--primary-color);
-    color: var(--white);
-    font-weight: 600;
-    padding: 0.25rem 0.5rem;
-    border-radius: var(--border-radius);
-    font-size: 0.85rem;
-    line-height: 1;
-    min-width: 28px;
-    text-align: center;
-  }
-
-  .countdown-separator {
-    color: var(--text-color-medium);
-    font-weight: 600;
-    margin: 0 0.125rem;
+    background: #ff6600;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    white-space: nowrap;
   }
 
   @media (max-width: 767.98px) {
@@ -78,13 +54,13 @@ const countdownStyles = `
 const Countdown: React.FC<CountdownProps> = ({ targetDate }) => {
   const calculateTimeLeft = () => {
     const difference = +targetDate - +new Date();
-    let timeLeft = { hours: 0, minutes: 0, seconds: 0 };
+    let timeLeft = { days: 0, hours: 0, minutes: 0 };
 
     if (difference > 0) {
       timeLeft = {
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
         hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
         minutes: Math.floor((difference / 1000 / 60) % 60),
-        seconds: Math.floor((difference / 1000) % 60),
       };
     }
     return timeLeft;
@@ -108,14 +84,8 @@ const Countdown: React.FC<CountdownProps> = ({ targetDate }) => {
     <>
       <style dangerouslySetInnerHTML={{ __html: countdownStyles }} />
       <div className="countdown-timer">
-        <span className="countdown-label">Ending in:</span>
-        <div className="countdown-time-group">
-          <div className="countdown-time-box">{formatTime(timeLeft.hours)}</div>
-          <span className="countdown-separator">:</span>
-          <div className="countdown-time-box">{formatTime(timeLeft.minutes)}</div>
-          <span className="countdown-separator">:</span>
-          <div className="countdown-time-box">{formatTime(timeLeft.seconds)}</div>
-        </div>
+        {timeLeft.days > 0 && <span>{timeLeft.days} Days </span>}
+        <span>{formatTime(timeLeft.hours)} Hrs: {formatTime(timeLeft.minutes)} Mins Left</span>
       </div>
     </>
   );
