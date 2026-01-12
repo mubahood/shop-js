@@ -12,10 +12,18 @@ const Footer: React.FC = () => {
           <div className="footer-columns">
             {/* Company Information */}
             <div className="footer-column">
-              <h3 className="footer-title text-accent">{APP_NAME}</h3>
+              {/* Brand logo */}
+              <div className="footer-logo-wrapper">
+                <img
+                  src="/media/logos/logo-1.png"
+                  alt={APP_NAME}
+                  className="footer-logo"
+                />
+              </div>
               <p className="footer-description">
-                Uganda's leading e-commerce platform connecting buyers and sellers nationwide. 
-                Shop with confidence and convenience.
+                Modern electronics distributor built on the commitment to make quality technology
+                accessible, affordable, and reliable for everyone. Shop with confidence and
+                convenience.
               </p>
               <div className="footer-contact">
                 <div className="contact-item">
@@ -30,6 +38,37 @@ const Footer: React.FC = () => {
                   <i className="bi bi-whatsapp"></i>
                   <a href={`https://wa.me/${COMPANY_INFO.WHATSAPP.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer">
                     {COMPANY_INFO.WHATSAPP}
+                  </a>
+                </div>
+              </div>
+
+              {/* Download apps section (large store badges) */}
+              <div className="footer-apps-inline">
+                <h4 className="footer-heading-download">Download Our Apps</h4>
+                <div className="footer-store-badges">
+                  <a
+                    href={APP_LINKS.ANDROID}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="store-badge store-badge-google"
+                  >
+                    <img src="/media/bans/playstore.png" alt="Google Play" className="store-badge-icon" />
+                    <span className="store-badge-text">
+                      <span className="store-badge-small">GET IT ON</span>
+                      <span className="store-badge-large">Google Play</span>
+                    </span>
+                  </a>
+                  <a
+                    href={APP_LINKS.IOS}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="store-badge store-badge-apple"
+                  >
+                    <i className="bi bi-apple store-badge-icon" />
+                    <span className="store-badge-text">
+                      <span className="store-badge-small">Download on the</span>
+                      <span className="store-badge-large">App Store</span>
+                    </span>
                   </a>
                 </div>
               </div>
@@ -75,41 +114,45 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        {/* Social Media & Apps Section - Redesigned */}
+        {/* Social Media Section - aligned with screenshot */}
         <div className="footer-secondary">
-          <div className="footer-social-apps">
-            {/* Social Media */}
-            <div className="footer-social">
-              <h5 className="footer-heading-small">Follow Us</h5>
-              <div className="social-links-compact">
-                <a href={SOCIAL_MEDIA.FACEBOOK} target="_blank" rel="noopener noreferrer" className="social-link-compact">
-                  <i className="bi bi-facebook"></i>
-                </a>
-                <a href={SOCIAL_MEDIA.INSTAGRAM} target="_blank" rel="noopener noreferrer" className="social-link-compact">
-                  <i className="bi bi-instagram"></i>
-                </a>
-                <a href={SOCIAL_MEDIA.TWITTER} target="_blank" rel="noopener noreferrer" className="social-link-compact">
-                  <i className="bi bi-twitter-x"></i>
-                </a>
-                <a href={SOCIAL_MEDIA.TIKTOK} target="_blank" rel="noopener noreferrer" className="social-link-compact">
-                  <i className="bi bi-tiktok"></i>
-                </a>
-              </div>
-            </div>
-
-            {/* Mobile Apps */}
-            <div className="footer-apps">
-              <h5 className="footer-heading-small">Download Our Apps</h5>
-              <div className="app-links-compact">
-                <a href={APP_LINKS.IOS} target="_blank" rel="noopener noreferrer" className="app-link-compact">
-                  <i className="bi bi-apple"></i>
-                  <span>iOS App</span>
-                </a>
-                <a href={APP_LINKS.ANDROID} target="_blank" rel="noopener noreferrer" className="app-link-compact">
-                  <i className="bi bi-google-play"></i>
-                  <span>Android App</span>
-                </a>
-              </div>
+          <div className="footer-social-row">
+            <p className="footer-social-text">
+              Follow Us for for More Deals on Social Media
+            </p>
+            <div className="social-links-compact">
+              <a
+                href={SOCIAL_MEDIA.FACEBOOK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-link-compact"
+              >
+                <img src="/media/bans/facebook.svg" alt="Facebook" className="social-icon-img" />
+              </a>
+              <a
+                href={SOCIAL_MEDIA.INSTAGRAM}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-link-compact"
+              >
+                <img src="/media/bans/instagram.svg" alt="Instagram" className="social-icon-img" />
+              </a>
+              <a
+                href={SOCIAL_MEDIA.TWITTER}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-link-compact"
+              >
+                <img src="/media/bans/x-twitter.svg" alt="X (Twitter)" className="social-icon-img" />
+              </a>
+              <a
+                href={SOCIAL_MEDIA.TIKTOK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-link-compact"
+              >
+                <img src="/media/bans/tiktok.svg" alt="TikTok" className="social-icon-img" />
+              </a>
             </div>
           </div>
         </div>

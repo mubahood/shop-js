@@ -2204,23 +2204,17 @@ a.text-primary:hover {
    21. MODERN FOOTER STYLES - ENHANCED PROFESSIONAL DESIGN
    =================================================================== */
 
-/* Modern Footer */
+/* Modern Footer - light, clean layout */
 .modern-footer {
-  background: linear-gradient(135deg, #1a1a1a 0%, var(--text-color-dark) 100%);
-  color: var(--white);
+  background: #ffffff;
+  color: #111111;
   margin-top: var(--spacing-16);
   position: relative;
   overflow: hidden;
 }
 
 .modern-footer::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+  content: none;
 }
 
 /* Footer Main Content */
@@ -2242,23 +2236,22 @@ a.text-primary:hover {
 }
 
 /* Footer Company Info */
-.footer-title {
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--white);
-  margin: 0 0 var(--spacing-4);
-  background: linear-gradient(135deg, var(--white), rgba(255, 255, 255, 0.8));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* Brand logo */
+.footer-logo-wrapper {
+  margin-bottom: var(--spacing-6);
+}
+
+.footer-logo {
+  max-width: 230px;
+  height: auto;
 }
 
 .footer-description {
   font-size: var(--font-size-base);
-  color: rgba(255, 255, 255, 0.85);
+  color: #555555;
   line-height: var(--line-height-relaxed);
   margin: 0 0 var(--spacing-8);
-  max-width: 320px;
+  max-width: 360px;
 }
 
 .footer-contact {
@@ -2289,7 +2282,7 @@ a.text-primary:hover {
 }
 
 .contact-item a {
-  color: rgba(255, 255, 255, 0.9);
+  color: #333333;
   text-decoration: none;
   transition: all 0.2s ease;
   font-weight: var(--font-weight-medium);
@@ -2304,7 +2297,7 @@ a.text-primary:hover {
 .footer-heading {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
-  color: var(--white);
+  color: #111111;
   margin: 0 0 var(--spacing-6);
   position: relative;
   padding-bottom: var(--spacing-2);
@@ -2331,7 +2324,7 @@ a.text-primary:hover {
 }
 
 .footer-link {
-  color: rgba(255, 255, 255, 0.8);
+  color: #555555;
   text-decoration: none;
   font-size: var(--font-size-sm);
   transition: all 0.3s ease;
@@ -2361,25 +2354,32 @@ a.text-primary:hover {
   width: 100%;
 }
 
-/* Footer Secondary Section - Redesigned and Integrated */
+/* Footer Secondary Section - social row */
 .footer-secondary {
   background: transparent;
-  padding: var(--spacing-8) 0 var(--spacing-4);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: var(--spacing-6) 0 var(--spacing-4);
+  border-top: 1px solid #eeeeee;
 }
 
-.footer-social-apps {
+.footer-social-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: var(--spacing-8);
 }
 
+.footer-social-text {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: #333333;
+  font-weight: var(--font-weight-medium);
+}
+
 /* Compact Footer Headings */
 .footer-heading-small {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
-  color: rgba(255, 255, 255, 0.9);
+  color: #333333;
   margin: 0 0 var(--spacing-3);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -2401,24 +2401,113 @@ a.text-primary:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  color: rgba(255, 255, 255, 0.8);
+  width: 38px;
+  height: 38px;
+  color: #111111;
   text-decoration: none;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
   transition: all 0.3s ease;
   font-size: var(--font-size-lg);
 }
 
 .social-link-compact:hover {
-  color: var(--white);
+  color: #ffffff;
   background: var(--accent-color);
   text-decoration: none;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(215, 21, 41, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
   border-color: var(--accent-color);
+}
+
+.social-icon-img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  transition: all 0.3s ease;
+}
+
+.social-link-compact:hover .social-icon-img {
+  filter: brightness(0) invert(1);
+}
+
+/* Large store badges in footer (Download Our Apps) */
+.footer-apps-inline {
+  margin-top: var(--spacing-8);
+}
+
+.footer-heading-download {
+  font-size: 1rem;
+  font-weight: var(--font-weight-bold);
+  color: #111111;
+  margin-bottom: var(--spacing-4);
+}
+
+.footer-store-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+}
+
+.store-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  text-decoration: none;
+  background: #111111;
+  color: #ffffff;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
+}
+
+.store-badge-google {
+  background: #000000;
+}
+
+.store-badge-apple {
+  background: #000000;
+}
+
+.store-badge-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+}
+
+.store-badge-image {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.store-badge-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.store-badge-small {
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.store-badge-large {
+  font-size: 0.95rem;
+  font-weight: var(--font-weight-semibold);
+}
+
+@media (max-width: 575.98px) {
+  .footer-store-badges {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 /* Compact App Links */
@@ -2463,10 +2552,10 @@ a.text-primary:hover {
 
 /* Enhanced Footer Bottom - Full Width */
 .footer-bottom {
-  background: rgba(0, 0, 0, 0.5);
+  background: #f3f3f3;
   padding: var(--spacing-5) 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  margin: 0 -15px; /* Extend beyond container padding */
+  border-top: 1px solid #e0e0e0;
+  margin: 0 -15px; /* Extend beyond container padding to full-width bar */
 }
 
 .footer-bottom-content {
@@ -2485,7 +2574,7 @@ a.text-primary:hover {
 .footer-copyright p {
   margin: 0;
   font-size: var(--font-size-sm);
-  color: rgba(255, 255, 255, 0.7);
+  color: #555555;
   font-weight: var(--font-weight-medium);
 }
 
@@ -2495,7 +2584,7 @@ a.text-primary:hover {
 }
 
 .footer-bottom-link {
-  color: rgba(255, 255, 255, 0.7);
+  color: #555555;
   text-decoration: none;
   font-size: var(--font-size-sm);
   transition: all 0.2s ease;
@@ -2507,7 +2596,7 @@ a.text-primary:hover {
 .footer-bottom-link:hover {
   color: var(--accent-color);
   text-decoration: none;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.03);
 }
 
 /* Enhanced Footer Responsive Design */

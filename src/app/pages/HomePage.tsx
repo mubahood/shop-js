@@ -1,26 +1,34 @@
 // src/app/pages/HomePage.tsx
-import React, { useEffect, useCallback, memo } from "react";
+import React, { useEffect, useCallback, memo, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { Alert } from "react-bootstrap";
-import HeroSection from "../components/HomePage/HeroSection";
-import DealsSection from "../components/HomePage/DealsSection";
+import SearchAndCategorySection from "../components/HomePage/SearchAndCategorySection";
 import SuperBuyerSection from "../components/HomePage/SuperBuyerSection";
-import TopProductsSection from "../components/HomePage/TopProductsSection";
+import DealsSection from "../components/HomePage/DealsSection";
 import ToastService from "../services/ToastService";
 import { useLazyLoad } from "../hooks/useIntersectionObserver";
 import { SEOHead } from "../components/seo";
 import { generateHomePageMetaTags } from "../utils/seo";
+import { useGetProductsQuery } from "../services/realProductsApi";
+import { useManifestCategories } from "../hooks/useManifest";
+import ProductCard2 from "../components/shared/ProductCard2";
 import "./HomePage.css"; // Import the CSS file to ensure mobile gap fixes are applied
 // Inline styles for HomePage following the unified design system
 const homePageStyles = `
   .homepage-container {
     background: var(--background-body);
-    min-height: 100vh;
     padding-top: 0.5rem;
+    padding-bottom: 0;
+    margin-bottom: 0;
   }
 
   .homepage-section {
     padding: 0.25rem 0;
+  }
+
+  /* Reduce spacing for deals section container */
+  .deals-section-container .homepage-section {
+    padding-bottom: 0;
   }
 
   .homepage-section:first-child {
@@ -49,17 +57,147 @@ const homePageStyles = `
     margin: 0 auto;
     padding-left: 20px;
     padding-right: 20px;
+    padding-bottom: 0;
+    margin-bottom: 0;
+  }
+
+  /* Category strips (e.g., Trending in Smartphones) */
+  .category-strip {
+    background: #f3f3f3;
+    border-radius: 10px;
+    padding: 1.25rem 1rem;
+    margin: 0;
+    position: relative;
+  }
+
+  .category-strip-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0 0 1rem 0;
+    color: #111;
+  }
+
+  .category-strip-list {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+    scroll-behavior: smooth;
+  }
+
+  .category-strip-view-all {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    text-decoration: none;
+  }
+
+  .category-strip-view-all:hover {
+    text-decoration: underline;
+  }
+
+  .category-strip-next {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #000000;
+    color: #ffffff;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    z-index: 2;
+    transition: background 0.2s ease;
+  }
+
+  .category-strip-next:hover {
+    background: #333333;
+  }
+
+  .category-strip-next i {
+    color: #ffffff;
+  }
+
+  /* Ensure only ~6 cards visible per row on desktop and avoid squished cards */
+  .category-strip-list .pc2-flash {
+    flex: 0 0 190px; /* fixed card width for nicer spacing */
+  }
+
+  .category-strip-list::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .category-strip-list::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.1);
+    border-radius: 3px;
+  }
+
+  @media (max-width: 1024px) {
+    .category-strip-list .pc2-flash {
+      flex: 0 0 220px; /* slightly wider cards on tablets */
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .category-strip {
+      padding: 1rem 0.75rem;
+      margin: 0 0 1rem 0;
+    }
+
+    .category-strip-title {
+      font-size: 1.25rem;
+    }
+
+    .category-strip-list .pc2-flash {
+      flex: 0 0 70%;
+    }
+
+    .category-strip-next {
+      right: 4px;
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  /* Banner below Flash Sales */
+  .homepage-container .static-banner {
+    height: 400px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  @media (max-width: 767.98px) {
+    .homepage-container .static-banner {
+      height: 250px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .homepage-container .static-banner {
+      height: 200px;
+    }
   }
 
   /* Mobile responsiveness fixes - reduce gaps and center content */
   @media (max-width: 767.98px) {
     .homepage-container {
       padding-top: 0.25rem;
+      padding-bottom: 0 !important;
+      margin-bottom: 0 !important;
     }
     
     .homepage-container .container {
       margin-top: 0 !important;
       padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      margin-bottom: 0 !important;
       padding-left: 10px;
       padding-right: 10px;
     }
@@ -174,27 +312,108 @@ const LazySuperBuyerSection = memo(() => {
   );
 });
 
-const LazyTopProductsSection = memo(() => {
-  const { isIntersecting, ref } = useLazyLoad(0.1, '200px');
-  
-  return (
-    <div ref={ref} className="homepage-section">
-      {isIntersecting ? <TopProductsSection /> : (
-        <div style={{ height: '400px' }} className="d-flex align-items-center justify-content-center">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading top products...</span>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-});
-
 interface LocationState {
   orderSuccess?: boolean;
   orderId?: number;
   paymentUrl?: string;
 }
+
+// Category strip component: fetches products by category name or direct category ID
+const CategoryStrip: React.FC<{ title: string; categoryName?: string; categoryId?: number }> = memo(({ title, categoryName, categoryId: directCategoryId }) => {
+  const categories = useManifestCategories();
+  
+  // Try to find category with multiple variations
+  const findCategoryId = (name: string) => {
+    if (!categories) return undefined;
+    
+    const variations = [
+      name,
+      name.toLowerCase(),
+      name.toUpperCase(),
+      name.charAt(0).toUpperCase() + name.slice(1).toLowerCase(),
+      // Try singular/plural variations
+      name.endsWith('s') ? name.slice(0, -1) : name + 's',
+      name.endsWith('S') ? name.slice(0, -1) : name + 'S',
+    ];
+    
+    for (const variation of variations) {
+      const found = categories.find(
+        (c) => c.category?.toLowerCase() === variation.toLowerCase()
+      );
+      if (found) return found.id;
+    }
+    
+    return undefined;
+  };
+  
+  // Use direct categoryId if provided, otherwise lookup by name
+  const categoryId = directCategoryId || (categoryName ? findCategoryId(categoryName) : undefined);
+  
+  // Debug: Log available categories if no match found
+  useEffect(() => {
+    if (!categoryId && categories && categories.length > 0 && categoryName) {
+      console.log(`Category "${categoryName}" not found. Available categories:`, 
+        categories.map(c => c.category).filter(Boolean).slice(0, 20) // Show first 20
+      );
+    }
+  }, [categoryId, categoryName, categories]);
+  
+  const listRef = useRef<HTMLDivElement>(null);
+
+  const { data, isLoading, error } = useGetProductsQuery({
+    page: 1,
+    limit: (categoryId === 2 || categoryId === 8 || categoryId === 27) ? 24 : 12, // Use limit 24 for Smartphones (category 2), Laptops (category 8), and Laundry (category 27), 12 for others
+    category: categoryId,
+    sort_by: 'created_at',
+    sort_order: 'desc',
+  });
+
+  const products = data?.data || [];
+
+  const scrollRight = useCallback(() => {
+    if (listRef.current) {
+      const cardWidth = 190 + 16; // card width plus gap
+      listRef.current.scrollBy({ left: cardWidth * 3, behavior: 'smooth' });
+    }
+  }, []);
+
+  return (
+    <div className="container" style={{ marginBottom: 0 }}>
+      <div className="category-strip">
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h3 className="category-strip-title mb-0">{title}</h3>
+          {categoryId && (
+            <a
+              href={`/products?category=${categoryId}`}
+              className="category-strip-view-all"
+            >
+              View all
+            </a>
+          )}
+        </div>
+        {isLoading && <div>Loading...</div>}
+        {error && <div style={{ color: 'red' }}>Could not load {title}</div>}
+        {!isLoading && !error && (
+          <>
+            <div className="category-strip-list" ref={listRef}>
+            {products.map((product) => (
+              <ProductCard2
+                key={product.id}
+                product={product}
+                variant="flash-sales"
+                className="pc2-flash"
+              />
+            ))}
+          </div>
+            <button className="category-strip-next" onClick={scrollRight} aria-label="Next">
+              <i className="bi bi-chevron-right" />
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+});
 
 const HomePage: React.FC = () => {
   const location = useLocation();
@@ -231,10 +450,135 @@ const HomePage: React.FC = () => {
     <>
       <SEOHead config={generateHomePageMetaTags()} />
       <style dangerouslySetInnerHTML={{ __html: homePageStyles }} />
-      <div className="homepage-container">
+      
+      {/* Search and Category Section */}
+      <SearchAndCategorySection />
+
+      {/* Deals Section - Right after SearchAndCategorySection */}
+      <div className=" deals-section-container" style={{ paddingTop: 0 }}>
         <div className="container">
-          {/* Order Success Alert */}
-          {state?.orderSuccess && state?.orderId && (
+          <LazyDealsSection />
+        </div>
+      </div>
+
+      {/* Banner Image - Below Flash Sales */}
+      <div style={{ paddingTop: '1rem', paddingBottom: '1rem' }}>
+        <div className="container">
+          <div className="static-banner-wrapper" style={{ padding: '0' }}>
+            <a href="#" className="static-banner-link" style={{ textDecoration: 'none', display: 'block' }}>
+              <div 
+                className="static-banner"
+                style={{
+                  backgroundImage: 'url(https://www.blit.blitxpress.com/storage/images/f124a471fc367a999e8bd6f5a1a587bd.jpg)',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat',
+                  width: '100%',
+                  height: '400px',
+                  borderRadius: '8px',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'transform 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.02)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
+              />
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Category Strips under banner */}
+      <CategoryStrip title="Trending in Smartphones" categoryId={2} />
+      <CategoryStrip title="Trending in Home Electronics" categoryName="Home Appliances" />
+
+      {/* Banner Image - Below Category Strips */}
+      <div style={{ paddingTop: '1rem', paddingBottom: '1rem' }}>
+        <div className="container">
+          <div className="static-banner-wrapper" style={{ padding: '0' }}>
+            <a href="#" className="static-banner-link" style={{ textDecoration: 'none', display: 'block' }}>
+              <div 
+                className="static-banner"
+                style={{
+                  backgroundImage: 'url(https://www.blit.blitxpress.com/storage/images/f124a471fc367a999e8bd6f5a1a587bd.jpg)',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat',
+                  width: '100%',
+                  height: '400px',
+                  borderRadius: '8px',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'transform 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.02)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
+              />
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Category Strips - Below Banner */}
+      <CategoryStrip title="Trending in Button Phones" categoryName="Button Phones" />
+      <CategoryStrip title="Trending in Mobile Accessories" categoryName="Mobile Accessories" />
+
+      {/* Banner Image - Below Category Strips */}
+      <div style={{ paddingTop: '1rem', paddingBottom: '1rem' }}>
+        <div className="container">
+          <div className="static-banner-wrapper" style={{ padding: '0' }}>
+            <a href="#" className="static-banner-link" style={{ textDecoration: 'none', display: 'block' }}>
+              <div 
+                className="static-banner"
+                style={{
+                  backgroundImage: 'url(https://www.blit.blitxpress.com/storage/images/f124a471fc367a999e8bd6f5a1a587bd.jpg)',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat',
+                  width: '100%',
+                  height: '400px',
+                  borderRadius: '8px',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'transform 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.02)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
+              />
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Category Strips - Below Banner */}
+      <CategoryStrip title="Trending in Laptops" categoryId={8} />
+      <CategoryStrip title="Trending in Laundry" categoryId={27} />
+      
+      {/* Order Success Alert */}
+      {state?.orderSuccess && state?.orderId && (
+        <div className="homepage-container">
+          <div className="container">
             <Alert variant="success" className="mb-4">
               <Alert.Heading>🎉 Order Placed Successfully!</Alert.Heading>
               <p>
@@ -263,19 +607,9 @@ const HomePage: React.FC = () => {
                 )}
               </div>
             </Alert>
-          )}
-
-          {/* Hero Section - Always load immediately for LCP */}
-          <div className="homepage-section hero-section-fullwidth">
-            <HeroSection />
           </div>
-          
-          {/* Lazy loaded sections for improved performance */}
-          <LazyDealsSection />
-          <LazySuperBuyerSection />
-          <LazyTopProductsSection />
         </div>
-      </div>
+      )}
     </>
   );
 };
