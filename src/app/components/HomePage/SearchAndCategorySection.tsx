@@ -1,10 +1,12 @@
 // src/app/components/HomePage/SearchAndCategorySection.tsx
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useManifestCategories, useManifest } from '../../hooks/useManifest';
 import { Spinner } from 'react-bootstrap';
 import Utils from '../../utils/imageUtils';
 import FeaturedBrands from './FeaturedBrands';
+import Banner from '../shared/Banner';
+import { useBanners } from '../../hooks/useBanners';
 import './SearchAndCategorySection.css';
 
 const SearchAndCategorySection: React.FC = () => {
@@ -12,9 +14,15 @@ const SearchAndCategorySection: React.FC = () => {
   const navigate = useNavigate();
   const categories = useManifestCategories();
   const { isLoading } = useManifest();
+  const { banners } = useBanners();
   
   // Default banner image URL
   const defaultBannerImage = '/media/bans/banner1.png';
+  
+  // Get first banner for this section (near search and promotional links)
+  const sectionBanner = useMemo(() => {
+    return banners.length > 0 ? banners[0] : null;
+  }, [banners]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,22 +112,14 @@ const SearchAndCategorySection: React.FC = () => {
                 </div>
               </div>
               
-              {/* Static Banner - Below promotional links in white space */}
+              {/* Dynamic Banner - Below promotional links in white space */}
               <div className="static-banner-wrapper">
-                <Link 
-                  to="#" 
-                  className="static-banner-link"
-                >
-                  <div 
-                    className="static-banner"
-                    style={{
-                      backgroundImage: `url(${defaultBannerImage})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      backgroundRepeat: 'no-repeat'
-                    }}
-                  />
-                </Link>
+                <Banner
+                  banner={sectionBanner}
+                  defaultImage={defaultBannerImage}
+                  height="300px"
+                  mobileHeight="200px"
+                />
               </div>
               
               {/* Featured Brands - Below Banner */}

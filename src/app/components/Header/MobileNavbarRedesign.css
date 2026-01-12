@@ -1,0 +1,255 @@
+/* Mobile Navbar Redesign - Completely separate from desktop styles */
+/* Only applies to mobile devices - uses d-lg-none class */
+
+.mobile-nav-redesign {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  z-index: 1030;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: none; /* Hidden by default, shown only on mobile via d-lg-none */
+}
+
+/* Show only on mobile */
+@media (max-width: 991.98px) {
+  .mobile-nav-redesign {
+    display: block !important;
+  }
+}
+
+.mobile-nav-redesign-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  height: 56px;
+  max-width: 100%;
+}
+
+/* Hamburger Menu Button - Left */
+.mobile-nav-redesign-menu-btn {
+  background: none;
+  border: none;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.mobile-nav-redesign-menu-btn:hover {
+  background-color: #f3f4f6;
+}
+
+.mobile-nav-redesign-menu-btn i {
+  font-size: 1.5rem;
+  color: #212529;
+  font-weight: 400;
+}
+
+/* Logo - Centered */
+.mobile-nav-redesign-logo {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  padding: 0 12px;
+}
+
+.mobile-nav-redesign-logo-img {
+  height: 36px;
+  width: auto;
+  object-fit: contain;
+  max-width: 150px;
+}
+
+/* Right Icons Container */
+.mobile-nav-redesign-icons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* Icon Buttons */
+.mobile-nav-redesign-icon-btn {
+  background: none;
+  border: none;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  text-decoration: none;
+  color: #212529;
+  position: relative;
+}
+
+.mobile-nav-redesign-icon-btn:hover {
+  background-color: #f3f4f6;
+  color: #212529;
+  text-decoration: none;
+}
+
+.mobile-nav-redesign-icon-btn i {
+  font-size: 1.25rem;
+  color: #212529;
+}
+
+/* Cart Badge */
+.mobile-nav-redesign-cart-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #d7152a;
+  color: #ffffff;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Mobile Menu Overlay */
+.mobile-nav-redesign-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1031;
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.mobile-nav-redesign-overlay-show {
+  display: block;
+  opacity: 1;
+}
+
+/* Mobile Menu Sidebar */
+.mobile-nav-redesign-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100vh;
+  background: #ffffff;
+  z-index: 1032;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+
+.mobile-nav-redesign-menu-open {
+  transform: translateX(0);
+}
+
+.mobile-nav-redesign-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #ffffff;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.mobile-nav-redesign-menu-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #212529;
+}
+
+.mobile-nav-redesign-menu-close {
+  background: none;
+  border: none;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.mobile-nav-redesign-menu-close:hover {
+  background-color: #f3f4f6;
+}
+
+.mobile-nav-redesign-menu-close i {
+  font-size: 1.25rem;
+  color: #212529;
+}
+
+.mobile-nav-redesign-menu-body {
+  padding: 8px 0;
+}
+
+.mobile-nav-redesign-menu-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  color: #212529;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.mobile-nav-redesign-menu-link:hover {
+  background-color: #f9fafb;
+  color: #212529;
+  text-decoration: none;
+}
+
+.mobile-nav-redesign-menu-link i {
+  font-size: 1.25rem;
+  color: #6b7280;
+  width: 24px;
+  text-align: center;
+}
+
+.mobile-nav-redesign-menu-link span {
+  font-size: 0.95rem;
+  font-weight: 400;
+}
+
+/* Ensure desktop is not affected */
+@media (min-width: 992px) {
+  .mobile-nav-redesign {
+    display: none !important;
+  }
+  
+  .mobile-nav-redesign-overlay,
+  .mobile-nav-redesign-menu {
+    display: none !important;
+  }
+}

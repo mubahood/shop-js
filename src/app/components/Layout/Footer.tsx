@@ -114,8 +114,83 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        {/* Social Media Section - aligned with screenshot */}
-        <div className="footer-secondary">
+        {/* Mobile Footer - Simplified Layout */}
+        <div className="footer-mobile d-lg-none">
+          {/* Download Our Apps Section */}
+          <div className="footer-mobile-apps">
+            <h4 className="footer-mobile-heading">Download Our Apps</h4>
+            <div className="footer-mobile-store-badges">
+              <a
+                href={APP_LINKS.ANDROID}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="store-badge store-badge-google"
+              >
+                <img src="/media/bans/playstore.png" alt="Google Play" className="store-badge-icon" />
+                <span className="store-badge-text">
+                  <span className="store-badge-small">GET IT ON</span>
+                  <span className="store-badge-large">Google Play</span>
+                </span>
+              </a>
+              <a
+                href={APP_LINKS.IOS}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="store-badge store-badge-apple"
+              >
+                <i className="bi bi-apple store-badge-icon" />
+                <span className="store-badge-text">
+                  <span className="store-badge-small">Download on the</span>
+                  <span className="store-badge-large">App Store</span>
+                </span>
+              </a>
+            </div>
+          </div>
+
+          {/* Social Media Section */}
+          <div className="footer-mobile-social">
+            <p className="footer-mobile-social-text">
+              Follow Us for for More Deals on Social Media
+            </p>
+            <div className="footer-mobile-social-icons social-links-compact">
+              <a
+                href={SOCIAL_MEDIA.FACEBOOK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-link-compact"
+              >
+                <img src="/media/bans/facebook.svg" alt="Facebook" className="social-icon-img" />
+              </a>
+              <a
+                href={SOCIAL_MEDIA.INSTAGRAM}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-link-compact"
+              >
+                <img src="/media/bans/instagram.svg" alt="Instagram" className="social-icon-img" />
+              </a>
+              <a
+                href={SOCIAL_MEDIA.TWITTER}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-link-compact"
+              >
+                <img src="/media/bans/x-twitter.svg" alt="X (Twitter)" className="social-icon-img" />
+              </a>
+              <a
+                href={SOCIAL_MEDIA.TIKTOK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-link-compact"
+              >
+                <img src="/media/bans/tiktok.svg" alt="TikTok" className="social-icon-img" />
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop Social Media Section */}
+        <div className="footer-secondary d-none d-lg-block">
           <div className="footer-social-row">
             <p className="footer-social-text">
               Follow Us for for More Deals on Social Media
@@ -161,7 +236,7 @@ const Footer: React.FC = () => {
         <div className="footer-bottom">
           <div className="footer-bottom-content">
             <div className="footer-copyright">
-              <p>&copy; {new Date().getFullYear()} {COMPANY_INFO.NAME}. All rights reserved.</p>
+              <p>&copy; {new Date().getFullYear()} {COMPANY_INFO.NAME}. All Rights Reserved</p>
             </div>
             <div className="footer-bottom-links">
               <Link to="/terms" className="footer-bottom-link">Terms</Link>

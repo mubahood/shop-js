@@ -1,0 +1,34 @@
+/* Banner Component Styles */
+.banner-link {
+  text-decoration: none;
+  display: block;
+  width: 100%;
+}
+
+.banner {
+  width: 100%;
+  border-radius: 0;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.banner:hover {
+  text-decoration: none;
+}
+
+/* Mobile banner styles */
+@media (max-width: 767.98px) {
+  .banner {
+    border-radius: 0;
+  }
+  
+  .mobile-banner {
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    border-radius: 0 !important;
+  }
+}

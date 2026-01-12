@@ -1,10 +1,11 @@
 // src/app/pages/HomePage.tsx
-import React, { useEffect, useCallback, memo, useRef } from "react";
+import React, { useEffect, useCallback, memo, useRef, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { Alert } from "react-bootstrap";
 import SearchAndCategorySection from "../components/HomePage/SearchAndCategorySection";
 import SuperBuyerSection from "../components/HomePage/SuperBuyerSection";
 import DealsSection from "../components/HomePage/DealsSection";
+import FeaturedCategoriesSection from "../components/HomePage/FeaturedCategoriesSection";
 import ToastService from "../services/ToastService";
 import { useLazyLoad } from "../hooks/useIntersectionObserver";
 import { SEOHead } from "../components/seo";
@@ -12,6 +13,9 @@ import { generateHomePageMetaTags } from "../utils/seo";
 import { useGetProductsQuery } from "../services/realProductsApi";
 import { useManifestCategories } from "../hooks/useManifest";
 import ProductCard2 from "../components/shared/ProductCard2";
+import Banner from "../components/shared/Banner";
+import { useBanners } from "../hooks/useBanners";
+import { Banner as BannerType } from "../services/BannerService";
 import "./HomePage.css"; // Import the CSS file to ensure mobile gap fixes are applied
 // Inline styles for HomePage following the unified design system
 const homePageStyles = `
@@ -146,7 +150,7 @@ const homePageStyles = `
 
   @media (max-width: 767.98px) {
     .category-strip {
-      padding: 1rem 0.75rem;
+      padding: 1rem 0;
       margin: 0 0 1rem 0;
     }
 
@@ -181,7 +185,40 @@ const homePageStyles = `
 
   @media (max-width: 480px) {
     .homepage-container .static-banner {
-      height: 200px;
+      height: 300px;
+    }
+  }
+
+  /* Mobile banner - full width edge-to-edge */
+  .mobile-banner-wrapper {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  @media (max-width: 767.98px) {
+    .mobile-banner-wrapper {
+      margin-bottom: 1.5rem;
+    }
+  }
+
+  .mobile-banner {
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    border-radius: 0 !important;
+  }
+
+  /* Category banner wrapper - full width on mobile */
+  .category-banner-wrapper {
+    width: 100%;
+  }
+
+  @media (max-width: 767.98px) {
+    .category-banner-wrapper {
+      padding-top: 1rem !important;
+      padding-bottom: 1rem !important;
     }
   }
 
@@ -418,6 +455,40 @@ const CategoryStrip: React.FC<{ title: string; categoryName?: string; categoryId
 const HomePage: React.FC = () => {
   const location = useLocation();
   const state = location.state as LocationState;
+  const { banners } = useBanners();
+
+  // Default banner images - use same default for both mobile and desktop
+  const defaultBannerImage = 'https://www.blit.blitxpress.com/storage/images/f124a471fc367a999e8bd6f5a1a587bd.jpg';
+
+  // Distribute banners without repeating
+  // SearchAndCategorySection (desktop only) uses banners[0]
+  // For mobile: first banner can use banners[0] since SearchAndCategorySection is not shown
+  // For desktop: start from banners[1] since SearchAndCategorySection uses banners[0]
+  // We need banners for: 1) Mobile top, 2) Desktop after deals, 3) After first category strips, 4) After second category strips
+  const getBannersForPositions = useMemo(() => {
+    if (banners.length === 0) {
+      return [null, null, null, null];
+    }
+
+    // For desktop: start from index 1 since SearchAndCategorySection uses banners[0]
+    // For mobile: we can use banners[0] for the first position
+    const bannerPositions: (BannerType | null)[] = [];
+    for (let i = 0; i < 4; i++) {
+      const bannerIndex = i + 1; // Start from index 1 for desktop positions
+      if (bannerIndex < banners.length) {
+        bannerPositions.push(banners[bannerIndex]);
+      } else {
+        // If we don't have enough banners, use null (will fallback to default)
+        bannerPositions.push(null);
+      }
+    }
+    return bannerPositions;
+  }, [banners]);
+
+  const [banner1, banner2, banner3, banner4] = getBannersForPositions;
+  
+  // For mobile: first banner can use banners[0] since SearchAndCategorySection is desktop-only
+  const mobileBanner1 = banners.length > 0 ? banners[0] : null;
 
   // Optimized success message handler with useCallback
   const handleOrderSuccess = useCallback(() => {
@@ -451,46 +522,40 @@ const HomePage: React.FC = () => {
       <SEOHead config={generateHomePageMetaTags()} />
       <style dangerouslySetInnerHTML={{ __html: homePageStyles }} />
       
-      {/* Search and Category Section */}
+      {/* Search and Category Section - Desktop only */}
       <SearchAndCategorySection />
 
-      {/* Deals Section - Right after SearchAndCategorySection */}
+      {/* Featured Categories Section - Mobile (shown first on mobile) */}
+      <div className="d-lg-none">
+        <FeaturedCategoriesSection />
+      </div>
+
+      {/* Banner Image - Below Featured Categories on Mobile, Below SearchAndCategorySection on Desktop */}
+      <div className="d-lg-none mobile-banner-wrapper" style={{ marginTop: '1rem', marginBottom: '1.5rem' }}>
+        <Banner
+          banner={mobileBanner1 || banner1 || banner2 || banner3 || banner4}
+          defaultImage={defaultBannerImage}
+          className="mobile-banner"
+          height="300px"
+        />
+      </div>
+
+      {/* Deals Section - Right after SearchAndCategorySection on Desktop, after Banner on Mobile */}
       <div className=" deals-section-container" style={{ paddingTop: 0 }}>
         <div className="container">
           <LazyDealsSection />
         </div>
       </div>
 
-      {/* Banner Image - Below Flash Sales */}
-      <div style={{ paddingTop: '1rem', paddingBottom: '1rem' }}>
+      {/* Banner Image - Below Flash Sales on Desktop */}
+      <div className="d-none d-lg-block" style={{ paddingTop: '1rem', paddingBottom: '1rem' }}>
         <div className="container">
           <div className="static-banner-wrapper" style={{ padding: '0' }}>
-            <a href="#" className="static-banner-link" style={{ textDecoration: 'none', display: 'block' }}>
-              <div 
-                className="static-banner"
-                style={{
-                  backgroundImage: 'url(https://www.blit.blitxpress.com/storage/images/f124a471fc367a999e8bd6f5a1a587bd.jpg)',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'no-repeat',
-                  width: '100%',
-                  height: '400px',
-                  borderRadius: '8px',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'transform 0.3s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'scale(1.02)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)';
-                }}
-              />
-            </a>
+            <Banner
+              banner={banner1 || banner2}
+              defaultImage={defaultBannerImage}
+              height="400px"
+            />
           </div>
         </div>
       </div>
@@ -500,36 +565,23 @@ const HomePage: React.FC = () => {
       <CategoryStrip title="Trending in Home Electronics" categoryName="Home Appliances" />
 
       {/* Banner Image - Below Category Strips */}
-      <div style={{ paddingTop: '1rem', paddingBottom: '1rem' }}>
-        <div className="container">
+      <div className="category-banner-wrapper" style={{ paddingTop: '1rem', paddingBottom: '1rem' }}>
+        <div className="d-none d-lg-block container">
           <div className="static-banner-wrapper" style={{ padding: '0' }}>
-            <a href="#" className="static-banner-link" style={{ textDecoration: 'none', display: 'block' }}>
-              <div 
-                className="static-banner"
-                style={{
-                  backgroundImage: 'url(https://www.blit.blitxpress.com/storage/images/f124a471fc367a999e8bd6f5a1a587bd.jpg)',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'no-repeat',
-                  width: '100%',
-                  height: '400px',
-                  borderRadius: '8px',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'transform 0.3s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'scale(1.02)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)';
-                }}
-              />
-            </a>
+            <Banner
+              banner={banner2}
+              defaultImage={defaultBannerImage}
+              height="400px"
+            />
           </div>
+        </div>
+        <div className="d-lg-none">
+          <Banner
+            banner={banner2 || banner3 || banner4 || banner1}
+            defaultImage={defaultBannerImage}
+            className="mobile-banner"
+            height="300px"
+          />
         </div>
       </div>
 
@@ -538,36 +590,23 @@ const HomePage: React.FC = () => {
       <CategoryStrip title="Trending in Mobile Accessories" categoryName="Mobile Accessories" />
 
       {/* Banner Image - Below Category Strips */}
-      <div style={{ paddingTop: '1rem', paddingBottom: '1rem' }}>
-        <div className="container">
+      <div className="category-banner-wrapper" style={{ paddingTop: '1rem', paddingBottom: '1rem' }}>
+        <div className="d-none d-lg-block container">
           <div className="static-banner-wrapper" style={{ padding: '0' }}>
-            <a href="#" className="static-banner-link" style={{ textDecoration: 'none', display: 'block' }}>
-              <div 
-                className="static-banner"
-                style={{
-                  backgroundImage: 'url(https://www.blit.blitxpress.com/storage/images/f124a471fc367a999e8bd6f5a1a587bd.jpg)',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'no-repeat',
-                  width: '100%',
-                  height: '400px',
-                  borderRadius: '8px',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'transform 0.3s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'scale(1.02)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)';
-                }}
-              />
-            </a>
+            <Banner
+              banner={banner3}
+              defaultImage={defaultBannerImage}
+              height="400px"
+            />
           </div>
+        </div>
+        <div className="d-lg-none">
+          <Banner
+            banner={banner3 || banner4 || banner1 || banner2}
+            defaultImage={defaultBannerImage}
+            className="mobile-banner"
+            height="300px"
+          />
         </div>
       </div>
 

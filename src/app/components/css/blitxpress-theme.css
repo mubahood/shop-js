@@ -2504,9 +2504,16 @@ a.text-primary:hover {
 }
 
 @media (max-width: 575.98px) {
-  .footer-store-badges {
+  .footer-store-badges:not(.footer-mobile-store-badges) {
     flex-direction: column;
     align-items: flex-start;
+  }
+  
+  /* Keep mobile footer badges in a row */
+  .footer-mobile-store-badges {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
   }
 }
 
@@ -2556,6 +2563,19 @@ a.text-primary:hover {
   padding: var(--spacing-5) 0;
   border-top: 1px solid #e0e0e0;
   margin: 0 -15px; /* Extend beyond container padding to full-width bar */
+}
+
+@media (max-width: 767.98px) {
+  .footer-bottom {
+    margin: 0;
+    width: 100%;
+    padding: var(--spacing-3) 0;
+  }
+  
+  .footer-bottom-content {
+    margin: 0;
+    max-width: 100%;
+  }
 }
 
 .footer-bottom-content {
@@ -2635,73 +2655,221 @@ a.text-primary:hover {
   }
 }
 
-@media (max-width: 767.98px) {
-  .footer-columns {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-8);
-  }
-  
-  .footer-main {
-    padding: var(--spacing-12) 0 var(--spacing-8);
-  }
-  
-  .footer-secondary {
-    padding: var(--spacing-4) 0;
-  }
-  
-  .footer-social-apps {
+/* Mobile Footer - Simplified Design */
+.footer-mobile {
+  padding: var(--spacing-8) 0;
+  text-align: center;
+}
+
+.footer-mobile-apps {
+  margin-bottom: var(--spacing-8);
+}
+
+.footer-mobile-heading {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: #111111;
+  margin: 0 0 var(--spacing-6);
+  text-align: center;
+}
+
+.footer-mobile-store-badges {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-4);
+  flex-wrap: nowrap;
+}
+
+.footer-mobile-social {
+  margin-top: var(--spacing-8);
+}
+
+.footer-mobile-social-text {
+  margin: 0 0 var(--spacing-6);
+  font-size: var(--font-size-sm);
+  color: #333333;
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+}
+
+.footer-mobile-social-icons {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-4);
+  flex-wrap: wrap;
+}
+
+/* Mobile-specific styling for social icons - using desktop classes but with mobile overrides */
+@media (max-width: 991.98px) {
+  .footer-mobile-social-icons {
+    display: flex !important;
+    justify-content: center;
     gap: var(--spacing-4);
   }
   
-  .app-links-compact {
-    flex-direction: column;
+  .footer-mobile-social-icons .social-link-compact {
+    width: 48px !important;
+    height: 48px !important;
+    border: none !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: visible !important;
+  }
+  
+  .footer-mobile-social-icons .social-icon-img,
+  .footer-mobile-social-icons img {
+    width: 24px !important;
+    height: 24px !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    object-fit: contain !important;
+    position: relative !important;
+    z-index: 1 !important;
+    max-width: 24px !important;
+    max-height: 24px !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
+  }
+  
+  /* Facebook - Blue - First icon */
+  .footer-mobile-social-icons .social-link-compact:nth-of-type(1) {
+    background: #1877F2 !important;
+  }
+  
+  .footer-mobile-social-icons .social-link-compact:nth-of-type(1) .social-icon-img,
+  .footer-mobile-social-icons .social-link-compact:nth-of-type(1) img {
+    filter: brightness(0) invert(1) !important;
+    -webkit-filter: brightness(0) invert(1) !important;
+  }
+  
+  /* Instagram - Gradient - Second icon */
+  .footer-mobile-social-icons .social-link-compact:nth-of-type(2) {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%) !important;
+  }
+  
+  .footer-mobile-social-icons .social-link-compact:nth-of-type(2) .social-icon-img,
+  .footer-mobile-social-icons .social-link-compact:nth-of-type(2) img {
+    filter: brightness(0) invert(1) !important;
+    -webkit-filter: brightness(0) invert(1) !important;
+  }
+  
+  /* X/Twitter - Dark - Third icon */
+  .footer-mobile-social-icons a:nth-of-type(3),
+  .footer-mobile-social-icons .social-link-compact:nth-of-type(3) {
+    background: #000000 !important;
+  }
+  
+  .footer-mobile-social-icons a:nth-of-type(3) img,
+  .footer-mobile-social-icons a:nth-of-type(3) .social-icon-img,
+  .footer-mobile-social-icons .social-link-compact:nth-of-type(3) img,
+  .footer-mobile-social-icons .social-link-compact:nth-of-type(3) .social-icon-img {
+    filter: none !important;
+    -webkit-filter: none !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 24px !important;
+    height: 24px !important;
+    object-fit: contain !important;
+    mix-blend-mode: lighten !important;
+  }
+  
+  /* TikTok - Dark - Fourth icon */
+  .footer-mobile-social-icons a:nth-of-type(4),
+  .footer-mobile-social-icons .social-link-compact:nth-of-type(4) {
+    background: #000000 !important;
+  }
+  
+  .footer-mobile-social-icons a:nth-of-type(4) img,
+  .footer-mobile-social-icons a:nth-of-type(4) .social-icon-img,
+  .footer-mobile-social-icons .social-link-compact:nth-of-type(4) img,
+  .footer-mobile-social-icons .social-link-compact:nth-of-type(4) .social-icon-img {
+    filter: brightness(1.1) contrast(1.1) saturate(1.1) !important;
+    -webkit-filter: brightness(1.1) contrast(1.1) saturate(1.1) !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 24px !important;
+    height: 24px !important;
+    object-fit: contain !important;
+  }
+}
+
+@media (max-width: 767.98px) {
+  /* Hide main footer columns on mobile */
+  .footer-main {
+    display: none;
+  }
+  
+  .footer-mobile {
+    display: block;
+    padding: var(--spacing-6) var(--spacing-4);
+  }
+  
+  .footer-mobile-store-badges {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-3);
+    flex-wrap: nowrap;
+  }
+  
+  .footer-mobile-store-badges .store-badge {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 150px;
+    width: 150px;
+    padding: 0.4rem 0.8rem;
     gap: var(--spacing-2);
   }
   
+  .footer-mobile-store-badges .store-badge-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+  
+  .footer-mobile-store-badges .store-badge-small {
+    font-size: 0.5rem;
+    letter-spacing: 0.05em;
+  }
+  
+  .footer-mobile-store-badges .store-badge-large {
+    font-size: 0.75rem;
+  }
+  
   .footer-bottom {
-    padding: var(--spacing-4) 0;
+    padding: var(--spacing-3) 0;
+    margin: 0;
   }
   
   .footer-bottom-content {
-    flex-direction: column;
-    gap: var(--spacing-3);
-    text-align: center;
-  }
-  
-  .footer-bottom-content {
-    flex-direction: column;
-    gap: var(--spacing-4);
-    text-align: center;
-  }
-  
-  .social-links {
-    grid-template-columns: 1fr;
-  }
-  
-  .footer-title {
-    font-size: var(--font-size-2xl);
-    text-align: center;
-  }
-  
-  .footer-description {
-    text-align: center;
-    margin: 0 auto var(--spacing-6);
-  }
-  
-  .footer-contact {
+    flex-direction: row;
+    justify-content: space-between;
     align-items: center;
+    padding: 0 var(--spacing-4);
+    text-align: left;
   }
   
-  .app-links {
-    gap: var(--spacing-3);
-  }
-  
-  .app-link {
-    padding: var(--spacing-3) var(--spacing-4);
+  .footer-copyright p {
+    font-size: var(--font-size-xs);
+    margin: 0;
   }
   
   .footer-bottom-links {
+    display: flex;
     gap: var(--spacing-4);
+    flex-wrap: wrap;
+  }
+  
+  .footer-bottom-link {
+    font-size: var(--font-size-xs);
+    padding: 0;
   }
 }
 
